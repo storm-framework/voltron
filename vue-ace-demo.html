@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My first Vue app</title>
+
+    <!-- ACE -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.5/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.5/mode-javascript.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.5/theme-textmate.js"></script>
+
+    <!-- VUE -->
+    <script src="https://unpkg.com/vue"></script>
+
+    <!-- BOOTSTRAP -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <!-- VOLTRON -->
+    <link rel="stylesheet" href="voltron.css"/>
+
+  </head>
+  <body>
+    <div class="container">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Group 0</h3>
+        </div>
+        <div class="panel-body">
+          <div id="editor">{{ message }}</div>
+        </div>
+      </div>
+    </div>
+
+     <script>
+      var app = new Vue({
+        el: "#editor",
+        data: {
+          message: "inc :: Int -> Int\ninc x = x + 1"
+        }
+      });
+      
+      var editor = ace.edit("editor");
+      editor.setTheme("ace/theme/textmate");
+      editor.getSession().setMode("ace/mode/haskell");
+    </script>
+  </body>
+</html>
+
