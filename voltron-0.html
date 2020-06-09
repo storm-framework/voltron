@@ -53,80 +53,115 @@
   <div class="container">
     <div class="page-header">
       <div class="row">
-        <!-- <h2>CSE 230: Ranjit Jhala</h2>
-          <p class="lead">Flat and modern</p> -->
-          <div class="col-lg-12 col-md-7 col-sm-6">
-            <h1 class="d-inline">CSE 230</h1>
-            <button type="button" class="btn btn-success btn-lg float-right">Instructor</button>
-            <!-- <p class="lead">Instructor mode</p> -->
-          </div>
+        <div class="col-lg-12 col-md-7 col-sm-6">
+          <h1 class="d-inline">CSE 230</h1>
+          <button type="button" class="btn btn-success btn-lg float-right">Instructor</button>
         </div>
       </div>
-      
-      <br>
-      
-      <div class="row">
+    </div>
+    
+    <br>
+    
+    <div id="editorBuffers" class="row">
+      <!--
         <div class="col-lg-4 col-md-4">
           <div class="card border-primary mb-4" style="max-width: 20rem;">
             <div class="card-header">Group 0</div>
             <div class="card-body">
-              <div id="editor">{{ message }}</div>
+              <div id="editor">{{ message }}</div> 
+              <div id="editor-0">Hello, Editor-0</div>
             </div>
           </div>
         </div>
-        
+      -->
+      
+      <template v-for="item in editorBuffers">
         <div class="col-lg-4 col-md-4">
           <div class="card border-primary mb-4" style="max-width: 20rem;">
-            <div class="card-header">Group 1</div>
+            <div class="card-header"> Group {{ item.id }} </div>
             <div class="card-body">
-              <div id="editor-1">Hello, Editor-1</div>
+              <div v-bind:id="editorDiv(item.id)">{{ item.text }}</div>
             </div>
           </div>
-        </div>
-        
-        
-        <div class="col-lg-4 col-md-4">
-          <div class="card border-primary mb-4" style="max-width: 20rem;">
-            <div class="card-header">Group 2</div>
-            <div class="card-body">
-              <div id="editor-1">Hello, Editor-2</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-4 col-md-4">
-          <div class="card border-primary mb-4" style="max-width: 20rem;">
-            <div class="card-header">Group 3</div>
-            <div class="card-body">
-              <div id="editor-1">Hello, Editor-3</div>
-            </div>
+        </div> 
+      </template>
+      
+      <!-- <div class="col-lg-4 col-md-4">
+        <div class="card border-primary mb-4" style="max-width: 20rem;">
+          <div class="card-header">Group 1</div>
+          <div class="card-body">
+            <div id="editor-1">Hello, Editor-1</div>
           </div>
         </div>
       </div>
-
       
       
+      <div class="col-lg-4 col-md-4">
+        <div class="card border-primary mb-4" style="max-width: 20rem;">
+          <div class="card-header">Group 2</div>
+          <div class="card-body">
+            <div id="editor-1">Hello, Editor-2</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4 col-md-4">
+        <div class="card border-primary mb-4" style="max-width: 20rem;">
+          <div class="card-header">Group 3</div>
+          <div class="card-body">
+            <div id="editor-1">Hello, Editor-3</div>
+          </div>
+        </div>
+      </div> -->
     </div>
+    
+    
     
   </div>
   
-  <script>
-    var app = new Vue({
-      el: "#editor",
-      data: {
-        message: "inc :: Int -> Int\ninc x = x + 1"
-      }
-    });
+</div>
+
+<script>
+  var codeStr = "inc :: Int -> Int\ninc x = x + 1";
+  var codeBuffers = 
+  [ { id : 0, text : "-- Code for group 0\n" }, 
+  { id : 1, text : "-- Code for group 1\n" }, 
+  { id : 2, text : "-- Code for group 2\n" }, 
+  { id : 3, text : "-- Code for group 3\n" }, 
+  { id : 4, text : "-- Code for group 4\n" }, 
+  { id : 5, text : "-- Code for group 5\n" }
+  ];
+  
+  function codeBufferDiv(id){ 
+    return "editor-" + id;
+  }
+  
+  var app = new Vue({
+    el: "#editorBuffers", 
+    data: {
+      message: codeStr, 
+      editorBuffers: codeBuffers 
+    },
+    methods: {
+      editorDiv: codeBufferDiv  
+    }
     
-    var editor = ace.edit("editor");
+  });
+  
+  for (b of codeBuffers) {
+    var bDiv = codeBufferDiv(b.id);
+    var editor = ace.edit(bDiv);
     editor.setTheme("ace/theme/textmate");
     editor.getSession().setMode("ace/mode/haskell");
+    // editor.setValue(codeStr);
     editor.setOptions({
       maxLines: 10,
       minLines: 10 
     });
     
-    
-  </script>
+  }
+  
+  
+</script>
 </body>
 </html>
