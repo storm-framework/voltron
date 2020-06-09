@@ -12,27 +12,79 @@
     <script src="https://unpkg.com/vue"></script>
 
     <!-- BOOTSTRAP -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
     <!-- VOLTRON -->
+
+    <link rel="stylesheet" href="bootstrap-flatly.min.css"/>
     <link rel="stylesheet" href="voltron.css"/>
 
   </head>
-  <body>
+  <body class>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container">
+        <a class="navbar-brand" href="#">Voltron</a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarColor01">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Features</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Pricing</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">About</a>
+            </li>
+          </ul>
+          <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="text" placeholder="Search">
+            <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <br>
+
     <div class="container">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title">Group 0</h3>
+      <div class="page-header">
+        <div class="row">
+            <!-- <h2>CSE 230: Ranjit Jhala</h2>
+            <p class="lead">Flat and modern</p> -->
+            <div class="col-lg-8 col-md-7 col-sm-6">
+              <h1>CSE 230</h1>
+              <p class="lead">Instructor mode</p>
+            </div>
+
         </div>
-        <div class="panel-body">
-          <div id="editor">{{ message }}</div>
+      </div>
+      
+      <div class="row">
+
+      <div class="col-lg-12">
+        <div class="card border-primary mb-4" style="max-width: 20rem;">
+          <div class="card-header">Group 0</div>
+          <div class="card-body">
+            <!-- <h4 class="card-title">Primary card title</h4> -->
+            <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
+            <div id="editor">{{ message }}</div>
+          </div>
         </div>
+      </div>
       </div>
     </div>
 
-     <script>
+    <script>
       var app = new Vue({
         el: "#editor",
         data: {
@@ -43,7 +95,12 @@
       var editor = ace.edit("editor");
       editor.setTheme("ace/theme/textmate");
       editor.getSession().setMode("ace/mode/haskell");
+      editor.setOptions({
+        maxLines: 10,
+        minLines: 10 
+      });
+
+
     </script>
   </body>
 </html>
-
