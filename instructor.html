@@ -43,10 +43,6 @@
             <a class="nav-link" href="#">About</a>
           </li>
         </ul>
-        <!-- <form class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="text" placeholder="Search">
-          <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-        </form> -->
       </div>
     </div>
   </nav>
@@ -66,18 +62,6 @@
     <br>
     
     <div id="editorBuffers" class="row">
-      <!--
-        <div class="col-lg-4 col-md-4">
-          <div class="card border-primary mb-4" style="max-width: 20rem;">
-            <div class="card-header">Group 0</div>
-            <div class="card-body">
-              <div id="editor">{{ message }}</div> 
-              <div id="editor-0">Hello, Editor-0</div>
-            </div>
-          </div>
-        </div>
-      -->
-      
       <template v-for="item in editorBuffers">
         <div class="col-lg-4 col-md-4">
           <div class="card border-primary mb-4" style="max-width: 20rem;">
@@ -88,38 +72,7 @@
           </div>
         </div> 
       </template>
-      
-      <!-- <div class="col-lg-4 col-md-4">
-        <div class="card border-primary mb-4" style="max-width: 20rem;">
-          <div class="card-header">Group 1</div>
-          <div class="card-body">
-            <div id="editor-1">Hello, Editor-1</div>
-          </div>
-        </div>
-      </div>
-      
-      
-      <div class="col-lg-4 col-md-4">
-        <div class="card border-primary mb-4" style="max-width: 20rem;">
-          <div class="card-header">Group 2</div>
-          <div class="card-body">
-            <div id="editor-1">Hello, Editor-2</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-lg-4 col-md-4">
-        <div class="card border-primary mb-4" style="max-width: 20rem;">
-          <div class="card-header">Group 3</div>
-          <div class="card-body">
-            <div id="editor-1">Hello, Editor-3</div>
-          </div>
-        </div>
-      </div> -->
     </div>
-    
-    
-    
   </div>
   
 </div>
@@ -171,7 +124,6 @@
         var editor = ace.edit(div);
         editor.setTheme("ace/theme/textmate");
         editor.getSession().setMode("ace/mode/haskell");
-        // editor.setValue(codeStr);
         editor.setOptions({
           maxLines: 10,
           minLines: 10 
