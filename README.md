@@ -2,6 +2,8 @@
 
 ## TODO
 
+- Mockup in Scotty?
+- Or should we try a direct BINAH port?
 
 ### Views
 
@@ -22,10 +24,27 @@
     - [] adding   students  [SID, ] 
     - [] assign   groups
 
-## Scotty Basics
+## Scotty 101
+
+Build an authenticated "TODO" in scotty
 
 - https://stackoverflow.com/questions/51070009/haskell-scotty-and-persistence-rest-api
 - https://ro-che.info/articles/2016-04-14-scotty-http-basic-auth
+
+Model 
+
+```
+User
+  name       Text 
+  email      Text 
+  password   Bytestring
+
+Todo
+  user       User
+  title      Text
+  descr      Text
+```
+
 
 
 ### Models
