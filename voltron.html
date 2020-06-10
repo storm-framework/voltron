@@ -51,9 +51,6 @@
       };
       firebase.initializeApp(config);
 
-      //// Get Firebase Database reference.
-      var firepadRef = getExampleRef();
-
       //// Create ACE
       var editor = ace.edit("firepad-container");
       editor.setTheme("ace/theme/textmate");
@@ -61,6 +58,9 @@
       session.setUseWrapMode(true);
       session.setUseWorker(false);
       session.setMode("ace/mode/haskell");
+
+      //// Get Firebase Database reference.
+      var firepadRef = getExampleRef();
 
       //// Create Firepad.
       var firepad = Firepad.fromACE(firepadRef, editor, {

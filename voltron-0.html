@@ -3,6 +3,9 @@
 <head>
   <title>Voltron</title>
   
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/5.5.4/firebase.js"></script>
+
   <!-- ACE -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.5/ace.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.5/mode-javascript.js"></script>
@@ -17,12 +20,12 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   
   <!-- VOLTRON -->
-  
   <link rel="stylesheet" href="bootstrap-flatly.css"/>
   <link rel="stylesheet" href="voltron.css"/>
-  
+  <script src="https://firepad.io/releases/v1.5.9/firepad.min.js"></script>
+
 </head>
-<body class>
+<body onload="init()">
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
       <a class="navbar-brand" href="#">Voltron</a>
@@ -80,7 +83,7 @@
           <div class="card border-primary mb-4" style="max-width: 20rem;">
             <div class="card-header"> Group {{ item.id }} </div>
             <div class="card-body">
-              <div v-bind:id="editorDiv(item.id)">{{ item.text }}</div>
+              <div v-bind:id="editorDiv(item)"></div>
             </div>
           </div>
         </div> 
@@ -122,46 +125,63 @@
 </div>
 
 <script>
-  var codeStr = "inc :: Int -> Int\ninc x = x + 1";
-  var codeBuffers = 
-    [ { id : 0, dbRef = "-M9Kx-cxRIUgCqVCtjCr", text : "-- Code for group 0\n" }
-    , { id : 1, dbRef = "-M9L5YBS0kgvUfuz0Ckc", text : "-- Code for group 1\n" }
-    , { id : 2, dbRef = "-M9L5oPt0fsruy16vntv", text : "-- Code for group 2\n" }
-    , { id : 3, dbRef = "-M9L5vCVa5FQ0noobA9V", text : "-- Code for group 3\n" }
-    , { id : 4, dbRef = "-M9L6XICO2mz_yfpDXWR", text : "-- Code for group 4\n" }
-    , { id : 5, dbRef = "-M9L6nLdsLy_7aXIs4MX", text : "-- Code for group 5\n" }
+  //// Initialize Firebase.
+  //// TODO: replace with your Firebase project configuration.
+  var config = {
+    apiKey: '<API_KEY>',
+      authDomain: "firepad-tests.firebaseapp.com",
+      databaseURL: "https://firepad-tests.firebaseio.com"
+    };
+    firebase.initializeApp(config);
+    
+    var codeStr = "inc :: Int -> Int\ninc x = x + 1";
+    var codeBuffers = 
+    [ { id : 0, hash : "-M9Kx-cxRIUgCqVCtjCr", text : "-- Code for group 0\n" }
+    , { id : 1, hash : "-M9L5YBS0kgvUfuz0Ckc", text : "-- Code for group 1\n" }
+    , { id : 2, hash : "-M9L5oPt0fsruy16vntv", text : "-- Code for group 2\n" }
+    , { id : 3, hash : "-M9L5vCVa5FQ0noobA9V", text : "-- Code for group 3\n" }
+    , { id : 4, hash : "-M9L6XICO2mz_yfpDXWR", text : "-- Code for group 4\n" }
+    , { id : 5, hash : "-M9L6nLdsLy_7aXIs4MX", text : "-- Code for group 5\n" }
     ];
-
-  function codeBufferDiv(id){ 
-    return "editor-" + id;
-  }
-  
-  var app = new Vue({
-    el: "#editorBuffers", 
-    data: {
-      message: codeStr, 
-      editorBuffers: codeBuffers 
-    },
-    methods: {
-      editorDiv: codeBufferDiv  
+    
+    function codeBufferDiv(buf){ 
+      return "editor-" + buf.id;
     }
     
-  });
-  
-  for (buf of codeBuffers) {
-    var div    = codeBufferDiv(buf.id);
-    var editor = ace.edit(div);
-    editor.setTheme("ace/theme/textmate");
-    editor.getSession().setMode("ace/mode/haskell");
-    // editor.setValue(codeStr);
-    editor.setOptions({
-      maxLines: 10,
-      minLines: 10 
+    function getFirepadRef(buf){
+      var ref = firebase.database().ref();
+      ref = ref.child(buf.hash);
+      return ref;
+    }
+    
+    var app = new Vue({
+      el: "#editorBuffers", 
+      data: {
+        message: codeStr, 
+        editorBuffers: codeBuffers 
+      },
+      methods: {
+        editorDiv: codeBufferDiv  
+      }
     });
     
-  }
-  
-  
-</script>
+    function init(){
+      for (buf of codeBuffers) {
+        var div    = codeBufferDiv(buf);
+        var editor = ace.edit(div);
+        editor.setTheme("ace/theme/textmate");
+        editor.getSession().setMode("ace/mode/haskell");
+        // editor.setValue(codeStr);
+        editor.setOptions({
+          maxLines: 10,
+          minLines: 10 
+        });
+        var firepadRef = getFirepadRef(buf);
+        var firepad = Firepad.fromACE(firepadRef, editor, {
+          defaultText: '-- Haskell editing with Firepad!\ninc :: Int -> Int\ninc x = x + 1'
+        });
+      }
+    }
+  </script>
 </body>
 </html>
