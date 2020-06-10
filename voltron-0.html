@@ -124,14 +124,14 @@
 <script>
   var codeStr = "inc :: Int -> Int\ninc x = x + 1";
   var codeBuffers = 
-  [ { id : 0, text : "-- Code for group 0\n" }, 
-  { id : 1, text : "-- Code for group 1\n" }, 
-  { id : 2, text : "-- Code for group 2\n" }, 
-  { id : 3, text : "-- Code for group 3\n" }, 
-  { id : 4, text : "-- Code for group 4\n" }, 
-  { id : 5, text : "-- Code for group 5\n" }
-  ];
-  
+    [ { id : 0, dbRef = "-M9Kx-cxRIUgCqVCtjCr", text : "-- Code for group 0\n" }
+    , { id : 1, dbRef = "-M9L5YBS0kgvUfuz0Ckc", text : "-- Code for group 1\n" }
+    , { id : 2, dbRef = "-M9L5oPt0fsruy16vntv", text : "-- Code for group 2\n" }
+    , { id : 3, dbRef = "-M9L5vCVa5FQ0noobA9V", text : "-- Code for group 3\n" }
+    , { id : 4, dbRef = "-M9L6XICO2mz_yfpDXWR", text : "-- Code for group 4\n" }
+    , { id : 5, dbRef = "-M9L6nLdsLy_7aXIs4MX", text : "-- Code for group 5\n" }
+    ];
+
   function codeBufferDiv(id){ 
     return "editor-" + id;
   }
@@ -148,9 +148,9 @@
     
   });
   
-  for (b of codeBuffers) {
-    var bDiv = codeBufferDiv(b.id);
-    var editor = ace.edit(bDiv);
+  for (buf of codeBuffers) {
+    var div    = codeBufferDiv(buf.id);
+    var editor = ace.edit(div);
     editor.setTheme("ace/theme/textmate");
     editor.getSession().setMode("ace/mode/haskell");
     // editor.setValue(codeStr);
