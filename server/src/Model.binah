@@ -1,0 +1,53 @@
+import Data.ByteString (ByteString)
+
+Invitation
+  code Text
+  emailAddress Text
+  firstName Text
+  lastName Text
+  accepted Bool
+  emailStatus String
+  emailError String Maybe
+
+  insert {\invitation viewer ->
+    not (invitationAccepted invitation)
+    && IsInstructor viewer
+    && emailStatus invitation == "not_sent"
+  }
+
+  update [ accepted ] {\old new _ ->
+    not (invitationAccepted old) && invitationAccepted new
+  }
+
+  update [ emailStatus ] {\_ new _ ->
+     IsInstructor viewer
+     && (emailStatus new == "sent" || emailStatus new == "error")
+  }
+
+User
+  emailAddress Text
+  password ByteString
+  firstName Text
+  lastName Text
+  level String
+  group GroupId Maybe
+
+  insert {\new viewer -> IsInstructor viewer }
+
+  read [ password ] @IsSelf
+
+  update [ password, level, emailAddress ] {\_ _ _ -> False}
+
+  update [ firstName, lastName ] {\old _ viewer -> sSelf old viewer}
+
+Group
+  name       Text
+  editorLink Text
+  insert {\_ viewer -> IsInstructor viewer}
+  update [ name, editorLink ] {\_ _ viewer -> IsInstructor viewer}
+
+policy IsSelf = \user viewer ->
+  viewer == user
+
+policy IsInstructor = \user ->
+  userLevel user == "instructor"

@@ -1,0 +1,184 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: a680839bd865701c79a1db13f7a62444207ce06499b25d553c83e4b53244ef6d
+
+name:           server
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/nilehmann/server#readme>
+homepage:       https://github.com/nilehmann/server#readme
+bug-reports:    https://github.com/nilehmann/server/issues
+author:         Nico Lehmann
+maintainer:     nlehmann@eng.ucsd.edu
+copyright:      2020 Nico Lehmann
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/nilehmann/server
+
+library
+  exposed-modules:
+      Auth
+      Binah.Actions
+      Binah.Core
+      Binah.Filters
+      Binah.Frankie
+      Binah.Helpers
+      Binah.Infrastructure
+      Binah.Insert
+      Binah.Templates
+      Binah.Updates
+      Concurrent
+      Controllers
+      Controllers.Invitation
+      Controllers.Room
+      Controllers.User
+      Crypto
+      Exception
+      JSON
+      Model
+      Server
+      SMTP
+  other-modules:
+      Paths_server
+  hs-source-dirs:
+      src
+  build-depends:
+      aeson
+    , amazonka
+    , amazonka-core
+    , amazonka-s3
+    , base >=4.7 && <5
+    , base64-bytestring
+    , bytestring
+    , cmdargs
+    , directory
+    , either
+    , filepath
+    , frankie
+    , jose
+    , lens
+    , mime-mail
+    , mime-types
+    , monad-control
+    , monad-logger
+    , monad-time
+    , mtl
+    , mustache
+    , persistent
+    , persistent-sqlite
+    , persistent-template
+    , resource-pool
+    , scrypt
+    , smtp-mail
+    , text
+    , time
+    , transformers
+    , transformers-base
+    , unordered-containers
+    , wai
+    , wai-extra
+    , warp
+  default-language: Haskell2010
+
+executable disco
+  main-is: Main.hs
+  other-modules:
+      Paths_server
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , amazonka
+    , amazonka-core
+    , amazonka-s3
+    , base >=4.7 && <5
+    , base64-bytestring
+    , bytestring
+    , cmdargs
+    , directory
+    , either
+    , filepath
+    , frankie
+    , jose
+    , lens
+    , mime-mail
+    , mime-types
+    , monad-control
+    , monad-logger
+    , monad-time
+    , mtl
+    , mustache
+    , persistent
+    , persistent-sqlite
+    , persistent-template
+    , resource-pool
+    , scrypt
+    , server
+    , smtp-mail
+    , text
+    , time
+    , transformers
+    , transformers-base
+    , unordered-containers
+    , wai
+    , wai-extra
+    , warp
+  default-language: Haskell2010
+
+test-suite server-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_server
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , amazonka
+    , amazonka-core
+    , amazonka-s3
+    , base >=4.7 && <5
+    , base64-bytestring
+    , bytestring
+    , cmdargs
+    , directory
+    , either
+    , filepath
+    , frankie
+    , jose
+    , lens
+    , mime-mail
+    , mime-types
+    , monad-control
+    , monad-logger
+    , monad-time
+    , mtl
+    , mustache
+    , persistent
+    , persistent-sqlite
+    , persistent-template
+    , resource-pool
+    , scrypt
+    , server
+    , smtp-mail
+    , text
+    , time
+    , transformers
+    , transformers-base
+    , unordered-containers
+    , wai
+    , wai-extra
+    , warp
+  default-language: Haskell2010

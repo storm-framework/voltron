@@ -1,0 +1,82 @@
+name: server
+version: 0.1.0.0
+github: "nilehmann/server"
+license: BSD3
+author: "Nico Lehmann"
+maintainer: "nlehmann@eng.ucsd.edu"
+copyright: "2020 Nico Lehmann"
+
+extra-source-files:
+  - README.md
+  - ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description: Please see the README on GitHub at <https://github.com/nilehmann/server#readme>
+
+dependencies:
+  - aeson
+  - jose
+  - base >= 4.7 && < 5
+  - base64-bytestring
+  - bytestring
+  - either
+  - frankie
+  - mtl
+  - mustache
+  - persistent
+  - persistent-template
+  - persistent-sqlite
+  - text
+  - transformers
+  - unordered-containers
+  - wai
+  - wai-extra
+  - warp
+  - monad-time
+  - resource-pool
+  - lens
+  - transformers-base
+  - monad-control
+  - monad-logger
+  - smtp-mail
+  - mime-mail
+  - mime-types
+  - filepath
+  - directory
+  - cmdargs
+  - amazonka
+  - time
+  - amazonka-s3
+  - amazonka-core
+  - scrypt
+
+library:
+  source-dirs: src
+
+executables:
+  disco:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - server
+
+tests:
+  server-test:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - server
