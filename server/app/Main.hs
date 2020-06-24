@@ -24,12 +24,15 @@ main = do
       runServer $ ServerOpts port (fromString host) static pool db
     AddInstructor {..} -> do
       let user = Auth.UserCreate email password "" ""
-      runTask' db $ Auth.addInstructor user
+      instrId <- runTask' db $ Auth.addInstructor user
+      putStrLn ("Add Instructor: " ++ show instrId)
       return ()
-    AddGroup {..} -> 
-      _fixme
+    AddGroup {..} -> do
+      grpId <- runTask' db $ Auth.addGroup grpName editorLink
+      putStrLn ("Add Group: " ++ show grpId)
+      return ()
     AddStudent {..} -> do  
       let user = Auth.UserCreate email password "" ""
-      runTask' db $ Auth.addStudent user
+      studentId <- runTask' db $ Auth.addStudent user grpName
+      putStrLn ("Add Student: " ++ show studentId)
       return ()
-      _fixme

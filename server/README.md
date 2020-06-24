@@ -2,27 +2,40 @@
 
 ## TODO
 
-1. Users and Roles
+- [*] Create MANUAL DB
 
-- [] "instructor-home" : list everyone by name
-- [] "student-home"    : list me and just my info
+- [?] '/login'  route (with fake text password)
+    - [?] front
+    - [ ] back
 
-2. Creating Groups
+- [ ] '/home'   route for student 
+    - [ ] front
+    - [ ] back
 
-- [] "create-group"    : instructor creates groups
-- [] "instructor-home" : list everyone by name + list all groups
+- [ ] '/home'   route for instructor 
+    - [ ] front
+    - [ ] back
 
-3. Assigning Groups
+- [ ] '/enroll' route for instructor
+    - [ ] front
+    - [ ] back
 
-- [] "assign-group"    : instructor assigns students to existing groups 
-- [] "instructor-home" : list everyone by group
-- [] "student-home"    : list everyone in my group 
+- [ ] '/groups' route for instructor
+    - [ ] front
+    - [ ] back
 
-4. Buffers
+## Populating the Database
 
-- [] "create-group"    : + instructor sets editor buffer for group
-- [] "student-home"    : + show editor buffer
-- [] "instructor-home" : + show ALL editor buffers 
+```sh
+$ stack exec -- voltron add-instructor --email=rjhala@eng.ucsd.edu --password=rjhala
+$ stack exec -- voltron add-group --grpname=0 --editorlink=-M9Kx-cxRIUgCqVCtjCr
+$ stack exec -- voltron add-group --grpname=1 --editorlink=-M9L5YBS0kgvUfuz0Ckc
+$ stack exec -- voltron add-group --grpname=2 --editorlink=-M9L5oPt0fsruy16vntv
+$ stack exec -- voltron add-group --grpname=3 --editorlink=-M9L5vCVa5FQ0noobA9V
+$ stack exec -- voltron add-student --email=wkunkel@eng.ucsd.edu --password=rose --grpname=0
+$ stack exec -- voltron add-student --email=nlehmann@eng.ucsd.edu --password=nico --grpname=0
+$ stack exec -- voltron add-student --email=rkici@eng.ucsd.edu --password=rkici --grpname=1
+```
 
 ## Dependencies
 

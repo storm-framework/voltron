@@ -70,7 +70,10 @@ addInstructor :: UserCreate -> Task UserId
 addInstructor user = addUser "instructor" Nothing user
 
 -- Add a group from cmd-line ------------------------------------------------
-addGroup = _herehere 
+addGroup :: Text -> Text -> Task GroupId
+addGroup grpName editorLink = do 
+  let grp = mkGroup grpName editorLink 
+  insert grp
 
 -- Add a student from cmd-line ----------------------------------------------
 {-@ ignore addStudent @-}

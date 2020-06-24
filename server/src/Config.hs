@@ -21,6 +21,8 @@ voltronModes :: Voltron
 voltronModes = modes 
   [ modeServer        &= auto
   , modeAddInstructor &= explicit &= name "add-instructor"
+  , modeAddGroup      &= explicit &= name "add-group"
+  , modeAddStudent    &= explicit &= name "add-student"
   ]
 
 data Voltron
@@ -45,7 +47,7 @@ data Voltron
   | AddStudent 
     { email    :: T.Text
     , password :: T.Text 
-    , group    :: T.Text 
+    , grpName  :: T.Text 
     , db       :: T.Text 
     }
   deriving (Data, Typeable, Show)
@@ -90,7 +92,7 @@ modeAddGroup = AddGroup
 modeAddStudent = AddStudent
   { email    = "" &= typ "EMAIL"
   , password = "" &= typ "PASSWORD"
-  , group    = "" &= typ "STRING"
+  , grpName  = "" &= typ "STRING"
   , db       = "db.sqlite" 
                   &= typ "PATH" 
                   &= help "Database path (default db.sqlite)"

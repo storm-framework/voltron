@@ -50,11 +50,11 @@ dependencies:
   - filepath
   - directory
   - cmdargs
-  - amazonka
   - time
+  - scrypt
+  - amazonka
   - amazonka-s3
   - amazonka-core
-  - scrypt
 
 library:
   source-dirs: src

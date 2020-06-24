@@ -1,5 +1,14 @@
 # Voltron
 
+## INSTALL
+
+```sh
+$ cd client
+$ yarn install
+$ yarn serve
+```
+
+
 ## TODO
 
 - Mockup in Scotty?
