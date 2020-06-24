@@ -64,17 +64,40 @@ import           Crypto
 -- import           Network.AWS.S3
 -- import           Network.AWS.Data.Text          ( toText )
 
-
+-- Add an instructor from cmd-line ------------------------------------------
 {-@ ignore addInstructor @-}
 addInstructor :: UserCreate -> Task UserId
-addInstructor UserCreate {..} = do
+addInstructor user = addUser "instructor" Nothing user
+
+-- Add a group from cmd-line ------------------------------------------------
+addGroup = _herehere 
+
+-- Add a student from cmd-line ----------------------------------------------
+{-@ ignore addStudent @-}
+addStudent :: UserCreate -> Text -> Task (Maybe UserId) 
+addStudent user grpName = do
+  groupKey <- lookupGroupKey grpName
+  case groupKey of
+    Just gk -> Just <$> addUser "student" (Just gk) user
+    Nothing -> return Nothing 
+
+lookupGroupKey :: Text -> Task (Maybe (Key Group))
+lookupGroupKey grpName = do 
+  mbGrp <- selectFirst (groupName' ==. grpName)
+  case mbGrp of
+    Just grp -> Just <$> project groupId' grp 
+    Nothing  -> return Nothing 
+
+{-@ ignore addUser @-}
+addUser :: String -> Maybe (Key Group) -> UserCreate -> Task UserId
+addUser role grp (UserCreate {..}) = do
   EncryptedPass encrypted <- encryptPassTIO' (Pass (T.encodeUtf8 password))
   let user = mkUser emailAddress
                     encrypted
                     firstName
                     lastName
-                    "instructor"
-                    Nothing
+                    role -- "instructor"
+                    grp  -- Nothing
   insert user
 
 --------------------------------------------------------------------------------

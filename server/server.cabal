@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0f901f50122f646e756783ba85592e5a409f9cd7078fc2b11d15ecd86f0ae3ce
+-- hash: da3e6da8d95770f41e7f9a071231e547122ee2537c4e35925f0c2c0f11b3267b
 
 name:           server
 version:        0.1.0.0
@@ -38,6 +38,7 @@ library
       Binah.Templates
       Binah.Updates
       Concurrent
+      Config
       Controllers
       Controllers.Invitation
       Controllers.Room
