@@ -25,20 +25,17 @@ Invitation
   }
 
 User
-  emailAddress Text
-  password ByteString
-  firstName Text
-  lastName Text
-  level String
-  group GroupId Maybe
+  emailAddress  Text
+  password      ByteString
+  firstName     Text
+  lastName      Text
+  level         String
+  group         GroupId Maybe
 
   insert {\new viewer -> IsInstructor viewer }
-
   read [ password ] @IsSelf
-
   update [ password, level, emailAddress ] {\_ _ _ -> False}
-
-  update [ firstName, lastName ] {\old _ viewer -> sSelf old viewer}
+  update [ firstName, lastName ] {\old _ viewer -> IsSelf old viewer}
 
 Group
   name       Text

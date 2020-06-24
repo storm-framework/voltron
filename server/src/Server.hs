@@ -51,6 +51,9 @@ import qualified Text.Mustache.Types           as Mustache
 import           Text.Read                      ( readMaybe )
 import           Data.Typeable
 import           Data.Data
+import qualified Network.AWS                   as AWS
+import qualified Network.AWS.S3                as S3
+
 
 
 import           Binah.Core
@@ -66,9 +69,6 @@ import           Controllers.User
 import           Controllers.Room
 import           Model
 import           Auth
-
-import qualified Network.AWS                   as AWS
-import qualified Network.AWS.S3                as S3
 
 data Stage = Prod | Dev deriving (Data, Typeable, Show)
 

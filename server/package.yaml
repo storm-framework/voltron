@@ -60,7 +60,7 @@ library:
   source-dirs: src
 
 executables:
-  disco:
+  voltron:
     main: Main.hs
     source-dirs: app
     ghc-options:
