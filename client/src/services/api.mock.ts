@@ -1,4 +1,4 @@
-import { User, Buffer, AppState, AuthInfo } from "@/types";
+import { AppState, User, Buffer, AuthInfo } from "@/types";
 
 function delay(ms = 1000) {
   if (process.env.NODE_ENV === "development") {
@@ -49,6 +49,10 @@ class ApiService {
     return this.student(user); 
   }
   
+  isSignedIn() {
+    return this.currentUser !== null; 
+  }
+
   async signIn(info: AuthInfo): Promise<AppState> {
     await delay();
     if (info.emailAddress == "rjhala@eng.ucsd.edu" && info.password == "rjhala") {
@@ -68,9 +72,6 @@ class ApiService {
     // return USERS[SESSION_USER_ID];
   }
 
-  isSignedIn(){
-    return this.currentUser != null; 
-  }
 }
 
 export default new ApiService(null);

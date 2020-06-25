@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { User, AppState, AuthInfo } from "@/types";
+import { AppState, User, AuthInfo } from "@/types";
 import ApiService from "@/services/api";
 
 Vue.use(Vuex);
