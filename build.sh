@@ -6,7 +6,8 @@ cd client
 yarn build --dest ../dist/static
 
 cd ../server
-make build
+# make build
+make fast
 stack install --local-bin-path ../dist
 cp -r templates ../dist
 

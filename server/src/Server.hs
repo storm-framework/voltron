@@ -93,14 +93,14 @@ runServer ServerOpts {..} = runNoLoggingT $ do
             port optsPort
             initWith $ initFromPool (Config authMethod templateCache) pool
         dispatch $ do
+            -- post "/api/signup"         signUp
             post "/api/signin"         signIn
-            post "/api/signup"         signUp
-            put  "/api/invitation"     invitationPut
-            get  "/api/invitation/:id" invitationGet
-            get  "/api/invitation"     invitationList
-            get  "/api/user"           userList
-            get  "/api/user/:id"       userGet
-            post "/api/user/me"        userUpdateMe
+            -- put  "/api/invitation"     invitationPut
+            -- get  "/api/invitation/:id" invitationGet 
+            -- get  "/api/invitation"     invitationList
+            -- get  "/api/user"           userList
+            -- get  "/api/user/:id"       userGet
+            -- post "/api/user/me"        userUpdateMe
 
             case optsStatic of
                 Just path -> fallback (sendFromDirectory path "index.html")

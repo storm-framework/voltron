@@ -30,6 +30,7 @@ export default new Vuex.Store({
     signIn({ commit }, auth: AuthInfo) {
       ApiService.signIn(auth)
         .then(res => {
+           console.log("ApiService.signIn", res);
            commit("setBuffers", res);
            console.log(res);
          })
