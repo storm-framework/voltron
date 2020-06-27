@@ -1,12 +1,33 @@
 # voltron-server
 
+## Models
+
+User
+  email      Text
+  name       Text
+
+Class
+  instructor User   -- only writable by admin
+  name       Text   -- only writable by instructor
+
+Group
+  class      Class  -- only writable by instructor
+  number     Int    -- only writable by instructor
+  buffer     Text   -- only readable to class.instructor and students in group
+                    -- only writable by instructor or admin
+
+Enrolled
+  user       User
+  group      Group  -- only writable by instructor
+
+
 ## TODO
 
 - [*] Create MANUAL DB
 
-- [?] '/login'  route (with fake text password)
-    - [?] front
-    - [ ] back
+- [-] '/login'  route (with fake text password)
+    - [*] front
+    - [ ] back: respond with AppState
 
 - [ ] '/home'   route for student 
     - [ ] front

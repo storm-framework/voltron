@@ -110,12 +110,11 @@ addUser role grp (UserCreate {..}) = do
 {-@ ignore signIn @-}
 signIn :: Controller ()
 signIn = do
-  (SignInReq emailAddress password) <- decodeBody
-  user                              <- authUser emailAddress password
-  userId                            <- project userId' user
-  token                             <- genJwt userId
-  userData                          <- extractUserData user
-
+  SignInReq emailAddress password <- decodeBody
+  user                            <- authUser emailAddress password
+  userId                          <- project userId' user
+  token                           <- genJwt userId
+  userData                        <- extractUserData user
   respondJSON status200 $ AuthRes (unpackLazy8 token) userData
 
 {-@ ignore authUser @-}
@@ -139,10 +138,10 @@ instance FromJSON SignInReq where
 
 data AuthRes = AuthRes
   { authResAccessToken :: String
-  , authResUser :: UserData
+  , authResUser        :: UserData
   }
   deriving Generic
-
+    
 instance ToJSON AuthRes where
   toEncoding = genericToEncoding (stripPrefix "authRes")
 

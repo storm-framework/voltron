@@ -49,23 +49,39 @@ extractUserData u = do
   lastName     <- project userLastName' u
   level        <- project userLevel' u
   group        <- project userGroup' u
-  return $ UserData id emailAddress firstName lastName level group 
+  return $ _fixme -- UserData id emailAddress firstName lastName level group 
 
-data UserData = UserData
-  { userId           :: UserId
-  , userEmailAddress :: Text
-   -- , userPhotoURL     :: Maybe Text
-  , userFirstName    :: Text
-  , userLastName     :: Text
-  -- , userDisplayName  :: Text
-  -- , userInstitution  :: Text
-  , userLevel        :: String
-  , userGroup        :: Maybe GroupId
-  }
-  deriving Generic
+-- data UserData = UserData
+--   { userId           :: UserId
+--   , userEmailAddress :: Text
+--   -- , userFirstName    :: Text
+--   -- , userLastName     :: Text
+--   , userLevel        :: String
+--   -- , userGroup        :: Maybe GroupId
+--   }
+--   deriving Generic
 
 instance ToJSON UserData where
   toEncoding = genericToEncoding (stripPrefix "user")
+
+data UserNG = UserNG 
+  { userFirstName :: Text
+  , userLastName  :: Text
+  , userGroup     :: Maybe GroupId
+  }
+  deriving Generic
+
+data UserData 
+  = UserStudent 
+     { user      :: UserNG
+     , grpBuffer :: Text
+     }
+  | UserInstructor 
+     { user       :: UserNG 
+     , allBuffers :: [Text]
+     }
+  | UserNone
+  deriving Generic
 
 ----------------------------------------------------------------------------------------------------
 -- | User Get

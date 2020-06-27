@@ -1,4 +1,4 @@
-import { AppState, User, Buffer, AuthInfo } from "@/types";
+import { UserData, User, Buffer, AuthInfo } from "@/types";
 
 function delay(ms = 1000) {
   if (process.env.NODE_ENV === "development") {
@@ -31,21 +31,21 @@ class ApiService {
   constructor(private currentUser: User | null) {}
 
   // Auth
-  instructor(u:User): AppState {
+  instructor(u:User): UserData {
     return { kind: "instructor", user: u, allBuffers: Object.values(BUFFERS) }
   }
 
-  student(u: User): AppState { 
+  student(u: User): UserData { 
     return { kind: "student", user: u, grpBuffer: BUFFERS[u.group] }
   }
 
-  userAppState(userName: string): AppState {
-    const user: User = { name: userName, group: "" } ;
+  mockUserData(userName: string): UserData {
+    const user: User = { firstName: userName, lastName: "", group: "" } ;
     this.currentUser = user; 
-    if (user.name == "rjhala") {
+    if (user.firstName == "rjhala") {
       return this.instructor(user);
     } 
-    user.group = USERS[user.name];
+    user.group = USERS[user.firstName];
     return this.student(user); 
   }
   
@@ -53,17 +53,17 @@ class ApiService {
     return this.currentUser !== null; 
   }
 
-  async signIn(info: AuthInfo): Promise<AppState> {
+  async signIn(info: AuthInfo): Promise<UserData> {
     await delay();
     if (info.emailAddress == "rjhala@eng.ucsd.edu" && info.password == "rjhala") {
       console.log(info, "ok");
-      return this.userAppState("rjhala");
+      return this.mockUserData("rjhala");
     };
     if (info.emailAddress == "nlehmann@eng.ucsd.edu" && info.password == "nico") {
-      return this.userAppState("nico");
+      return this.mockUserData("nico");
     }
     if (info.emailAddress == "wkunkel@eng.ucsd.edu" && info.password == "rose") {
-      return this.userAppState("rose");
+      return this.mockUserData("rose");
     }
     return Promise.reject("Bad username and/or password!");
 

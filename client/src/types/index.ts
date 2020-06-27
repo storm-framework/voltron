@@ -25,7 +25,7 @@ export interface None {
   kind: "none";
 }
 
-export type AppState = Student | Instructor | None;
+export type UserData = Student | Instructor | None;
 
 export interface AuthInfo {
   emailAddress: string;
@@ -33,6 +33,7 @@ export interface AuthInfo {
 }
 
 export interface User {
-  name: string;
+  firstName: string;
+  lastName: string;
   group: string;
 }

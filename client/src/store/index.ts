@@ -1,11 +1,11 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { AppState, User, AuthInfo } from "@/types";
+import { UserData, User, AuthInfo } from "@/types";
 import ApiService from "@/services/api";
 
 Vue.use(Vuex);
 
-type State = { buffers: AppState; sessionUser: User | null };
+type State = { buffers: UserData; sessionUser: User | null };
 
 const initState: State = { buffers: { kind: "none" }, sessionUser: null };
 
@@ -13,7 +13,7 @@ export default new Vuex.Store({
   state: initState,
 
   mutations: {
-    setBuffers(state, bufs: AppState) {
+    setBuffers(state, bufs: UserData) {
       switch (bufs.kind) {
         case "none":
           return;
@@ -30,7 +30,7 @@ export default new Vuex.Store({
     signIn({ commit }, auth: AuthInfo) {
       ApiService.signIn(auth)
         .then(res => {
-           console.log("ApiService.signIn", res);
+           console.log("ApiService.signIn", res)
            commit("setBuffers", res);
            console.log(res);
          })
