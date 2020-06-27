@@ -10,19 +10,19 @@ export interface DivBuffer {
 }
 
 export interface Student { 
-  kind: "student";
-  user: User;
+  tag: "Student";
+  info: User;
   grpBuffer: Buffer;
 }
 
 export interface Instructor {
-  kind: "instructor";
-  user: User;
+  tag: "Instructor";
+  info: User;
   allBuffers: Array<Buffer>;
 } 
 
 export interface None {
-  kind: "none";
+  tag: "None";
 }
 
 export type UserData = Student | Instructor | None;
@@ -36,4 +36,9 @@ export interface User {
   firstName: string;
   lastName: string;
   group: string;
+}
+
+export interface LoginResponse {
+  accessToken: string;
+  user: UserData;
 }

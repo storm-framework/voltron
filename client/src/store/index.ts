@@ -1,26 +1,27 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { UserData, User, AuthInfo } from "@/types";
+import { LoginResponse, UserData, User, AuthInfo } from "@/types";
 import ApiService from "@/services/api";
 
 Vue.use(Vuex);
 
-type State = { buffers: UserData; sessionUser: User | null };
+type State = { userData: UserData; sessionUser: User | null };
 
-const initState: State = { buffers: { kind: "none" }, sessionUser: null };
+const initState: State = { userData: { tag: "None" }, sessionUser: null };
 
 export default new Vuex.Store({
   state: initState,
 
   mutations: {
-    setBuffers(state, bufs: UserData) {
-      switch (bufs.kind) {
-        case "none":
+    setBuffers(state, payload: LoginResponse) {
+      console.log("mutation-setBuffers", payload);
+      const userData = payload.user;
+      switch (userData.tag) {
+        case "None":
           return;
-        default: { 
-          console.log("mutation-setBuffers", bufs);
-          state.buffers = bufs;
-          state.sessionUser = bufs.user;
+        default:{
+          state.userData = userData;
+          state.sessionUser = userData.info;
         }
       }
     }
@@ -47,24 +48,32 @@ export default new Vuex.Store({
     }
   },
   getters: {
-    userType: ({ buffers }) => {
-      return buffers.kind; 
+    // userType: ({ userData }) => {
+    //   return userData.tag; 
+    // },
+
+    isInstructor: ({ userData }) => {
+      return userData.tag == "Instructor"; 
+    },
+
+    isStudent: ({ userData }) => {
+      return userData.tag == "Student"; 
     },
 
     currentUser: ({ sessionUser }) => {
       return sessionUser;
     },
 
-    studentBuffer: ({ buffers }) => {
-      switch (buffers.kind) { 
-        case "student": return buffers.grpBuffer;
+    studentBuffer: ({ userData }) => {
+      switch (userData.tag) { 
+        case "Student": return userData.grpBuffer;
         default: return null;
       }
     },
 
-    instructorBuffers: ({ buffers }) => {
-      switch (buffers.kind) { 
-        case "instructor": return buffers.allBuffers;
+    instructorBuffers: ({ userData }) => {
+      switch (userData.tag) { 
+        case "Instructor": return userData.allBuffers;
         default: return null;
       }
     },

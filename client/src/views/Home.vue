@@ -28,11 +28,11 @@ export default class Home extends Vue {
   name = "Home";
 
   get isInstructor() {
-    return this.$store.getters.userType == "instructor";
+    return this.$store.getters.isInstructor;
   }
 
   get isStudent() {
-    return this.$store.getters.userType == "student";
+    return    this.$store.getters.isStudent;
   }
 }
 </script>

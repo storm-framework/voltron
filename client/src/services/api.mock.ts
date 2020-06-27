@@ -31,12 +31,12 @@ class ApiService {
   constructor(private currentUser: User | null) {}
 
   // Auth
-  instructor(u:User): UserData {
-    return { kind: "instructor", user: u, allBuffers: Object.values(BUFFERS) }
+  instructor(user: User): UserData {
+    return { tag: "Instructor", info: user, allBuffers: Object.values(BUFFERS) }
   }
 
-  student(u: User): UserData { 
-    return { kind: "student", user: u, grpBuffer: BUFFERS[u.group] }
+  student(user: User): UserData { 
+    return { tag: "Student", info: user, grpBuffer: BUFFERS[user.group] }
   }
 
   mockUserData(userName: string): UserData {

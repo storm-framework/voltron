@@ -1,10 +1,10 @@
-import { AppState, AuthInfo } from "@/types";
+import { UserData, AuthInfo } from "@/types";
 
 import Mock from "./api.mock";
 import Server from "./api.server";
 
 interface ApiService {
-  signIn(info: AuthInfo): Promise<AppState>;
+  signIn(info: AuthInfo): Promise<UserData>;
 
   isSignedIn(): boolean;
 }

@@ -6,7 +6,7 @@
 
 module Controllers.User where
 
-import           Data.Text                      ( Text )
+import           Data.Text                      ( Text, pack )
 import           Data.Int                       ( Int64 )
 import           Data.Maybe
 import           Database.Persist.Sql           ( fromSqlKey
@@ -49,17 +49,39 @@ extractUserData u = do
   lastName     <- project userLastName' u
   level        <- project userLevel' u
   group        <- project userGroup' u
-  return $ _fixme -- UserData id emailAddress firstName lastName level group 
+  let uNG       = UserNG firstName lastName group
+  case level of
+    "instructor"    -> extractInstructor u uNG
+    _ {- student -} -> extractStudent    u uNG 
 
--- data UserData = UserData
---   { userId           :: UserId
---   , userEmailAddress :: Text
---   -- , userFirstName    :: Text
---   -- , userLastName     :: Text
---   , userLevel        :: String
---   -- , userGroup        :: Maybe GroupId
---   }
---   deriving Generic
+extractInstructor :: Entity User -> UserNG -> Controller UserData
+extractInstructor u user = do 
+  allGroups <- selectList trueF
+  allBufs   <- mapMC extractBuffer allGroups
+  return (Instructor user allBufs)
+
+extractStudent :: Entity User -> UserNG -> Controller UserData
+extractStudent u (user@UserNG {..}) = case userGroup of
+  Nothing  -> 
+    respondTagged $ errorResponse status401 (Just "Undefined group")
+  Just groupId -> do 
+    group <- selectFirstOr (errorResponse status401 (Just "Invalid group"))
+               (groupId' ==. groupId)
+    myBuf <- extractBuffer group
+    return (Student user myBuf)
+
+extractBuffer :: Entity Group -> Controller Buffer
+extractBuffer group = do
+  bId   <- undefined
+  bHash <- project groupEditorLink' group
+  let bText  = "-- Code for group: " <> pack (show bId)
+  return $ Buffer bId bHash bText
+
+instance ToJSON Buffer where
+  toEncoding = genericToEncoding (stripPrefix "buffer")
+
+instance ToJSON UserNG where
+  toEncoding = genericToEncoding (stripPrefix "user")
 
 instance ToJSON UserData where
   toEncoding = genericToEncoding (stripPrefix "user")
@@ -72,15 +94,22 @@ data UserNG = UserNG
   deriving Generic
 
 data UserData 
-  = UserStudent 
-     { user      :: UserNG
-     , grpBuffer :: Text
+  = Student 
+     { userInfo      :: UserNG
+     , userGrpBuffer :: Buffer
      }
-  | UserInstructor 
-     { user       :: UserNG 
-     , allBuffers :: [Text]
+  | Instructor 
+     { userInfo       :: UserNG 
+     , userAllBuffers :: [Buffer]
      }
-  | UserNone
+  | None
+  deriving Generic
+
+data Buffer = Buffer
+  { bufferId   :: GroupId
+  , bufferHash :: Text
+  , bufferText :: Text
+  }
   deriving Generic
 
 ----------------------------------------------------------------------------------------------------

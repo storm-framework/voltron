@@ -113,7 +113,7 @@ signIn = do
   SignInReq emailAddress password <- decodeBody
   user                            <- authUser emailAddress password
   userId                          <- project userId' user
-  token                           <- genJwt userId
+  token                           <- return "TODO:genJwt userId"
   userData                        <- extractUserData user
   respondJSON status200 $ AuthRes (unpackLazy8 token) userData
 
@@ -170,7 +170,7 @@ signUp = do
   userId   <- insert user
   _        <- updateWhere (invitationId' ==. id) (invitationAccepted' `assign` True)
   user     <- selectFirstOr notFoundJSON (userId' ==. userId)
-  token    <- genJwt userId
+  token    <- error "TODO: genJwt userId"
   userData <- extractUserData user
   respondJSON status201 $ AuthRes (unpackLazy8 token) userData
 
@@ -225,17 +225,17 @@ checkIfAuth = do
 -- | JWT
 -------------------------------------------------------------------------------
 
-{-@ ignore genJwt @-}
-genJwt :: UserId -> Controller L.ByteString
-genJwt userId = do
-  claims <- liftTIO $ mkClaims userId
-  jwt    <- liftTIO $ doJwtSign claims
-  case jwt of
-    Right jwt                         -> return (encodeCompact jwt)
-    Left  (JWSError                e) -> respondError status500 (Just (show e))
-    Left  (JWTClaimsSetDecodeError s) -> respondError status400 (Just s)
-    Left  JWTExpired                  -> respondError status401 (Just "expired token")
-    Left  _                           -> respondError status401 Nothing
+-- {-@ ignore genJwt @-}
+-- genJwt :: UserId -> Controller L.ByteString
+-- genJwt userId = do
+--   claims <- liftTIO $ mkClaims userId
+--   jwt    <- liftTIO $ doJwtSign claims
+--   case jwt of
+--     Right jwt                         -> return (encodeCompact jwt)
+--     Left  (JWSError                e) -> respondError status500 (Just (show e))
+--     Left  (JWTClaimsSetDecodeError s) -> respondError status400 (Just s)
+--     Left  JWTExpired                  -> respondError status401 (Just "expired token")
+--     Left  _                           -> respondError status401 Nothing
 
 mkClaims :: UserId -> TIO ClaimsSet
 mkClaims userId = do
