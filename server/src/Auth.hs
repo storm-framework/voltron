@@ -116,8 +116,9 @@ signIn = do
    userId                          <- project userId' user
    token                           <- return "TODO:genJwt userId"
    userData                        <- extractUserData user
---   respondTagged $ errorResponse status401 (Just "Got USER-DATA!")
+   -- respondTagged $ errorResponse status401 (Just "Got USER-DATA!")
    respondJSON status200 $ AuthRes "TODO:unpackLazy8 token" userData
+-- respondTagged $ errorResponse status401 (Just "Got JFC!")
 
 {-@ ignore authUser @-}
 authUser :: Text -> Text -> Controller (Entity User)

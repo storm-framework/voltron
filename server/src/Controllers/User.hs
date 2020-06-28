@@ -64,7 +64,6 @@ extractInstructor u user = do
 
 extractStudent :: Entity User -> UserNG -> Controller UserData
 extractStudent u (user@UserNG {..}) = case userGroup of
-  -- respondTagged $ errorResponse status401 (Just "Foo Bar Baz Quux")
   Nothing  -> 
     respondTagged $ errorResponse status401 (Just "Undefined group")
   Just groupId -> do 
@@ -73,30 +72,30 @@ extractStudent u (user@UserNG {..}) = case userGroup of
     myBuf <- extractBuffer group
     return (Student user myBuf)
 
-extractBuffer :: Entity Group -> Controller Buffer
-extractBuffer group = project groupEditorLink' group
+-- type Buffer = Text
 
 -- extractBuffer :: Entity Group -> Controller Buffer
--- extractBuffer group = do
---   bId   <- undefined
---   bHash <- project groupEditorLink' group
+-- extractBuffer group = project groupEditorLink' group
 
---   let bText  = "-- Code for group: " <> pack (show bId)
---   return $ traceShow "extractBuffer" (Buffer bId bHash bText)
+extractBuffer :: Entity Group -> Controller Buffer
+extractBuffer group = do
+  bId   <- project groupId'         group
+  bHash <- project groupEditorLink' group
+  let bText  = "-- Code for group: " <> pack (show bId)
+  return $ {- traceShow "extractBuffer" -} (Buffer bId bHash bText)
 
 traceShow :: (Show a) => String -> a -> a 
 traceShow msg x = Debug.Trace.trace (msg <> ": " <> (show x)) x
 
-type Buffer = Text
+data Buffer = Buffer
+  { bufferId   :: GroupId
+  , bufferHash :: Text
+  , bufferText :: Text
+  }
+  deriving (Show, Generic)
 
--- data Buffer = Buffer
---   { bufferId   :: GroupId
---   , bufferHash :: Text
---   , bufferText :: Text
---   }
---   deriving (Show, Generic)
--- instance ToJSON Buffer where
---  toEncoding = genericToEncoding (stripPrefix "buffer")
+instance ToJSON Buffer where
+ toEncoding = genericToEncoding (stripPrefix "buffer")
 
 instance ToJSON UserNG where
   toEncoding = genericToEncoding (stripPrefix "user")
