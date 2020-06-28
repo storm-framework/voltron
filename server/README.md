@@ -23,27 +23,35 @@ Enrolled
 
 ## TODO
 
-- [*] Create MANUAL DB
+- [x] Create MANUAL DB
 
-- [-] '/login'  route (with fake text password)
-    - [*] front
-    - [ ] back: respond with AppState
+- [x] '/login'  route (with fake text password)
+    - [x] front
+    - [x] back: respond with AppState
 
-- [ ] '/home'   route for student 
+- [ ] firstName, lastName
     - [ ] front
     - [ ] back
 
-- [ ] '/home'   route for instructor 
+- [ ] 'Groups' view for instructor
     - [ ] front
+	- CSV OR textbox of group
     - [ ] back
+	- `/api/addgroup`
+	- create group in db
 
 - [ ] '/enroll' route for instructor
     - [ ] front
+    	- CSV or textbox of email, group
     - [ ] back
+    	- `/api/addstudent`
+	- create student account (with random password) and add to group in db, send EMAIL to student?
 
-- [ ] '/groups' route for instructor
-    - [ ] front
-    - [ ] back
+ASK Nico, do we want "signup" or "reset" password?
+
+- [ ] 'signup' route for student
+    - [ ]  choose password etc
+    - [ ] `/api/signup`
 
 ## Populating the Database
 
