@@ -110,12 +110,14 @@ addUser role grp (UserCreate {..}) = do
 {-@ ignore signIn @-}
 signIn :: Controller ()
 signIn = do
-  SignInReq emailAddress password <- decodeBody
-  user                            <- authUser emailAddress password
-  userId                          <- project userId' user
-  token                           <- return "TODO:genJwt userId"
-  userData                        <- extractUserData user
-  respondJSON status200 $ AuthRes (unpackLazy8 token) userData
+   SignInReq emailAddress password <- decodeBody
+   user                            <- authUser emailAddress password
+   -- respondTagged $ errorResponse status401 (Just "Got USER!")
+   userId                          <- project userId' user
+   token                           <- return "TODO:genJwt userId"
+   userData                        <- extractUserData user
+--   respondTagged $ errorResponse status401 (Just "Got USER-DATA!")
+   respondJSON status200 $ AuthRes "TODO:unpackLazy8 token" userData
 
 {-@ ignore authUser @-}
 authUser :: Text -> Text -> Controller (Entity User)
@@ -172,7 +174,7 @@ signUp = do
   user     <- selectFirstOr notFoundJSON (userId' ==. userId)
   token    <- error "TODO: genJwt userId"
   userData <- extractUserData user
-  respondJSON status201 $ AuthRes (unpackLazy8 token) userData
+  respondJSON status201 $ AuthRes ("TODO: unpackLazy8 token") userData
 
 data SignUpReq = SignUpReq
   { signUpReqInvitationCode :: InvitationCode
