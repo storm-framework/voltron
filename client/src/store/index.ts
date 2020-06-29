@@ -19,7 +19,7 @@ export default new Vuex.Store({
       switch (userData.tag) {
         case "None":
           return;
-        default:{
+        default: {
           state.userData = userData;
           state.sessionUser = userData.info;
         }
@@ -31,10 +31,10 @@ export default new Vuex.Store({
     signIn({ commit }, auth: AuthInfo) {
       ApiService.signIn(auth)
         .then(res => {
-           console.log("ApiService.signIn", res)
-           commit("setBuffers", res);
-           console.log(res);
-         })
+          console.log("ApiService.signIn", res);
+          commit("setBuffers", res);
+          console.log(res);
+        })
         .catch(error => console.log("action-signin-catch", error));
 
       // axios.post('/verifyPassword?key=[add your Firebase API key here]',{
@@ -49,15 +49,15 @@ export default new Vuex.Store({
   },
   getters: {
     // userType: ({ userData }) => {
-    //   return userData.tag; 
+    //   return userData.tag;
     // },
 
     isInstructor: ({ userData }) => {
-      return userData.tag == "Instructor"; 
+      return userData.tag == "Instructor";
     },
 
     isStudent: ({ userData }) => {
-      return userData.tag == "Student"; 
+      return userData.tag == "Student";
     },
 
     currentUser: ({ sessionUser }) => {
@@ -65,18 +65,22 @@ export default new Vuex.Store({
     },
 
     studentBuffer: ({ userData }) => {
-      switch (userData.tag) { 
-        case "Student": return userData.grpBuffer;
-        default: return null;
+      switch (userData.tag) {
+        case "Student":
+          return userData.grpBuffer;
+        default:
+          return null;
       }
     },
 
     instructorBuffers: ({ userData }) => {
-      switch (userData.tag) { 
-        case "Instructor": return userData.allBuffers;
-        default: return null;
+      switch (userData.tag) {
+        case "Instructor":
+          return userData.allBuffers;
+        default:
+          return null;
       }
-    },
+    }
   },
   modules: {}
 });

@@ -10,22 +10,18 @@ export interface DivBuffer {
 }
 
 export interface Student { 
-  tag: "Student";
-  info: User;
   grpBuffer: Buffer;
 }
 
 export interface Instructor {
-  tag: "Instructor";
-  info: User;
   allBuffers: Array<Buffer>;
 } 
 
-export interface None {
-  tag: "None";
+export interface UserData {
+  user: User;
+  instructor: Array<Instructor>;
+  student: Array<Student>;
 }
-
-export type UserData = Student | Instructor | None;
 
 export interface AuthInfo {
   emailAddress: string;
