@@ -23,15 +23,11 @@ Enrolled
 
 ## TODO
 
-- [x] Create MANUAL DB
+- [ ] Create MANUAL DB
 
-- [x] '/login'  route (with fake text password)
-    - [x] front
-    - [x] back: respond with AppState
-
-- [ ] firstName, lastName
+- [ ] '/login'  route (with fake text password)
     - [ ] front
-    - [ ] back
+    - [ ] back: respond with AppState
 
 - [ ] 'Groups' view for instructor
     - [ ] front

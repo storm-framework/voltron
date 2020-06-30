@@ -29,19 +29,29 @@ User
   password      ByteString
   firstName     Text
   lastName      Text
-  level         String
-  group         GroupId Maybe
+  admin         Bool
 
   insert {\new viewer -> IsInstructor viewer }
-  read [ password ] @IsSelf
+  read   [ password ] @IsSelf
   update [ password, level, emailAddress ] {\_ _ _ -> False}
   update [ firstName, lastName ] {\old _ viewer -> IsSelf old viewer}
+
+Class 
+  institution Text
+  name        Text
+  instructor  UserId
 
 Group
   name       Text
   editorLink Text
+  class      ClassId
+
   insert {\_ viewer -> IsInstructor viewer}
   update [ name, editorLink ] {\_ _ viewer -> IsInstructor viewer}
+
+Student
+  user       UserId       
+  group      GroupId
 
 policy IsSelf = \user viewer ->
   viewer == user
