@@ -1,29 +1,30 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { LoginResponse, UserData, User, AuthInfo } from "@/types";
+import { LoginResponse, UserData, AuthInfo } from "@/types";
 import ApiService from "@/services/api";
 
 Vue.use(Vuex);
 
-type State = { userData: UserData; sessionUser: User | null };
+type State = {
+  userData: UserData | null;
+  accessToken: string | null;
+  currentClass: number;
+};
 
-const initState: State = { userData: { tag: "None" }, sessionUser: null };
+const initState: State = {
+  userData: null,
+  accessToken: null,
+  currentClass: 0
+};
 
 export default new Vuex.Store({
   state: initState,
 
   mutations: {
-    setBuffers(state, payload: LoginResponse) {
-      console.log("mutation-setBuffers", payload);
-      const userData = payload.user;
-      switch (userData.tag) {
-        case "None":
-          return;
-        default: {
-          state.userData = userData;
-          state.sessionUser = userData.info;
-        }
-      }
+    initUser(state, payload: LoginResponse) {
+      console.log("mutation-initUser", payload);
+      state.userData = payload.user;
+      state.accessToken = payload.accessToken;
     }
   },
 
@@ -32,7 +33,7 @@ export default new Vuex.Store({
       ApiService.signIn(auth)
         .then(res => {
           console.log("ApiService.signIn", res);
-          commit("setBuffers", res);
+          commit("initUser", res);
           console.log(res);
         })
         .catch(error => console.log("action-signin-catch", error));
@@ -48,38 +49,44 @@ export default new Vuex.Store({
     }
   },
   getters: {
-    // userType: ({ userData }) => {
-    //   return userData.tag;
-    // },
-
-    isInstructor: ({ userData }) => {
-      return userData.tag == "Instructor";
+    currentClass: ({ userData, currentClass }) => {
+      return userData && userData.classes[currentClass];
     },
 
-    isStudent: ({ userData }) => {
-      return userData.tag == "Student";
+    isInstructor: (state, getters) => {
+      const cur = getters.currentClass;
+      return cur && cur.tag == "Instructor";
     },
 
-    currentUser: ({ sessionUser }) => {
-      return sessionUser;
+    isStudent: (state, getters) => {
+      const cur = getters.currentClass;
+      return cur && cur.tag == "Student";
     },
 
-    studentBuffer: ({ userData }) => {
-      switch (userData.tag) {
-        case "Student":
-          return userData.grpBuffer;
-        default:
-          return null;
+    currentUser: ({ userData }) => {
+      return userData && userData.user;
+    },
+
+    studentBuffer: (state, getters) => {
+      const cur = getters.currentClass;
+      if (cur) {
+        switch (cur.tag) {
+          case "Student":
+            return cur.grpBuffer;
+        }
       }
+      return null;
     },
 
-    instructorBuffers: ({ userData }) => {
-      switch (userData.tag) {
-        case "Instructor":
-          return userData.allBuffers;
-        default:
-          return null;
+    instructorBuffers: (state, getters) => {
+      const cur = getters.currentClass;
+      if (cur) {
+        switch (cur.tag) {
+          case "Instructor":
+            return cur.allBuffers;
+        }
       }
+      return null;
     }
   },
   modules: {}

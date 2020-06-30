@@ -2,11 +2,14 @@
 
 ## TODO
 
-- [ ] `Types` extend datatype for multiple classes
+- [*] `Types` extend datatype for multiple classes
+- [*] `Store` update to keep ALL information about _all_ classes of this user
 - [ ] `Navbar` add classes dropdown
-- [ ] `Store` update to keep ALL information about _all_ classes of this user
+        - Update `Store` with new `currentClass`
 - [ ] `Instructor` parameterize by class 
+        - Just re-generate class name & user-name
 - [ ] `Student` parameterize by class
+        - Just re-generate class name & user-name
 
 ## Other TODO
 

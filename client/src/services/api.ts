@@ -9,13 +9,13 @@ interface ApiService {
   isSignedIn(): boolean;
 }
 
-let module: ApiService;
-if (process.env.VUE_APP_MOCK_API_SERVICE == "true") {
-  module = Mock;
-} else {
-  module = Server;
-}
+// let module: ApiService;
+// if (process.env.VUE_APP_MOCK_API_SERVICE == "true") {
+//   module = Mock;
+// } else {
+//   module = Server;
+// }
 
-// const module = Mock;
+const module = Mock;
 
 export default module;
