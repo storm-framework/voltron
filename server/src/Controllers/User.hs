@@ -28,6 +28,7 @@ import           Controllers
 import           Controllers.Invitation         ( InvitationCode(..) )
 import           Model
 import           JSON
+import           Types
 
 import qualified Debug.Trace 
 
@@ -86,43 +87,6 @@ extractBuffer group = do
 
 traceShow :: (Show a) => String -> a -> a 
 traceShow msg x = Debug.Trace.trace (msg <> ": " <> (show x)) x
-
-data Buffer = Buffer
-  { bufferId   :: GroupId
-  , bufferHash :: Text
-  , bufferText :: Text
-  }
-  deriving (Show, Generic)
-
-instance ToJSON Buffer where
- toEncoding = genericToEncoding (stripPrefix "buffer")
-
-instance ToJSON UserNG where
-  toEncoding = genericToEncoding (stripPrefix "user")
-
-instance ToJSON UserData where
-  toEncoding = genericToEncoding (stripPrefix "user")
-
-data UserNG = UserNG 
-  { userFirstName :: Text
-  , userLastName  :: Text
-  , userGroup     :: Maybe GroupId
-  }
-  deriving Generic
-
-data UserData 
-  = Student 
-     { userInfo      :: UserNG
-     , userGrpBuffer :: Buffer
-     }
-  | Instructor 
-     { userInfo       :: UserNG 
-     , userAllBuffers :: [Buffer]
-     }
-  | None
-  deriving Generic
-
-
 
 ----------------------------------------------------------------------------------------------------
 -- | User Get

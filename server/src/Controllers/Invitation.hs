@@ -49,7 +49,7 @@ import           System.IO.Unsafe               ( unsafePerformIO )
 invitationPut :: Controller ()
 invitationPut = do
   viewer           <- requireAuthUser
-  _                <- requireInstructor viewer
+  -- _                <- requireInstructor viewer
   (PutReq reqData) <- decodeBody
   codes            <- genRandomCodes (length reqData)
   let invitations = zipWith
@@ -165,7 +165,7 @@ invitationGet iid = do
 invitationList :: Controller ()
 invitationList = do
   viewer      <- requireAuthUser
-  _           <- requireInstructor viewer
+  -- _           <- requireInstructor viewer
   invitations <- selectList trueF
   res         <- mapMC extractInvitationData invitations
   respondJSON status200 res

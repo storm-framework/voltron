@@ -111,13 +111,13 @@ decodeBody = do
     Left  s -> respondError status400 (Just s)
     Right a -> return a
 
-{-@ requireInstructor ::
-  u: _ -> TaggedT<{\_ -> True}, {\v -> v == currentUser}> _ {v: () | IsInstructor u}
-@-}
-requireInstructor :: Entity User -> Controller ()
-requireInstructor user = do
-  level <- project userLevel' user
-  if level == "instructor" then return () else respondError status403 Nothing
+-- {-@ requireInstructor ::
+--   u: _ -> TaggedT<{\_ -> True}, {\v -> v == currentUser}> _ {v: () | IsInstructor u}
+-- @-}
+-- requireInstructor :: Entity User -> Controller ()
+-- requireInstructor user = do
+--   level <- project userLevel' user
+--   if level == "instructor" then return () else respondError status403 Nothing
 
 {-@ ignore mapMC @-}
 {-@ mapMC :: forall <inn :: Entity User -> Bool, out :: Entity User -> Bool>.

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: da3e6da8d95770f41e7f9a071231e547122ee2537c4e35925f0c2c0f11b3267b
+-- hash: c284aceaae8e9cacbb9879c31d732b102a9d29edf30a0ba3f6a234ab6ba75d68
 
 name:           server
 version:        0.1.0.0
@@ -49,6 +49,7 @@ library
       Model
       Server
       SMTP
+      Types
   other-modules:
       Paths_server
   hs-source-dirs:
