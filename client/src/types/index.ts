@@ -42,3 +42,8 @@ export interface LoginResponse {
   accessToken: string;
   user: UserData;
 }
+
+export interface ClassView {
+  name: string;
+  index: number;
+}

@@ -57,7 +57,10 @@ export default class SignIn extends Vue {
       .dispatch("signIn", auth)
       .then(() => {
         this.isValid = true;
-        this.$router.replace({ name: "Home" });
+        this.$router.replace({
+          name: "Home",
+          params: this.$store.getters.currentClassId
+        });
       })
       .catch(() => {
         this.loading = false;

@@ -116,6 +116,12 @@ class ApiService {
     ) {
       return this.getLoginResponse("rose");
     }
+    if (
+      info.emailAddress == "nadia@eng.ucsd.edu" &&
+      info.password == "nadia"
+    ) {
+      return this.getLoginResponse("nadia");
+    }
     return Promise.reject("Bad username and/or password!");
 
     // else if ()

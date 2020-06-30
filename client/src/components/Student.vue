@@ -47,9 +47,17 @@ export default class Student extends Vue {
     return { buf: buf, div: div };
   }
 
-  mounted() {
+  initBuffers() {
     const buf = this.studentDivBuffer.buf;
     BufferService.initBuf(buf);
+  }
+
+  mounted() {
+    this.initBuffers();
+  }
+
+  updated() {
+    this.initBuffers();
   }
 }
 </script>

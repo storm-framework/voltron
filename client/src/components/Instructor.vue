@@ -51,10 +51,18 @@ export default class Instructor extends Vue {
     return divBufs;
   }
 
-  mounted() {
+  initBuffers() {
     for (const db of this.instructorDivBuffers) {
       BufferService.initBuf(db.buf);
     }
+  }
+
+  mounted() {
+    this.initBuffers();
+  }
+
+  updated() {
+    this.initBuffers();
   }
 }
 </script>

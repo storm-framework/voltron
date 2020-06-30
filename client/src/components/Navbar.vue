@@ -1,25 +1,37 @@
 <template>
   <b-navbar toggleable="lg" type="dark" variant="primary">
-    <b-navbar-brand to="/">Voltron</b-navbar-brand>
+    <b-navbar-brand
+      :to="{ name: 'Home', params: $store.getters.currentClassId }"
+      >Voltron</b-navbar-brand
+    >
     <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
     <b-collapse id="nav-collapse" is-nav>
       <b-navbar-nav>
         <b-nav-item-dropdown v-if="isSignedIn" text="Classes" right>
-          <b-dropdown-header>Instructor</b-dropdown-header>
-          <b-dropdown-item v-on:click="setInstructor(1)">FIXME1</b-dropdown-item>
-          <b-dropdown-item v-on:click="setInstructor(2)">FIXME2</b-dropdown-item>
-          <b-dropdown-item v-on:click="setInstructor(3)">FIXME3</b-dropdown-item>
-          <b-dropdown-divider />
-          <b-dropdown-header>Student</b-dropdown-header>
-          <b-dropdown-item v-on:click="setStudent(4)">FIXME4</b-dropdown-item>
-          <b-dropdown-item v-on:click="setStudent(5)">FIXME5</b-dropdown-item>
+          <template v-if="isInstructor">
+            <b-dropdown-header>Instructor</b-dropdown-header>
+            <b-dropdown-item
+              v-for="item in instructorClasses"
+              :key="item.index"
+              v-on:click="setClass(item.index)"
+            >
+              {{ item.name }}
+            </b-dropdown-item>
+          </template>
+          <b-dropdown-divider v-if="isInstructor && isStudent" />
+          <template v-if="isStudent">
+            <b-dropdown-header>Student</b-dropdown-header>
+            <b-dropdown-item
+              v-for="item in studentClasses"
+              :key="item.index"
+              v-on:click="setClass(item.index)"
+            >
+              {{ item.name }}
+            </b-dropdown-item>
+          </template>
         </b-nav-item-dropdown>
-
-        <b-nav-item to="/about">About</b-nav-item>
-
         <b-nav-item to="/contact">Contact</b-nav-item>
-
-        <b-nav-item v-if="isSignedIn" to="/signout">Logout</b-nav-item>
+        <b-nav-item v-if="isSignedIn" v-on:click="signOut()">Logout</b-nav-item>
       </b-navbar-nav>
     </b-collapse>
   </b-navbar>
@@ -37,12 +49,35 @@ export default class Navbar extends Vue {
     return this.$store.getters.isSignedIn;
   }
 
-  setInstructor(x: number) {
-    console.log("class-instructor", x);
+  get instructorClasses() {
+    const classes = this.$store.getters.instructorClasses;
+    console.log("instructor-classes", classes);
+    return classes;
   }
 
-  setStudent(x: number) {
-    console.log("class-student", x);
+  get isInstructor() {
+    return this.instructorClasses.length > 0;
+  }
+
+  get studentClasses() {
+    const classes = this.$store.getters.studentClasses;
+    console.log("student-classes", classes);
+    return classes;
+  }
+
+  get isStudent() {
+    return this.studentClasses.length > 0;
+  }
+
+  setClass(classId: string) {
+    console.log("set-class", classId);
+    this.$store.commit("setCurrentClass", classId);
+    this.$router.push({ name: "Home", params: { classId } });
+  }
+
+  signOut() {
+    this.$store.commit("signOut");
+    this.$router.push({ name: "Login" });
   }
 }
 </script>
