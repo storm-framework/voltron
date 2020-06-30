@@ -86,7 +86,9 @@ class ApiService {
   }
 
   getLoginResponse(name: string): LoginResponse {
-    return { accessToken: "dummy", user: this.getUserData(name) };
+    const userData = this.getUserData(name);
+    this.currentUser = userData.user;
+    return { accessToken: "dummy", user: userData };
   }
 
   isSignedIn() {

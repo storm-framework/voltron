@@ -32,7 +32,7 @@ export default class Home extends Vue {
   }
 
   get isStudent() {
-    return    this.$store.getters.isStudent;
+    return this.$store.getters.isStudent;
   }
 }
 </script>

@@ -53,6 +53,10 @@ export default new Vuex.Store({
       return userData && userData.classes[currentClass];
     },
 
+    isSignedIn: ({ userData }) => {
+      return userData != null;
+    },
+
     isInstructor: (state, getters) => {
       const cur = getters.currentClass;
       return cur && cur.tag == "Instructor";

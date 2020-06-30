@@ -1,15 +1,15 @@
 <template>
-<b-container>
-  <div class="page-header">
-    <b-row>
-      <b-col lg="12" md="8" sm="4">
-        <h2 class="d-inline">CSE 230</h2>
-        <b-button variant="success" size="lg" class="float-right">
-          Instructor: {{ instructorName }}
-        </b-button>
-      </b-col>
-    </b-row>
-  </div>
+  <b-container>
+    <div class="page-header">
+      <b-row>
+        <b-col lg="12" md="8" sm="4">
+          <h2 class="d-inline">{{ className }}</h2>
+          <b-button variant="success" size="lg" class="float-right">
+            Instructor: {{ instructorName }}
+          </b-button>
+        </b-col>
+      </b-row>
+    </div>
     <br />
     <div class="row">
       <div
@@ -25,7 +25,7 @@
         </div>
       </div>
     </div>
-</b-container>
+  </b-container>
 </template>
 
 <script lang="ts">
@@ -38,9 +38,11 @@ export default class Instructor extends Vue {
   name = "Instructor";
 
   get instructorName() {
-    return this.$store.getters.currentUser.name;
+    return this.$store.getters.currentUser.firstName;
   }
-
+  get className() {
+    return this.$store.getters.currentClass.class;
+  }
   get instructorDivBuffers(): Array<DivBuffer> {
     const bufs: Array<Buffer> = this.$store.getters.instructorBuffers;
     const divBufs = bufs.map(buf => {
