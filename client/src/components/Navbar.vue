@@ -5,10 +5,14 @@
     <b-collapse id="nav-collapse" is-nav>
       <b-navbar-nav>
         <b-nav-item-dropdown v-if="isSignedIn" text="Classes" right>
-          <b-dropdown-item href="#">EN</b-dropdown-item>
-          <b-dropdown-item href="#">ES</b-dropdown-item>
-          <b-dropdown-item href="#">RU</b-dropdown-item>
-          <b-dropdown-item href="#">FA</b-dropdown-item>
+          <b-dropdown-header>Instructor</b-dropdown-header>
+          <b-dropdown-item v-on:click="setInstructor(1)">FIXME1</b-dropdown-item>
+          <b-dropdown-item v-on:click="setInstructor(2)">FIXME2</b-dropdown-item>
+          <b-dropdown-item v-on:click="setInstructor(3)">FIXME3</b-dropdown-item>
+          <b-dropdown-divider />
+          <b-dropdown-header>Student</b-dropdown-header>
+          <b-dropdown-item v-on:click="setStudent(4)">FIXME4</b-dropdown-item>
+          <b-dropdown-item v-on:click="setStudent(5)">FIXME5</b-dropdown-item>
         </b-nav-item-dropdown>
 
         <b-nav-item to="/about">About</b-nav-item>
@@ -31,6 +35,14 @@ export default class Navbar extends Vue {
 
   get isSignedIn() {
     return this.$store.getters.isSignedIn;
+  }
+
+  setInstructor(x: number) {
+    console.log("class-instructor", x);
+  }
+
+  setStudent(x: number) {
+    console.log("class-student", x);
   }
 }
 </script>
