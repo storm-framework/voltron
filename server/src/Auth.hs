@@ -53,13 +53,13 @@ import           Binah.Templates
 import           Binah.Frankie
 
 import           Controllers
-import           Controllers.User               ( extractUserData
-                                                , UserData
-                                                )
+import           Controllers.User               ( extractUserData )
 import           Controllers.Invitation         ( InvitationCode(..) )
 import           Model
 import           JSON
 import           Crypto
+import           Types 
+
 -- import           AWS
 -- import           Network.AWS.S3
 -- import           Network.AWS.Data.Text          ( toText )
@@ -72,7 +72,7 @@ addInstructor user = addUser "instructor" Nothing user
 -- Add a group from cmd-line ------------------------------------------------
 addGroup :: Text -> Text -> Task GroupId
 addGroup grpName editorLink = do 
-  let grp = mkGroup grpName editorLink 
+  let grp = _fixme_addGroup -- mkGroup grpName editorLink 
   insert grp
 
 -- Add a student from cmd-line ----------------------------------------------
@@ -99,8 +99,7 @@ addUser role grp (UserCreate {..}) = do
                     encrypted
                     firstName
                     lastName
-                    role -- "instructor"
-                    grp  -- Nothing
+                    False -- role -- "instructor"
   insert user
 
 --------------------------------------------------------------------------------
@@ -117,7 +116,7 @@ signIn = do
    token                           <- return "TODO:genJwt userId"
    userData                        <- extractUserData user
    -- respondTagged $ errorResponse status401 (Just "Got USER-DATA!")
-   respondJSON status200 $ AuthRes "TODO:unpackLazy8 token" userData
+   respondJSON status200 $ LoginResponse "TODO:unpackLazy8 token" userData
 -- respondTagged $ errorResponse status401 (Just "Got JFC!")
 
 {-@ ignore authUser @-}
@@ -139,15 +138,6 @@ data SignInReq = SignInReq
 instance FromJSON SignInReq where
   parseJSON = genericParseJSON (stripPrefix "signInReq")
 
-data AuthRes = AuthRes
-  { authResAccessToken :: String
-  , authResUser        :: UserData
-  }
-  deriving Generic
-    
-instance ToJSON AuthRes where
-  toEncoding = genericToEncoding (stripPrefix "authRes")
-
 -------------------------------------------------------------------------------
 -- | SignUp
 -------------------------------------------------------------------------------
@@ -161,8 +151,7 @@ signUp = do
                     encrypted
                     firstName
                     lastName
-                    "attendee"
-                    Nothing
+                    False 
   _ <- selectFirstOr
     (errorResponse status403 (Just "invalid invitation"))
     (   (invitationId' ==. id)
@@ -175,7 +164,7 @@ signUp = do
   user     <- selectFirstOr notFoundJSON (userId' ==. userId)
   token    <- error "TODO: genJwt userId"
   userData <- extractUserData user
-  respondJSON status201 $ AuthRes ("TODO: unpackLazy8 token") userData
+  respondJSON status201 $ LoginResponse ("TODO: unpackLazy8 token") userData
 
 data SignUpReq = SignUpReq
   { signUpReqInvitationCode :: InvitationCode

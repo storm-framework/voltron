@@ -50,40 +50,60 @@ extractUserData u = do
   emailAddress <- project userEmailAddress' u
   firstName    <- project userFirstName' u
   lastName     <- project userLastName' u
-  level        <- project userLevel' u
-  group        <- project userGroup' u
-  let uNG       = UserNG firstName lastName group
-  case level of
-    "instructor"    -> extractInstructor u uNG
-    _ {- student -} -> extractStudent    u uNG 
+  let uNG       = UserNG firstName lastName
+  classes      <- extractUserClasses u
+  return $ UserData uNG classes
+  -- level        <- project userLevel' u
+  -- group        <- project userGroup' u
+  -- case level of
+  --   "instructor"    -> extractInstructor u uNG
+  --   _ {- student -} -> extractStudent    u uNG 
 
-extractInstructor :: Entity User -> UserNG -> Controller UserData
-extractInstructor u user = do 
-  allGroups <- selectList trueF
+extractUserClasses :: Entity User -> Controller [ClassData]
+extractUserClasses u = do
+  instrClasses   <- extractInstrClasses u
+  studentClasses <- extractStudentClasses u
+  return (instrClasses ++ studentClasses)
+
+extractInstrClasses :: Entity User -> Controller [ClassData]
+extractInstrClasses u = do
+  uId        <- project userId' u
+  classes    <- selectList (classInstructor' ==. uId)
+  mapMC (extractInstrData u) classes 
+
+extractInstrData :: Entity User -> Entity Class -> Controller ClassData
+extractInstrData u cls = do
+  clsId     <- project classId' cls
+  clsName   <- project className' cls
+  allGroups <- selectList (groupClass' ==. clsId)
   allBufs   <- mapMC extractBuffer allGroups
-  return (Instructor user allBufs)
+  return (Instructor clsName allBufs)
 
-extractStudent :: Entity User -> UserNG -> Controller UserData
-extractStudent u (user@UserNG {..}) = case userGroup of
-  Nothing  -> 
-    respondTagged $ errorResponse status401 (Just "Undefined group")
-  Just groupId -> do 
-    group <- selectFirstOr (errorResponse status401 (Just "Invalid group"))
-               (groupId' ==. groupId)
-    myBuf <- extractBuffer group
-    return (Student user myBuf)
+extractStudentClasses :: Entity User -> Controller [ClassData]
+extractStudentClasses = _fixme
 
--- type Buffer = Text
+-- extractInstructor :: Entity User -> UserNG -> Controller UserData
+-- extractInstructor u user = do 
+--   allGroups <- selectList trueF
+--   allBufs   <- mapMC extractBuffer allGroups
+--   return (Instructor user allBufs)
 
--- extractBuffer :: Entity Group -> Controller Buffer
--- extractBuffer group = project groupEditorLink' group
+-- extractStudent :: Entity User -> UserNG -> Controller UserData
+-- extractStudent u (user@UserNG {..}) = case userGroup of
+--   Nothing  -> 
+--     respondTagged $ errorResponse status401 (Just "Undefined group")
+--   Just groupId -> do 
+--     group <- selectFirstOr (errorResponse status401 (Just "Invalid group"))
+--                (groupId' ==. groupId)
+--     myBuf <- extractBuffer group
+--     return (Student user myBuf)
 
 extractBuffer :: Entity Group -> Controller Buffer
 extractBuffer group = do
   bId   <- project groupId'         group
   bHash <- project groupEditorLink' group
   let bText  = "-- Code for group: " <> pack (show bId)
-  return $ {- traceShow "extractBuffer" -} (Buffer bId bHash bText)
+  return $ Buffer bId bHash bText
 
 traceShow :: (Show a) => String -> a -> a 
 traceShow msg x = Debug.Trace.trace (msg <> ": " <> (show x)) x
