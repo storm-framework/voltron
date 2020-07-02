@@ -15,24 +15,32 @@ import           System.Environment
 import           Server
 import           Config
 import qualified Auth                           
+import           Types
 
 main :: IO ()
 main = do
   args <- cmdArgs voltronModes 
   case args of
+
     Server {..} -> do
       runServer $ ServerOpts port (fromString host) static pool db
-    AddInstructor {..} -> do
-      let user = Auth.UserCreate email password "" ""
-      instrId <- runTask' db $ Auth.addInstructor user
-      putStrLn ("Add Instructor: " ++ show instrId)
-      return ()
+
+    AddUser {..} -> do
+      let thing = CreateUser email password "" ""
+      rId <- runTask' db $ Auth.addUser thing 
+      putStrLn ("Add User: " ++ show rId)
+
+    AddClass {..} -> do
+      let thing = CreateClass institution className instructor 
+      rId <- runTask' db $ Auth.addClass thing 
+      putStrLn ("Add Class: " ++ show rId)
+
     AddGroup {..} -> do
-      grpId <- runTask' db $ Auth.addGroup grpName editorLink
-      putStrLn ("Add Group: " ++ show grpId)
-      return ()
-    AddStudent {..} -> do  
-      let user = Auth.UserCreate email password "" ""
-      studentId <- runTask' db $ Auth.addStudent user grpName
-      putStrLn ("Add Student: " ++ show studentId)
-      return ()
+      let thing = CreateGroup className groupName editorLink
+      rId <- runTask' db $ Auth.addGroup thing 
+      putStrLn ("Add Group: " ++ show rId)
+
+    AddEnroll {..} -> do
+      let thing = CreateEnroll student className groupName 
+      rId <- runTask' db $ Auth.addEnroll thing 
+      putStrLn ("Add Group: " ++ show rId)

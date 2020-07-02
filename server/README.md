@@ -23,14 +23,14 @@ Enrolled
 
 ## TODO
 
-- [ ] Create MANUAL DB
-
-- [ ] '/login'  route (with fake text password)
-    - [ ] front
-    - [ ] back: respond with AppState
+- Create MANUAL DB
+  - [ ] add-user   -email=EMAIL      -password=PASSWORD -first=NAME -last=NAME
+  - [ ] add-class  -institution=NAME -name=NAME         -instructor=EMAIL
+  - [ ] add-group  -class=NAME       -editorLink=HASH   -name=NAME
+  - [ ] add-enroll -student=EMAIL    -class=NAME        -group=NAME
 
 - [ ] 'Groups' view for instructor
-    - [ ] front
+  - [ ] front
 	- CSV OR textbox of group
     - [ ] back
 	- `/api/addgroup`

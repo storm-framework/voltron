@@ -20,12 +20,12 @@ module Model
   , mkUser
   , mkClass
   , mkGroup
-  , mkStudent
+  , mkEnroll
   , Invitation
   , User
   , Class
   , Group
-  , Student
+  , Enroll
   , invitationId'
   , invitationCode'
   , invitationEmailAddress'
@@ -48,14 +48,14 @@ module Model
   , groupName'
   , groupEditorLink'
   , groupClass'
-  , studentId'
-  , studentUser'
-  , studentGroup'
+  , enrollId'
+  , enrollStudent'
+  , enrollGroup'
   , InvitationId
   , UserId
   , ClassId
   , GroupId
-  , StudentId
+  , EnrollId
   )
 
 where
@@ -105,8 +105,8 @@ Group
   class ClassId
   
 
-Student
-  user UserId
+Enroll
+  student UserId
   group GroupId
   
 |]
@@ -547,62 +547,62 @@ groupEditorLink' = EntityFieldWrapper GroupEditorLink
 groupClass' :: EntityFieldWrapper Group ClassId
 groupClass' = EntityFieldWrapper GroupClass
 
--- * Student
-{-@ mkStudent ::
+-- * Enroll
+{-@ mkEnroll ::
      x_0: UserId
   -> x_1: GroupId
   -> BinahRecord <
-       {\row -> studentUser (entityVal row) == x_0 && studentGroup (entityVal row) == x_1}
+       {\row -> enrollStudent (entityVal row) == x_0 && enrollGroup (entityVal row) == x_1}
      , {\_ _ -> True}
      , {\x_0 x_1 -> False}
-     > Student
+     > Enroll
 @-}
-mkStudent x_0 x_1 = BinahRecord (Student x_0 x_1)
+mkEnroll x_0 x_1 = BinahRecord (Enroll x_0 x_1)
 
-{-@ invariant {v: Entity Student | v == getJust (entityKey v)} @-}
+{-@ invariant {v: Entity Enroll | v == getJust (entityKey v)} @-}
 
 
 
-{-@ assume studentId' :: EntityFieldWrapper <
+{-@ assume enrollId' :: EntityFieldWrapper <
     {\row viewer -> True}
   , {\row field  -> field == entityKey row}
   , {\field row  -> field == entityKey row}
   , {\_ -> False}
   , {\_ _ _ -> True}
-  > Student StudentId
+  > Enroll EnrollId
 @-}
-studentId' :: EntityFieldWrapper Student StudentId
-studentId' = EntityFieldWrapper StudentId
+enrollId' :: EntityFieldWrapper Enroll EnrollId
+enrollId' = EntityFieldWrapper EnrollId
 
-{-@ measure studentUser :: Student -> UserId @-}
+{-@ measure enrollStudent :: Enroll -> UserId @-}
 
-{-@ measure studentUserCap :: Entity Student -> Bool @-}
+{-@ measure enrollStudentCap :: Entity Enroll -> Bool @-}
 
-{-@ assume studentUser' :: EntityFieldWrapper <
+{-@ assume enrollStudent' :: EntityFieldWrapper <
     {\_ _ -> True}
-  , {\row field -> field == studentUser (entityVal row)}
-  , {\field row -> field == studentUser (entityVal row)}
-  , {\old -> studentUserCap old}
-  , {\old _ _ -> studentUserCap old}
-  > Student UserId
+  , {\row field -> field == enrollStudent (entityVal row)}
+  , {\field row -> field == enrollStudent (entityVal row)}
+  , {\old -> enrollStudentCap old}
+  , {\old _ _ -> enrollStudentCap old}
+  > Enroll UserId
 @-}
-studentUser' :: EntityFieldWrapper Student UserId
-studentUser' = EntityFieldWrapper StudentUser
+enrollStudent' :: EntityFieldWrapper Enroll UserId
+enrollStudent' = EntityFieldWrapper EnrollStudent
 
-{-@ measure studentGroup :: Student -> GroupId @-}
+{-@ measure enrollGroup :: Enroll -> GroupId @-}
 
-{-@ measure studentGroupCap :: Entity Student -> Bool @-}
+{-@ measure enrollGroupCap :: Entity Enroll -> Bool @-}
 
-{-@ assume studentGroup' :: EntityFieldWrapper <
+{-@ assume enrollGroup' :: EntityFieldWrapper <
     {\_ _ -> True}
-  , {\row field -> field == studentGroup (entityVal row)}
-  , {\field row -> field == studentGroup (entityVal row)}
-  , {\old -> studentGroupCap old}
-  , {\old _ _ -> studentGroupCap old}
-  > Student GroupId
+  , {\row field -> field == enrollGroup (entityVal row)}
+  , {\field row -> field == enrollGroup (entityVal row)}
+  , {\old -> enrollGroupCap old}
+  , {\old _ _ -> enrollGroupCap old}
+  > Enroll GroupId
 @-}
-studentGroup' :: EntityFieldWrapper Student GroupId
-studentGroup' = EntityFieldWrapper StudentGroup
+enrollGroup' :: EntityFieldWrapper Enroll GroupId
+enrollGroup' = EntityFieldWrapper EnrollGroup
 
 --------------------------------------------------------------------------------
 -- | Inline

@@ -61,6 +61,24 @@ selectFirst filters = do
   backend <- ask
   liftTIO . TIO $ runReaderT (Persist.selectFirst (toPersistFilters filters) []) backend
 
+
+selectFirstOrCrash
+  :: ( PersistQueryRead backend
+     , PersistRecordBackend record backend
+     , MonadReader backend m
+     , MonadTIO m
+     )
+  => Filter record
+  -> TaggedT m (Entity record)
+selectFirstOrCrash filters = do
+  resMb <- selectFirst filters
+  case resMb of
+    Nothing -> error "oh no! selectFirstOrCrash!"
+    Just res -> return res
+
+
+
+
 {-@ ignore project @-}
 {-@
 assume project :: forall < policy :: Entity record -> Entity User -> Bool
@@ -126,5 +144,3 @@ assume printTo :: user:_ -> _ -> TaggedT<{\_ -> True}, {\viewer -> viewer == use
 @-}
 printTo :: MonadTIO m => Entity User -> String -> TaggedT m ()
 printTo user = liftTIO . TIO . putStrLn
-    -- . mconcat
-    -- $ ["[", Text.unpack . userName . Persist.entityVal $ user, "] ", str]

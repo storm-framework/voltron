@@ -60,47 +60,57 @@ import           JSON
 import           Crypto
 import           Types 
 
--- import           AWS
--- import           Network.AWS.S3
--- import           Network.AWS.Data.Text          ( toText )
-
 -- Add an instructor from cmd-line ------------------------------------------
-{-@ ignore addInstructor @-}
-addInstructor :: UserCreate -> Task UserId
-addInstructor user = addUser "instructor" Nothing user
+{-@ ignore addUser @-}
+addUser :: CreateUser -> Task UserId
+addUser (CreateUser {..}) = do
+  EncryptedPass encrypted <- encryptPassTIO' (Pass (T.encodeUtf8 userPassword))
+  insert $ mkUser userEmail encrypted userFirst userLast False
+
+-- Add a class from cmd-line ------------------------------------------------
+{-@ ignore addClass @-}
+addClass :: CreateClass -> Task ClassId
+addClass (CreateClass {..}) = do
+  instrId <- lookupUserId classInstructor
+  insert $ mkClass classInstitution className instrId
 
 -- Add a group from cmd-line ------------------------------------------------
-addGroup :: Text -> Text -> Task GroupId
-addGroup grpName editorLink = do 
-  let grp = _fixme_addGroup -- mkGroup grpName editorLink 
-  insert grp
+{-@ ignore addGroup @-}
+addGroup :: CreateGroup -> Task GroupId
+addGroup (CreateGroup {..}) = do 
+  clsId <- lookupClassId groupClass
+  insert $ mkGroup groupName groupEditorLink clsId 
 
--- Add a student from cmd-line ----------------------------------------------
-{-@ ignore addStudent @-}
-addStudent :: UserCreate -> Text -> Task (Maybe UserId) 
-addStudent user grpName = do
-  groupKey <- lookupGroupKey grpName
-  case groupKey of
-    Just gk -> Just <$> addUser "student" (Just gk) user
-    Nothing -> return Nothing 
+-- Add an enroll, i.e. student to a group from cmd-line ----------------------------------------------
+{-@ ignore addEnroll @-}
+addEnroll :: CreateEnroll -> Task EnrollId
+addEnroll (CreateEnroll {..}) = do
+  studentId <- lookupUserId  enrollStudent
+  groupId   <- lookupGroupId enrollGroup 
+  insert     $ mkEnroll studentId groupId
 
-lookupGroupKey :: Text -> Task (Maybe (Key Group))
-lookupGroupKey grpName = do 
-  mbGrp <- selectFirst (groupName' ==. grpName)
-  case mbGrp of
-    Just grp -> Just <$> project groupId' grp 
-    Nothing  -> return Nothing 
+-- addStudent :: CreateUser -> Text -> Task (Maybe UserId) 
+-- addStudent user grpName = do
+--   groupKey <- lookupGroupId grpName
+--   case groupKey of
+--     Just gk -> Just <$> addUser user
+--     Nothing -> return Nothing 
 
-{-@ ignore addUser @-}
-addUser :: String -> Maybe (Key Group) -> UserCreate -> Task UserId
-addUser role grp (UserCreate {..}) = do
-  EncryptedPass encrypted <- encryptPassTIO' (Pass (T.encodeUtf8 password))
-  let user = mkUser emailAddress
-                    encrypted
-                    firstName
-                    lastName
-                    False -- role -- "instructor"
-  insert user
+lookupUserId :: Text -> Task UserId
+lookupUserId email = do
+  r <- selectFirstOrCrash (userEmailAddress' ==. email)
+  project userId' r
+
+lookupGroupId :: Text -> Task GroupId
+lookupGroupId name = do
+  r <- selectFirstOrCrash (groupName' ==. name)
+  project groupId' r
+
+lookupClassId :: Text -> Task ClassId
+lookupClassId name = do
+  r <- selectFirstOrCrash (className' ==. name)
+  project classId' r
+
 
 --------------------------------------------------------------------------------
 -- | SignIn
@@ -145,18 +155,18 @@ instance FromJSON SignInReq where
 {-@ ignore signUp @-}
 signUp :: Controller ()
 signUp = do
-  (SignUpReq (InvitationCode id code) UserCreate {..}) <- decodeBody
-  EncryptedPass encrypted <- encryptPassTIO' (Pass (T.encodeUtf8 password))
-  let user = mkUser emailAddress
+  (SignUpReq (InvitationCode id code) CreateUser {..}) <- decodeBody
+  EncryptedPass encrypted <- encryptPassTIO' (Pass (T.encodeUtf8 userPassword))
+  let user = mkUser userEmail
                     encrypted
-                    firstName
-                    lastName
+                    userFirst
+                    userLast
                     False 
   _ <- selectFirstOr
     (errorResponse status403 (Just "invalid invitation"))
     (   (invitationId' ==. id)
     &&: (invitationCode' ==. code)
-    &&: (invitationEmailAddress' ==. emailAddress)
+    &&: (invitationEmailAddress' ==. userEmail)
     &&: (invitationAccepted' ==. False)
     )
   userId   <- insert user
@@ -168,23 +178,12 @@ signUp = do
 
 data SignUpReq = SignUpReq
   { signUpReqInvitationCode :: InvitationCode
-  , signUpReqUser :: UserCreate
+  , signUpReqUser :: CreateUser
   }
   deriving Generic
 
 instance FromJSON SignUpReq where
   parseJSON = genericParseJSON (stripPrefix "signUpReq")
-
-data UserCreate = UserCreate
-  { emailAddress :: Text
-  , password     :: Text
-  , firstName    :: Text
-  , lastName     :: Text
-  }
-  deriving Generic
-
-instance FromJSON UserCreate where
-  parseJSON = genericParseJSON defaultOptions
 
 -------------------------------------------------------------------------------
 -- | Auth method

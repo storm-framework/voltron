@@ -49,8 +49,8 @@ Group
   insert {\_ viewer -> IsInstructor viewer}
   update [ name, editorLink ] {\_ _ viewer -> IsInstructor viewer}
 
-Student
-  user       UserId       
+Enroll
+  student    UserId       
   group      GroupId
 
 policy IsSelf = \user viewer ->

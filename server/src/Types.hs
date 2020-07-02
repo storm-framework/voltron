@@ -6,8 +6,8 @@ module Types where
 import           Data.Aeson
 import           Data.Text                      ( Text(..) )
 import           GHC.Generics
-import Model
-import JSON
+import           Model
+import           JSON
 
 data Buffer = Buffer
   { bufferId   :: GroupId
@@ -19,7 +19,7 @@ data Buffer = Buffer
 instance ToJSON Buffer where
   toEncoding = genericToEncoding (stripPrefix "buffer")
 
-data UserNG = UserNG 
+data UserNG = UserNG
   { userFirstName :: Text
   , userLastName  :: Text
   }
@@ -28,13 +28,13 @@ data UserNG = UserNG
 instance ToJSON UserNG where
   toEncoding = genericToEncoding (stripPrefix "user")
 
-data ClassData 
-  = Student 
+data ClassData
+  = Student
      { classClass     :: Text
      , classGrpBuffer :: Buffer
      }
-  | Instructor 
-     { classClass      :: Text 
+  | Instructor
+     { classClass      :: Text
      , classAllBuffers :: [Buffer]
      }
   deriving Generic
@@ -42,8 +42,8 @@ data ClassData
 instance ToJSON ClassData where
   toEncoding = genericToEncoding (stripPrefix "class")
 
-data UserData = UserData 
-  { userUser    :: UserNG 
+data UserData = UserData
+  { userUser    :: UserNG
   , userClasses :: [ClassData]
   }
   deriving Generic
@@ -56,7 +56,50 @@ data LoginResponse = LoginResponse
   , respUser        :: UserData
   }
   deriving Generic
-    
+
 instance ToJSON LoginResponse where
   toEncoding = genericToEncoding (stripPrefix "resp")
+
+data CreateUser = CreateUser
+  { userEmail    :: Text
+  , userPassword :: Text
+  , userFirst    :: Text
+  , userLast     :: Text
+  }
+  deriving Generic
+
+instance FromJSON CreateUser where
+  parseJSON = genericParseJSON defaultOptions
+
+data CreateClass = CreateClass
+  { classInstitution :: Text
+  , className        :: Text
+  , classInstructor  :: Text
+  }
+  deriving Generic
+
+instance FromJSON CreateClass where
+  parseJSON = genericParseJSON defaultOptions
+
+data CreateGroup = CreateGroup
+  { groupClass      :: Text
+  , groupName       :: Text
+  , groupEditorLink :: Text
+  }
+  deriving Generic
+
+instance FromJSON CreateGroup where
+  parseJSON = genericParseJSON defaultOptions
+
+data CreateEnroll = CreateEnroll
+  { enrollStudent :: Text
+  , enrollClass   :: Text
+  , enrollGroup   :: Text
+  }
+  deriving Generic
+
+instance FromJSON CreateEnroll where
+  parseJSON = genericParseJSON defaultOptions
+
+
 

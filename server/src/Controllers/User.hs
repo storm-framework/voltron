@@ -46,18 +46,12 @@ userList = do
 
 extractUserData :: Entity User -> Controller UserData
 extractUserData u = do
-  id           <- project userId' u
   emailAddress <- project userEmailAddress' u
   firstName    <- project userFirstName' u
   lastName     <- project userLastName' u
   let uNG       = UserNG firstName lastName
   classes      <- extractUserClasses u
   return $ UserData uNG classes
-  -- level        <- project userLevel' u
-  -- group        <- project userGroup' u
-  -- case level of
-  --   "instructor"    -> extractInstructor u uNG
-  --   _ {- student -} -> extractStudent    u uNG 
 
 extractUserClasses :: Entity User -> Controller [ClassData]
 extractUserClasses u = do
@@ -80,23 +74,20 @@ extractInstrData u cls = do
   return (Instructor clsName allBufs)
 
 extractStudentClasses :: Entity User -> Controller [ClassData]
-extractStudentClasses = _fixme
+extractStudentClasses u = do 
+  uId       <- project userId' u
+  uEnrolls  <- selectList (enrollStudent' ==. uId)
+  mapMC (enrollClassData u) uEnrolls
 
--- extractInstructor :: Entity User -> UserNG -> Controller UserData
--- extractInstructor u user = do 
---   allGroups <- selectList trueF
---   allBufs   <- mapMC extractBuffer allGroups
---   return (Instructor user allBufs)
-
--- extractStudent :: Entity User -> UserNG -> Controller UserData
--- extractStudent u (user@UserNG {..}) = case userGroup of
---   Nothing  -> 
---     respondTagged $ errorResponse status401 (Just "Undefined group")
---   Just groupId -> do 
---     group <- selectFirstOr (errorResponse status401 (Just "Invalid group"))
---                (groupId' ==. groupId)
---     myBuf <- extractBuffer group
---     return (Student user myBuf)
+enrollClassData :: Entity User -> Entity Enroll -> Controller ClassData
+enrollClassData u enroll = do
+  grpId   <- project enrollGroup' enroll
+  grp     <- selectFirstOr notFoundJSON (groupId' ==. grpId)
+  clsId   <- project groupClass' grp
+  cls     <- selectFirstOr notFoundJSON (classId' ==. clsId)
+  clsName <- project className' cls
+  grpBuf  <- extractBuffer grp
+  return (Student clsName grpBuf)
 
 extractBuffer :: Entity Group -> Controller Buffer
 extractBuffer group = do
