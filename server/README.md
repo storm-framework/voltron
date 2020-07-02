@@ -24,10 +24,11 @@ Enrolled
 ## TODO
 
 - Create MANUAL DB
-  - [ ] add-user   -email=EMAIL      -password=PASSWORD -first=NAME -last=NAME
-  - [ ] add-class  -institution=NAME -name=NAME         -instructor=EMAIL
-  - [ ] add-group  -class=NAME       -editorLink=HASH   -name=NAME
-  - [ ] add-enroll -student=EMAIL    -class=NAME        -group=NAME
+  - [x] add-user   -email=EMAIL      -password=PASSWORD -first=NAME -last=NAME
+  - [x] add-class  -institution=NAME -name=NAME         -instructor=EMAIL
+  - [x] add-group  -class=NAME       -editorLink=HASH   -name=NAME
+  - [x] add-enroll -student=EMAIL    -class=NAME        -group=NAME
+  - [ ] test
 
 - [ ] 'Groups' view for instructor
   - [ ] front
