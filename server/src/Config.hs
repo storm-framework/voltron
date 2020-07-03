@@ -104,6 +104,7 @@ modeAddClass = AddClass
                    &= typ "PATH" 
                    &= help "Database path (default db.sqlite)"
   }
+
 modeAddGroup :: Voltron
 modeAddGroup = AddGroup
   { className  = ""  

@@ -89,13 +89,6 @@ addEnroll (CreateEnroll {..}) = do
   groupId   <- lookupGroupId enrollGroup 
   insert     $ mkEnroll studentId groupId
 
--- addStudent :: CreateUser -> Text -> Task (Maybe UserId) 
--- addStudent user grpName = do
---   groupKey <- lookupGroupId grpName
---   case groupKey of
---     Just gk -> Just <$> addUser user
---     Nothing -> return Nothing 
-
 lookupUserId :: Text -> Task UserId
 lookupUserId email = do
   r <- selectFirstOrCrash (userEmailAddress' ==. email)
