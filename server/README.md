@@ -16,7 +16,7 @@ Group
   buffer     Text   -- only readable to class.instructor and students in group
                     -- only writable by instructor or admin
 
-Enrolled
+Enroll
   user       User
   group      Group  -- only writable by instructor
 
@@ -30,14 +30,17 @@ Enrolled
   - [x] add-enroll -student=EMAIL    -class=NAME        -group=NAME
   - [ ] test
 
-- [ ] 'Groups' view for instructor
+- [ ] Fix the `accessToken` business in front/back
+
+- [ ] 'Groups' route for instructor (to create new groups)
+
   - [ ] front
 	- CSV OR textbox of group
     - [ ] back
 	- `/api/addgroup`
 	- create group in db
 
-- [ ] '/enroll' route for instructor
+- [ ] 'Enroll' route for instructor (to assign students to a group in a class)
     - [ ] front
     	- CSV or textbox of email, group
     - [ ] back
