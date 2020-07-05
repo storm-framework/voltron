@@ -23,9 +23,9 @@ function isInit(buf: Buffer): boolean {
 }
 
 class BufferService {
-  codeBufferDiv(buf: Buffer) {
-    return "editor-" + buf.id;
-  }
+  // codeBufferDiv(buf: Buffer) {
+  //   return "editor-" + buf.id;
+  // }
 
   getFirepadRef(buf: Buffer) {
     const ref = firebase.database().ref();
@@ -35,8 +35,7 @@ class BufferService {
   initBuf(buf: Buffer) {
     // const done: boolean = isInit(buf);
     // if (done) return;
-    const div = this.codeBufferDiv(buf);
-    const editor = ace.edit(div);
+    const editor = ace.edit(buf.div);
     // editor.setValue("");
     editor.setTheme("ace/theme/textmate");
     editor.getSession().setMode("ace/mode/haskell");
@@ -46,7 +45,7 @@ class BufferService {
     });
     // editor.$blockScrolling = Infinity;
     const firepadRef = this.getFirepadRef(buf);
-    console.log("initBuf", div, editor.getValue());
+    console.log("initBuf", buf.div, editor.getValue());
     const firepad = Firepad.fromACE(firepadRef, editor, {
       defaultText:
         "-- blank"

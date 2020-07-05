@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { ClassView, LoginResponse, UserData, AuthInfo } from "@/types";
+import { ClassView, LoginResponse, UserData, AuthInfo, Instructor, Student } from "@/types";
 import ApiService from "@/services/api";
 
 Vue.use(Vuex);
@@ -60,22 +60,22 @@ export default new Vuex.Store({
   },
   getters: {
     instructorClasses: ({ userData }) => {
-      const classes: Array<ClassView> = [];
+      const classes: Array<ClassView<Instructor>> = [];
       userData &&
         userData.classes.forEach((cls, i) => {
           if (cls.tag == "Instructor") {
-            classes.push({ name: cls.class, index: i });
+            classes.push({ name: cls.class, index: i, data: cls });
           }
         });
       return classes;
     },
 
     studentClasses: ({ userData }) => {
-      const classes: Array<ClassView> = [];
+      const classes: Array<ClassView<Student>> = [];
       userData &&
         userData.classes.forEach((cls, i) => {
           if (cls.tag == "Student") {
-            classes.push({ name: cls.class, index: i });
+            classes.push({ name: cls.class, index: i, data: cls });
           }
         });
       return classes;

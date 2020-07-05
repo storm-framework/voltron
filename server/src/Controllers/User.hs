@@ -70,7 +70,7 @@ extractInstrData u cls = do
   clsId     <- project classId' cls
   clsName   <- project className' cls
   allGroups <- selectList (groupClass' ==. clsId)
-  allBufs   <- mapMC extractBuffer allGroups
+  allBufs   <- mapMC (extractBuffer clsName) allGroups
   return (Instructor clsName allBufs)
 
 extractStudentClasses :: Entity User -> Controller [ClassData]
@@ -86,15 +86,18 @@ enrollClassData u enroll = do
   clsId   <- project groupClass' grp
   cls     <- selectFirstOr notFoundJSON (classId' ==. clsId)
   clsName <- project className' cls
-  grpBuf  <- extractBuffer grp
+  grpBuf  <- extractBuffer clsName grp
   return (Student clsName grpBuf)
 
-extractBuffer :: Entity Group -> Controller Buffer
-extractBuffer group = do
-  bId   <- project groupId'         group
+extractBuffer :: Text -> Entity Group -> Controller Buffer
+extractBuffer clsName group = do
+  -- bId   <- project groupId'   group
+  bName <- project groupName' group 
   bHash <- project groupEditorLink' group
-  let bText  = "-- Code for group: " <> pack (show bId)
-  return $ Buffer bId bHash bText
+  let bText = "-- Code for group: " <> bName -- pack (show bId)
+  let bDiv  = "editor-" <> clsName <> "-" <> bName
+  return $ Buffer bName bHash bText bDiv
+
 
 traceShow :: (Show a) => String -> a -> a 
 traceShow msg x = Debug.Trace.trace (msg <> ": " <> (show x)) x

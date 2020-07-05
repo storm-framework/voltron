@@ -14,13 +14,13 @@
     <div class="row">
       <div
         class="col-lg-4 col-md-4"
-        v-for="dbuf in instructorDivBuffers"
-        v-bind:key="dbuf.buf.id"
+        v-for="buf in instructorBuffers"
+        v-bind:key="buf.id"
       >
         <div class="card border-primary mb-4">
-          <div class="card-header">Group {{ dbuf.buf.id }}</div>
+          <div class="card-header">Group {{ buf.id }}</div>
           <div class="card-body">
-            <div v-bind:id="dbuf.div"></div>
+            <div v-bind:id="buf.div"></div>
           </div>
         </div>
       </div>
@@ -31,7 +31,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import BufferService from "@/services/buffer";
-import { Buffer, DivBuffer } from "../types";
+import { Buffer } from "../types";
 
 @Component
 export default class Instructor extends Vue {
@@ -43,17 +43,13 @@ export default class Instructor extends Vue {
   get className() {
     return this.$store.getters.currentClass.class;
   }
-  get instructorDivBuffers(): Array<DivBuffer> {
-    const bufs: Array<Buffer> = this.$store.getters.instructorBuffers;
-    const divBufs = bufs.map(buf => {
-      return { buf: buf, div: BufferService.codeBufferDiv(buf) };
-    });
-    return divBufs;
+  get instructorBuffers(): Array<Buffer> {
+    return this.$store.getters.instructorBuffers;
   }
 
   initBuffers() {
-    for (const db of this.instructorDivBuffers) {
-      BufferService.initBuf(db.buf);
+    for (const buf of this.instructorBuffers) {
+      BufferService.initBuf(buf);
     }
   }
 

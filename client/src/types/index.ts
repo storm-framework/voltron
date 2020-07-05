@@ -2,11 +2,7 @@ export interface Buffer {
   id:   number;
   hash: string;
   text: string;
-}
-
-export interface DivBuffer { 
-  div: string;
-  buf: Buffer;
+  div:  string;
 }
 
 export interface Student { 
@@ -43,7 +39,8 @@ export interface LoginResponse {
   user: UserData;
 }
 
-export interface ClassView {
+export interface ClassView<T> {
   name: string;
   index: number;
+  data: T;
 }

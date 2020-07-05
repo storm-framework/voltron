@@ -6,13 +6,13 @@ module Types where
 import           Data.Aeson
 import           Data.Text                      ( Text(..) )
 import           GHC.Generics
-import           Model
 import           JSON
 
 data Buffer = Buffer
-  { bufferId   :: GroupId
+  { bufferId   :: Text
   , bufferHash :: Text
   , bufferText :: Text
+  , bufferDiv  :: Text
   }
   deriving (Show, Generic)
 

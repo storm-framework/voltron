@@ -13,12 +13,12 @@ function mockUser(userName: string): User {
 }
 
 const BUFFERS: { [id: string]: Buffer } = {
-  0: { id: 0, hash: "-M9Kx-cxRIUgCqVCtjCr", text: "-- Code for group 0\n" },
-  1: { id: 1, hash: "-M9L5YBS0kgvUfuz0Ckc", text: "-- Code for group 1\n" },
-  2: { id: 2, hash: "-M9L5oPt0fsruy16vntv", text: "-- Code for group 2\n" },
-  3: { id: 3, hash: "-M9L5vCVa5FQ0noobA9V", text: "-- Code for group 3\n" },
-  4: { id: 4, hash: "-M9L6XICO2mz_yfpDXWR", text: "-- Code for group 4\n" },
-  5: { id: 5, hash: "-M9L6nLdsLy_7aXIs4MX", text: "-- Code for group 5\n" }
+  0: { id: 0, hash: "-M9Kx-cxRIUgCqVCtjCr", text: "-- Code for group 0\n", div: "editor-0" },
+  1: { id: 1, hash: "-M9L5YBS0kgvUfuz0Ckc", text: "-- Code for group 1\n", div: "editor-1" },
+  2: { id: 2, hash: "-M9L5oPt0fsruy16vntv", text: "-- Code for group 2\n", div: "editor-2" },
+  3: { id: 3, hash: "-M9L5vCVa5FQ0noobA9V", text: "-- Code for group 3\n", div: "editor-3" },
+  4: { id: 4, hash: "-M9L6XICO2mz_yfpDXWR", text: "-- Code for group 4\n", div: "editor-4" },
+  5: { id: 5, hash: "-M9L6nLdsLy_7aXIs4MX", text: "-- Code for group 5\n", div: "editor-5" }
 };
 const USERS: { [id: string]: UserData } = {
   rjhala: {
