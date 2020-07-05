@@ -10,4 +10,3 @@ cd ../server
 make fast
 stack install --local-bin-path ../dist
 cp -r templates ../dist
-

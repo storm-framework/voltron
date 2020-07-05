@@ -26,6 +26,7 @@ class ApiService {
       emailAddress: info.emailAddress,
       password: info.password
     });
+    console.log("server-signIn", response.data);
     this.currentUser = response.data.user;
     return response.data;
   }

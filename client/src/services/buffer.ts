@@ -37,16 +37,19 @@ class BufferService {
     // if (done) return;
     const div = this.codeBufferDiv(buf);
     const editor = ace.edit(div);
+    // editor.setValue("");
     editor.setTheme("ace/theme/textmate");
     editor.getSession().setMode("ace/mode/haskell");
     editor.setOptions({
       maxLines: 10,
       minLines: 10
     });
+    // editor.$blockScrolling = Infinity;
     const firepadRef = this.getFirepadRef(buf);
+    console.log("initBuf", div, editor.getValue());
     const firepad = Firepad.fromACE(firepadRef, editor, {
       defaultText:
-        "-- Haskell editing with Firepad!\ninc :: Int -> Int\ninc x = x + 1"
+        "-- blank"
     });
   }
 }

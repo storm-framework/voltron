@@ -26,7 +26,7 @@ main = do
       runServer $ ServerOpts port (fromString host) static pool db
 
     AddUser {..} -> do
-      let thing = CreateUser email password "" ""
+      let thing = CreateUser email password firstName lastName
       rId <- runTask' db $ Auth.addUser thing 
       putStrLn ("Add User: " ++ show rId)
 
