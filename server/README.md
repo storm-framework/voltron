@@ -28,7 +28,7 @@ Enroll
   - [x] add-class  -institution=NAME -name=NAME         -instructor=EMAIL
   - [x] add-group  -class=NAME       -editorLink=HASH   -name=NAME
   - [x] add-enroll -student=EMAIL    -class=NAME        -group=NAME
-  - [ ] test
+  - [x] test
 
 - [ ] Fix the `accessToken` business in front/back
 
@@ -46,6 +46,10 @@ Enroll
     - [ ] back
     	- `/api/addstudent`
 	- create student account (with random password) and add to group in db, send EMAIL to student?
+
+- [ ] Check if 
+    - GROUP EXISTS 
+    - CLASS EXISTS
 
 ASK Nico, do we want "signup" or "reset" password?
 
