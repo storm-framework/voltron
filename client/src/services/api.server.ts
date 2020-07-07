@@ -1,8 +1,8 @@
 import { UserData, User, LoginResponse, AuthInfo } from "@/types";
+import router from "@/router";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
-import axios, { AxiosResponse } from "axios";
-
-// import _ from "lodash";
+import _ from "lodash";
 
 const API_URL = "/api";
 
@@ -18,6 +18,10 @@ function delay(ms = 1000) {
 
 class ApiService {
   constructor(private accessToken: string | null) {}
+
+  get sessionAccessToken(): string | null {
+    return this.accessToken;
+  }
 
   // Auth
   async signIn(info: AuthInfo): Promise<LoginResponse> {
@@ -35,6 +39,47 @@ class ApiService {
     const res = this.accessToken !== null;
     console.log("isSignedIn", res);
     return res; 
+  }
+
+  signOut() {
+    this.accessToken = null;
+    localStorage.removeItem("accessToken");
+    return Promise.resolve();
+  }
+
+  user(token: string): Promise<User> {
+    const payload = _.split(this.accessToken, ".")[1];
+    const userId = JSON.parse(atob(payload)).sub;
+    return this.get(`/user/${userId}`);
+  }
+
+  authHeader() {
+    if (this.accessToken) {
+      return { Authorization: "Bearer " + this.accessToken };
+    } else {
+      return {};
+    }
+  }
+
+  async unauthorized() {
+    await this.signOut();
+    router.replace({ name: "signIn" });
+  }
+
+  async get(path: string, config?: AxiosRequestConfig): Promise<any> {
+    await delay();
+    try {
+      const response = await axios.get(`${API_URL}${path}`, {
+        headers: this.authHeader(),
+        ...config
+      });
+      return response.data;
+    } catch (error) {
+      if (error?.response?.status == 401) {
+        await this.unauthorized();
+      }
+      throw error;
+    }
   }
 }
 
