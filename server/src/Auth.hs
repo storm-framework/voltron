@@ -116,11 +116,11 @@ signIn = do
    user                            <- authUser emailAddress password
    -- respondTagged $ errorResponse status401 (Just "Got USER!")
    userId                          <- project userId' user
-   token                           <- return "TODO:genJwt userId"
+   token                           <- genJwt userId
    userData                        <- extractUserData user
    -- respondTagged $ errorResponse status401 (Just "Got USER-DATA!")
-   respondJSON status200 $ LoginResponse "TODO:unpackLazy8 token" userData
--- respondTagged $ errorResponse status401 (Just "Got JFC!")
+   respondJSON status200 $ LoginResponse (unpackLazy8 token) userData
+   -- respondTagged $ errorResponse status401 (Just "Got JFC!")
 
 {-@ ignore authUser @-}
 authUser :: Text -> Text -> Controller (Entity User)
@@ -165,9 +165,9 @@ signUp = do
   userId   <- insert user
   _        <- updateWhere (invitationId' ==. id) (invitationAccepted' `assign` True)
   user     <- selectFirstOr notFoundJSON (userId' ==. userId)
-  token    <- error "TODO: genJwt userId"
+  token    <- genJwt userId
   userData <- extractUserData user
-  respondJSON status201 $ LoginResponse ("TODO: unpackLazy8 token") userData
+  respondJSON status201 $ LoginResponse (unpackLazy8 token) userData
 
 data SignUpReq = SignUpReq
   { signUpReqInvitationCode :: InvitationCode
@@ -209,17 +209,17 @@ checkIfAuth = do
 -- | JWT
 -------------------------------------------------------------------------------
 
--- {-@ ignore genJwt @-}
--- genJwt :: UserId -> Controller L.ByteString
--- genJwt userId = do
---   claims <- liftTIO $ mkClaims userId
---   jwt    <- liftTIO $ doJwtSign claims
---   case jwt of
---     Right jwt                         -> return (encodeCompact jwt)
---     Left  (JWSError                e) -> respondError status500 (Just (show e))
---     Left  (JWTClaimsSetDecodeError s) -> respondError status400 (Just s)
---     Left  JWTExpired                  -> respondError status401 (Just "expired token")
---     Left  _                           -> respondError status401 Nothing
+{-@ ignore genJwt @-}
+genJwt :: UserId -> Controller L.ByteString
+genJwt userId = do
+  claims <- liftTIO $ mkClaims userId
+  jwt    <- liftTIO $ doJwtSign claims
+  case jwt of
+    Right jwt                         -> return (encodeCompact jwt)
+    Left  (JWSError                e) -> respondError status500 (Just (show e))
+    Left  (JWTClaimsSetDecodeError s) -> respondError status400 (Just s)
+    Left  JWTExpired                  -> respondError status401 (Just "expired token")
+    Left  _                           -> respondError status401 Nothing
 
 mkClaims :: UserId -> TIO ClaimsSet
 mkClaims userId = do

@@ -36,7 +36,7 @@ export interface User {
 
 export interface LoginResponse {
   accessToken: string;
-  user: UserData;
+  user: User;
 }
 
 export interface ClassView<T> {

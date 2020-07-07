@@ -1,4 +1,5 @@
 import { UserData, User, Buffer, AuthInfo, LoginResponse } from "@/types";
+import router from "@/router";
 
 function delay(ms = 1000) {
   if (process.env.NODE_ENV === "development") {
@@ -8,9 +9,16 @@ function delay(ms = 1000) {
   }
 }
 
-function mockUser(userName: string): User {
-  return { firstName: userName, lastName: "" };
-}
+const MOCKUSERS: { [userName: string]: User } = {
+  rjhala: { firstName: "Ranjit", 
+            lastName: "Jhala" },
+  nico:   { firstName: "Nicolas", 
+            lastName: "Lehmann" },
+  rose:   { firstName: "Rose", 
+            lastName: "Kunkel" },
+  nadia:  { firstName: "Nadia", 
+            lastName: "Polikarpova" }
+};
 
 const BUFFERS: { [id: string]: Buffer } = {
   0: { id: 0, hash: "-M9Kx-cxRIUgCqVCtjCr", text: "-- Code for group 0\n", div: "editor-0" },
@@ -20,9 +28,10 @@ const BUFFERS: { [id: string]: Buffer } = {
   4: { id: 4, hash: "-M9L6XICO2mz_yfpDXWR", text: "-- Code for group 4\n", div: "editor-4" },
   5: { id: 5, hash: "-M9L6nLdsLy_7aXIs4MX", text: "-- Code for group 5\n", div: "editor-5" }
 };
+
 const USERS: { [id: string]: UserData } = {
   rjhala: {
-    user: mockUser("rjhala"),
+    user: MOCKUSERS["rjhala"],
     classes: [
       {
         tag: "Instructor",
@@ -42,7 +51,7 @@ const USERS: { [id: string]: UserData } = {
     ]
   },
   nico: {
-    user: mockUser("nico"),
+    user: MOCKUSERS["nico"],
     classes: [
       {
         tag: "Student",
@@ -52,7 +61,7 @@ const USERS: { [id: string]: UserData } = {
     ]
   },
   rose: {
-    user: mockUser("rose"),
+    user: MOCKUSERS["rose"],
     classes: [
       {
         tag: "Student",
@@ -67,7 +76,7 @@ const USERS: { [id: string]: UserData } = {
     ]
   },
   nadia: {
-    user: mockUser("nadia"),
+    user: MOCKUSERS["nadia"],
     classes: [
       {
         tag: "Instructor",
@@ -79,20 +88,32 @@ const USERS: { [id: string]: UserData } = {
 };
 
 class ApiService {
-  constructor(private currentUser: User | null) {}
+  constructor(private currentUserId: string | null) {}
 
+  get sessionUserId(): string {
+    if (this.currentUserId !== null) {
+      return this.currentUserId;
+    } 
+    return "";
+  }
+  
   getUserData(name: string): UserData {
     return USERS[name];
   }
 
   getLoginResponse(name: string): LoginResponse {
     const userData = this.getUserData(name);
-    this.currentUser = userData.user;
-    return { accessToken: "dummy", user: userData };
+    this.currentUserId = name;
+    return { accessToken: "dummy", user: MOCKUSERS[name] };
   }
 
   isSignedIn() {
-    return this.currentUser !== null;
+    return this.currentUserId !== null;
+  }
+
+  async user(name: string): Promise<UserData> {
+    await delay();
+    return this.getUserData(name);
   }
 
   async signIn(info: AuthInfo): Promise<LoginResponse> {
@@ -101,7 +122,6 @@ class ApiService {
       info.emailAddress == "rjhala@eng.ucsd.edu" &&
       info.password == "rjhala"
     ) {
-      console.log(info, "ok");
       return this.getLoginResponse("rjhala");
     }
     if (
@@ -127,7 +147,20 @@ class ApiService {
     // else if ()
     // this.accessToken = "accessToken";
     // return USERS[SESSION_USER_ID];
+
+
   }
+ 
+  signOut() {
+    this.currentUserId = null;
+    return Promise.resolve();
+  }
+
+  async unauthorized() {
+    await this.signOut();
+    router.replace({ name: "Login" });
+  }
+
 }
 
 export default new ApiService(null);

@@ -6,12 +6,14 @@ import ApiService from "@/services/api";
 Vue.use(Vuex);
 
 type State = {
+  sessionUserId: string | null;
   userData: UserData | null;
   accessToken: string | null;
   currentClass: number;
 };
 
 const initState: State = {
+  sessionUserId: ApiService.sessionUserId,
   userData: null,
   accessToken: null,
   currentClass: 0
@@ -23,12 +25,15 @@ export default new Vuex.Store({
   mutations: {
     initUser(state, payload: LoginResponse) {
       console.log("mutation-initUser", payload);
-      state.userData = payload.user;
       state.accessToken = payload.accessToken;
     },
     setCurrentClass(state, payload: number) {
       console.log("mutation-updateCurrentClass", payload);
       state.currentClass = payload;
+    },
+    setUserData(state, payload: UserData) {
+      console.log("mutation-setUserData", payload);
+      state.userData = payload;
     },
     signOut(state) {
       console.log("sign-out");
@@ -47,17 +52,24 @@ export default new Vuex.Store({
           console.log(res);
         })
         .catch(error => console.log("action-signin-catch", error));
+    },
 
-      // axios.post('/verifyPassword?key=[add your Firebase API key here]',{
-      //     email: auth.emailAddress,
-      //     password: auth.password,
-      //     returnSecureToken: truen      })
-      //     .then(res => {
-      //          console.log(res)
-      // })
-      //  .catch(error => console.log(error))
+    syncSessionUserData: ({ commit, state }) => {
+      if (state.sessionUserId !== null) {
+        ApiService.user(state.sessionUserId)
+          .then(payload => commit("setUserData", payload))
+          .catch(error => {
+              if (error?.response?.status == 401) {
+                ApiService.unauthorized();
+              }
+              throw error;
+            });
+      } else {
+        ApiService.unauthorized();
+      }
     }
   },
+  
   getters: {
     instructorClasses: ({ userData }) => {
       const classes: Array<ClassView<Instructor>> = [];

@@ -17,7 +17,8 @@ function delay(ms = 1000) {
 }
 
 class ApiService {
-  constructor(private currentUser: UserData | null) {}
+  // constructor(private currentUser: UserData | null) {}
+  constructor(private accessToken: string | null) {}
   
   // Auth
   async signIn(info: AuthInfo): Promise<LoginResponse> {
@@ -27,16 +28,18 @@ class ApiService {
       password: info.password
     });
     console.log("server-signIn", response.data);
-    this.currentUser = response.data.user;
+    // this.currentUser = response.data.user;
+    this.accessToken = response.data.accessToken;
     return response.data;
   }
 
-  isSignedIn() {
-    return this.currentUser !== null;
+  isSignedIn() : boolean {
+    const res = this.accessToken !== null;
+    console.log("isSignedIn", res);
+    return res; 
   }
-
 }
 
-// const accessToken = localStorage.getItem("accessToken");
-// export default new ApiService(accessToken);
-export default new ApiService(null);
+const accessToken = localStorage.getItem("accessToken");
+export default new ApiService(accessToken);
+// export default new ApiService(null);
