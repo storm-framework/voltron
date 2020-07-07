@@ -79,5 +79,19 @@ export default class Navbar extends Vue {
     this.$store.commit("signOut");
     this.$router.push({ name: "Login" });
   }
+
+  mounted() {
+    console.log("syncUser");
+    this.$store.dispatch("syncSessionUserData").catch(error => {
+      // Don't panic if the user is not yet authenticated
+      if (error?.response?.status !== 401) {
+        throw error;
+      }
+    });
+  }
+
+  // mounted() {
+  //   this.syncUser();
+  // }
 }
 </script>

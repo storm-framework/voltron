@@ -10,23 +10,49 @@ function delay(ms = 1000) {
 }
 
 const MOCKUSERS: { [userName: string]: User } = {
-  rjhala: { firstName: "Ranjit", 
-            lastName: "Jhala" },
-  nico:   { firstName: "Nicolas", 
-            lastName: "Lehmann" },
-  rose:   { firstName: "Rose", 
-            lastName: "Kunkel" },
-  nadia:  { firstName: "Nadia", 
-            lastName: "Polikarpova" }
+  rjhala: { firstName: "Ranjit", lastName: "Jhala" },
+  nico: { firstName: "Nicolas", lastName: "Lehmann" },
+  rose: { firstName: "Rose", lastName: "Kunkel" },
+  nadia: { firstName: "Nadia", lastName: "Polikarpova" }
 };
 
 const BUFFERS: { [id: string]: Buffer } = {
-  0: { id: 0, hash: "-M9Kx-cxRIUgCqVCtjCr", text: "-- Code for group 0\n", div: "editor-0" },
-  1: { id: 1, hash: "-M9L5YBS0kgvUfuz0Ckc", text: "-- Code for group 1\n", div: "editor-1" },
-  2: { id: 2, hash: "-M9L5oPt0fsruy16vntv", text: "-- Code for group 2\n", div: "editor-2" },
-  3: { id: 3, hash: "-M9L5vCVa5FQ0noobA9V", text: "-- Code for group 3\n", div: "editor-3" },
-  4: { id: 4, hash: "-M9L6XICO2mz_yfpDXWR", text: "-- Code for group 4\n", div: "editor-4" },
-  5: { id: 5, hash: "-M9L6nLdsLy_7aXIs4MX", text: "-- Code for group 5\n", div: "editor-5" }
+  0: {
+    id: 0,
+    hash: "-M9Kx-cxRIUgCqVCtjCr",
+    text: "-- Code for group 0\n",
+    div: "editor-0"
+  },
+  1: {
+    id: 1,
+    hash: "-M9L5YBS0kgvUfuz0Ckc",
+    text: "-- Code for group 1\n",
+    div: "editor-1"
+  },
+  2: {
+    id: 2,
+    hash: "-M9L5oPt0fsruy16vntv",
+    text: "-- Code for group 2\n",
+    div: "editor-2"
+  },
+  3: {
+    id: 3,
+    hash: "-M9L5vCVa5FQ0noobA9V",
+    text: "-- Code for group 3\n",
+    div: "editor-3"
+  },
+  4: {
+    id: 4,
+    hash: "-M9L6XICO2mz_yfpDXWR",
+    text: "-- Code for group 4\n",
+    div: "editor-4"
+  },
+  5: {
+    id: 5,
+    hash: "-M9L6nLdsLy_7aXIs4MX",
+    text: "-- Code for group 5\n",
+    div: "editor-5"
+  }
 };
 
 const USERS: { [id: string]: UserData } = {
@@ -88,32 +114,29 @@ const USERS: { [id: string]: UserData } = {
 };
 
 class ApiService {
-  constructor(private currentUserId: string | null) {}
+  constructor(private accessToken: string | null) {}
 
-  get sessionUserId(): string {
-    if (this.currentUserId !== null) {
-      return this.currentUserId;
-    } 
-    return "";
+  get sessionAccessToken(): string | null {
+    return this.accessToken;
   }
-  
+
   getUserData(name: string): UserData {
     return USERS[name];
   }
 
   getLoginResponse(name: string): LoginResponse {
     const userData = this.getUserData(name);
-    this.currentUserId = name;
-    return { accessToken: "dummy", user: MOCKUSERS[name] };
+    this.accessToken = name;
+    return { accessToken: name, user: MOCKUSERS[name] };
   }
 
   isSignedIn() {
-    return this.currentUserId !== null;
+    return this.accessToken !== null;
   }
 
-  async user(name: string): Promise<UserData> {
+  async user(token: string): Promise<UserData> {
     await delay();
-    return this.getUserData(name);
+    return this.getUserData(token);
   }
 
   async signIn(info: AuthInfo): Promise<LoginResponse> {
@@ -136,31 +159,22 @@ class ApiService {
     ) {
       return this.getLoginResponse("rose");
     }
-    if (
-      info.emailAddress == "nadia@eng.ucsd.edu" &&
-      info.password == "nadia"
-    ) {
+    if (info.emailAddress == "nadia@eng.ucsd.edu" && info.password == "nadia") {
       return this.getLoginResponse("nadia");
     }
     return Promise.reject("Bad username and/or password!");
-
-    // else if ()
-    // this.accessToken = "accessToken";
-    // return USERS[SESSION_USER_ID];
-
-
   }
- 
+
   signOut() {
-    this.currentUserId = null;
+    this.accessToken = null;
     return Promise.resolve();
   }
 
   async unauthorized() {
+    console.log("unauthorized");
     await this.signOut();
     router.replace({ name: "Login" });
   }
-
 }
 
 export default new ApiService(null);

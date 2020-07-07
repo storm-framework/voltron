@@ -34,5 +34,23 @@ export default class Home extends Vue {
   get isStudent() {
     return this.$store.getters.isStudent;
   }
+
+  syncUser() {
+    console.log("syncUser");
+    this.$store.dispatch("syncSessionUserData").catch(error => {
+      // Don't panic if the user is not yet authenticated
+      if (error?.response?.status !== 401) {
+        throw error;
+      }
+    });
+  }
+
+  mounted() {
+    this.syncUser();
+  }
+
+  updated() {
+    this.syncUser();
+  }
 }
 </script>

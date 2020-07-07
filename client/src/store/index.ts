@@ -1,21 +1,26 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { ClassView, LoginResponse, UserData, AuthInfo, Instructor, Student } from "@/types";
+import {
+  ClassView,
+  LoginResponse,
+  UserData,
+  AuthInfo,
+  Instructor,
+  Student
+} from "@/types";
 import ApiService from "@/services/api";
 
 Vue.use(Vuex);
 
 type State = {
-  sessionUserId: string | null;
   userData: UserData | null;
   accessToken: string | null;
   currentClass: number;
 };
 
 const initState: State = {
-  sessionUserId: ApiService.sessionUserId,
+  accessToken: ApiService.sessionAccessToken,
   userData: null,
-  accessToken: null,
   currentClass: 0
 };
 
@@ -44,32 +49,53 @@ export default new Vuex.Store({
   },
 
   actions: {
-    signIn({ commit }, auth: AuthInfo) {
+    signIn({ dispatch, commit }, auth: AuthInfo) {
       ApiService.signIn(auth)
         .then(res => {
           console.log("ApiService.signIn", res);
           commit("initUser", res);
-          console.log(res);
+          dispatch("syncUser", res.accessToken);
         })
         .catch(error => console.log("action-signin-catch", error));
+
+      return dispatch("syncSessionUserData")
+        .then(() => console.log("Done syncSessonUserData"));
+
     },
 
-    syncSessionUserData: ({ commit, state }) => {
-      if (state.sessionUserId !== null) {
-        ApiService.user(state.sessionUserId)
-          .then(payload => commit("setUserData", payload))
-          .catch(error => {
-              if (error?.response?.status == 401) {
-                ApiService.unauthorized();
-              }
-              throw error;
-            });
+    syncSessionUserData: ({ dispatch, state }) => {
+      console.log("syncSessionUserData", state.accessToken);
+      if (state.accessToken !== null) {
+        return dispatch("syncUser", state.accessToken);
       } else {
-        ApiService.unauthorized();
+        return Promise.resolve();
       }
-    }
+    },
+
+    syncUser: ({ commit }, token: string) =>
+      ApiService.user(token)
+        .then(payload => commit("setUserData", payload))
+        .catch(error => {
+            if (error?.response?.status == 401) {
+              ApiService.unauthorized();
+            }
+            throw error;
+        })
+    // syncSessionUserData: ({ commit, state }) => {
+    //   console.log("syncSessionUserData", state.accessToken);
+    //   if (state.accessToken) {
+    //     ApiService.user(state.accessToken)
+    //       .then(payload => commit("setUserData", payload))
+    //       .catch(error => {
+    //         if (error?.response?.status == 401) {
+    //           ApiService.unauthorized();
+    //         }
+    //         throw error;
+    //       });
+    //   } 
+    // }
   },
-  
+
   getters: {
     instructorClasses: ({ userData }) => {
       const classes: Array<ClassView<Instructor>> = [];

@@ -17,9 +17,8 @@ function delay(ms = 1000) {
 }
 
 class ApiService {
-  // constructor(private currentUser: UserData | null) {}
   constructor(private accessToken: string | null) {}
-  
+
   // Auth
   async signIn(info: AuthInfo): Promise<LoginResponse> {
     await delay();
@@ -28,7 +27,6 @@ class ApiService {
       password: info.password
     });
     console.log("server-signIn", response.data);
-    // this.currentUser = response.data.user;
     this.accessToken = response.data.accessToken;
     return response.data;
   }
@@ -42,4 +40,3 @@ class ApiService {
 
 const accessToken = localStorage.getItem("accessToken");
 export default new ApiService(accessToken);
-// export default new ApiService(null);

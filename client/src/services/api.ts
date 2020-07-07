@@ -4,10 +4,10 @@ import Mock from "./api.mock";
 import Server from "./api.server";
 
 interface ApiService {
-  sessionUserId: string | null;
+  sessionAccessToken: string | null;
   signIn(info: AuthInfo): Promise<LoginResponse>;
   isSignedIn(): boolean;
-  user(userId: string): Promise<UserData>;
+  user(token: string): Promise<UserData>;
   unauthorized(): Promise<void>;
 }
 
