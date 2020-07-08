@@ -31,6 +31,8 @@ Enroll
   - [x] test
 
 - [ ] Fix the `accessToken` business in front/back
+  - [x] back
+  - [ ] front
 
 - [ ] 'Groups' route for instructor (to create new groups)
 

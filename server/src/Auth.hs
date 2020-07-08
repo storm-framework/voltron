@@ -53,7 +53,7 @@ import           Binah.Templates
 import           Binah.Frankie
 
 import           Controllers
-import           Controllers.User               ( extractUserData )
+import           Controllers.User               ( extractUserData, extractUserNG )
 import           Controllers.Invitation         ( InvitationCode(..) )
 import           Model
 import           JSON
@@ -117,9 +117,10 @@ signIn = do
    -- respondTagged $ errorResponse status401 (Just "Got USER!")
    userId                          <- project userId' user
    token                           <- genJwt userId
-   userData                        <- extractUserData user
+   -- userData                        <- extractUserData user
+   userNG                          <- extractUserNG user
    -- respondTagged $ errorResponse status401 (Just "Got USER-DATA!")
-   respondJSON status200 $ LoginResponse (unpackLazy8 token) userData
+   respondJSON status200 $ LoginResponse (unpackLazy8 token) userNG
    -- respondTagged $ errorResponse status401 (Just "Got JFC!")
 
 {-@ ignore authUser @-}
@@ -166,7 +167,7 @@ signUp = do
   _        <- updateWhere (invitationId' ==. id) (invitationAccepted' `assign` True)
   user     <- selectFirstOr notFoundJSON (userId' ==. userId)
   token    <- genJwt userId
-  userData <- extractUserData user
+  userData <- extractUserNG user
   respondJSON status201 $ LoginResponse (unpackLazy8 token) userData
 
 data SignUpReq = SignUpReq

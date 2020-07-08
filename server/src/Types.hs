@@ -53,7 +53,7 @@ instance ToJSON UserData where
 
 data LoginResponse = LoginResponse
   { respAccessToken :: String
-  , respUser        :: UserData
+  , respUser        :: UserNG
   }
   deriving Generic
 

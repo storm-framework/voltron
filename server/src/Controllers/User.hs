@@ -44,6 +44,12 @@ userList = do
   users <- mapMC extractUserData users
   respondJSON status200 users
 
+extractUserNG :: Entity User -> Controller UserNG
+extractUserNG u = do
+  firstName <- project userFirstName' u
+  lastName  <- project userLastName' u
+  return     $ UserNG firstName lastName 
+
 extractUserData :: Entity User -> Controller UserData
 extractUserData u = do
   emailAddress <- project userEmailAddress' u
@@ -108,10 +114,10 @@ traceShow msg x = Debug.Trace.trace (msg <> ": " <> (show x)) x
 
 {-@ userGet :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ @-}
 userGet :: Int64 -> Controller ()
-userGet uid = do
-  let userId = toSqlKey uid
-  _        <- requireAuthUser
-  user     <- selectFirstOr notFoundJSON (userId' ==. userId)
+userGet _uid = do
+  -- let userId = toSqlKey uid
+  user     <- requireAuthUser
+  -- user     <- selectFirstOr notFoundJSON (userId' ==. userId)
   userData <- extractUserData user
   respondJSON status200 userData
 

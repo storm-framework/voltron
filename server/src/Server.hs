@@ -99,7 +99,7 @@ runServer ServerOpts {..} = runNoLoggingT $ do
             -- get  "/api/invitation/:id" invitationGet 
             -- get  "/api/invitation"     invitationList
             -- get  "/api/user"           userList
-            -- get  "/api/user/:id"       userGet
+            get  "/api/user/:id"       userGet
             -- post "/api/user/me"        userUpdateMe
 
             case optsStatic of
