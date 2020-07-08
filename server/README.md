@@ -30,23 +30,39 @@ Enroll
   - [x] add-enroll -student=EMAIL    -class=NAME        -group=NAME
   - [x] test
 
-- [ ] Fix the `accessToken` business in front/back
+- [x] Fix the `accessToken` business in front/back
   - [x] back
-  - [ ] front
+  - [x] front
+
+
+- [ ] Enroll HEREHEREHERERHERE 
+  - type Enroll      = { className: string, studentEmail: string, groupName: string } 
+  - type GroupEnroll = { newBuffers : Buffer[], newEnrolls: Enroll[] }
+
+  - FRONT
+  	- [ ] page to allow upload of CSV -> render into a JSON `Enroll` object
 
 - [ ] 'Groups' route for instructor (to create new groups)
-
+  - NEED client side route because editor buffers only created at CLIENT
+  -
   - [ ] front
 	- CSV OR textbox of group
     - [ ] back
-	- `/api/addgroup`
+	- POST `/api/group`  Array<NewGroup> 
+	- POST `/api/enroll` Array<Enroll> 
 	- create group in db
 
 - [ ] 'Enroll' route for instructor (to assign students to a group in a class)
+    - create GROUPs   if they don't exist
+    - create STUDENTs if they don't exist using email-user as password
+    - create ENROLLs  (if they don't exist)
+
     - [ ] front
     	- CSV or textbox of email, group
+
     - [ ] back
-    	- `/api/addstudent`
+    	- `/api/enroll`
+
 	- create student account (with random password) and add to group in db, send EMAIL to student?
 
 - [ ] Check if 
