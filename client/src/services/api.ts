@@ -9,10 +9,11 @@ interface ApiService {
   isSignedIn(): boolean;
   user(token: string): Promise<UserData>;
   unauthorized(): Promise<void>;
+  signOut(): Promise<void>;
 }
 
-// const module: ApiService = Server;
-const module: ApiService = Mock;
+const module: ApiService = Server;
+//  const module: ApiService = Mock;
 
 // if (process.env.VUE_APP_MOCK_API_SERVICE == "true") {
 // if (0 == 1) {

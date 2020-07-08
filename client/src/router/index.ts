@@ -1,5 +1,5 @@
 import Vue from "vue";
-import VueRouter, { Route } from "vue-router";
+import VueRouter, { Route, RouteConfig } from "vue-router";
 import Home from "../views/Home.vue";
 import Contact from "../views/Contact.vue";
 import About from "../views/About.vue";
@@ -8,11 +8,7 @@ import ApiService from "@/services/api";
 import store from "../store";
 
 Vue.use(VueRouter);
-
-const router = new VueRouter({
-  mode: "history",
-  base: process.env.BASE_URL,
-  routes: [
+const routes: Array<RouteConfig> = [
     {
       path: "/home",
       redirect: _to => {
@@ -41,19 +37,25 @@ const router = new VueRouter({
       component: About
     }
   ]
+
+const router = new VueRouter({
+  mode: "history",
+  base: process.env.BASE_URL,
+  routes 
 });
 
 function redirectLogin(to: Route, from: Route) {
-  const cond =
+  const redirect =
     from.name != "Login" && to.name != "Login" && !ApiService.isSignedIn();
-  console.log("redirectLogin says", cond);
-  return cond;
+  console.log("redirectLogin says", redirect);
+  return redirect;
 }
 
 router.beforeEach((to, from, next) => {
   if (redirectLogin(to, from)) {
     next({ name: "Login" });
   } else {
+    store.dispatch("syncSessionUserData");
     next();
   }
 });

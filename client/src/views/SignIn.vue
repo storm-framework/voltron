@@ -59,7 +59,7 @@ export default class SignIn extends Vue {
         this.isValid = true;
         this.$router.replace({
           name: "Home",
-          params: this.$store.getters.currentClassId
+          params: { classId: this.$store.getters.currentClassId }
         });
       })
       .catch(() => {

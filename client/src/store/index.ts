@@ -49,7 +49,9 @@ export default new Vuex.Store({
   },
 
   actions: {
-    async signIn({ dispatch, commit }, auth: AuthInfo) {
+    signOut: ({ commit }) =>
+      ApiService.signOut().then(() => commit("signOut")),
+    signIn({ dispatch, commit }, auth: AuthInfo) {
       ApiService.signIn(auth)
         .then(res => {
           console.log("ApiService.signIn", res);
@@ -65,7 +67,7 @@ export default new Vuex.Store({
 
     syncSessionUserData: ({ dispatch, state }) => {
       console.log("syncSessionUserData", state.accessToken);
-      if (state.accessToken !== null) {
+      if (state.accessToken !== null && state.userData == null) {
         return dispatch("syncUser", state.accessToken);
       } else {
         return Promise.resolve();

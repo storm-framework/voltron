@@ -45,9 +45,11 @@ export default class Home extends Vue {
   //   });
   // }
 
-  // mounted() {
-  //   this.syncUser();
-  // }
+  mounted() {
+    const classId = this.$route.params.classId;
+    console.log("route-params", classId);
+    this.$store.commit("setCurrentClass", classId);
+  }
 
   // updated() {
   //   this.syncUser();

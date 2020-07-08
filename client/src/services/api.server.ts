@@ -5,8 +5,6 @@ import _ from "lodash";
 
 const API_URL = "/api";
 
-const serverResponse = { data: null };
-
 function delay(ms = 1000) {
   if (process.env.NODE_ENV === "development") {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -29,20 +27,28 @@ class ApiService {
       emailAddress: info.emailAddress,
       password: info.password
     });
+
     console.log("server-signIn", response.data);
-    this.accessToken = response.data.accessToken;
+    if (response.data.accessToken) {
+      localStorage.setItem("accessToken", response.data.accessToken);
+      console.log("set-access-token", response.data.accessToken);
+      this.accessToken = response.data.accessToken;
+
+    }
     return response.data;
   }
 
   isSignedIn() : boolean {
     const res = this.accessToken !== null;
-    console.log("isSignedIn", res);
+    console.log("isSignedIn", res, this.accessToken);
     return res; 
   }
 
   signOut() {
+    console.log("signing-out!");
     this.accessToken = null;
     localStorage.removeItem("accessToken");
+    console.log("signing-out!", localStorage.getItem("accessToken"));
     return Promise.resolve();
   }
 

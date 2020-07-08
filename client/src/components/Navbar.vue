@@ -1,7 +1,7 @@
 <template>
   <b-navbar toggleable="lg" type="dark" variant="primary">
     <b-navbar-brand
-      :to="{ name: 'Home', params: $store.getters.currentClassId }"
+      :to="{ name: 'Home', params: { classId: $store.getters.currentClassId }}"
       >Voltron</b-navbar-brand
     >
     <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
@@ -76,22 +76,18 @@ export default class Navbar extends Vue {
   }
 
   signOut() {
-    this.$store.commit("signOut");
+    this.$store.dispatch("signOut");
     this.$router.push({ name: "Login" });
   }
 
-  mounted() {
-    console.log("syncUser");
-    this.$store.dispatch("syncSessionUserData").catch(error => {
-      // Don't panic if the user is not yet authenticated
-      if (error?.response?.status !== 401) {
-        throw error;
-      }
-    });
-  }
-
   // mounted() {
-  //   this.syncUser();
+  //   console.log("syncUser");
+  //   this.$store.dispatch("syncSessionUserData").catch(error => {
+  //     // Don't panic if the user is not yet authenticated
+  //     if (error?.response?.status !== 401) {
+  //       throw error;
+  //     }
+  //   });
   // }
 }
 </script>
