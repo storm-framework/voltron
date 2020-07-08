@@ -1,7 +1,6 @@
 import { UserData, User, LoginResponse, AuthInfo } from "@/types";
 import router from "@/router";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-
 import _ from "lodash";
 
 const API_URL = "/api";
@@ -47,10 +46,15 @@ class ApiService {
     return Promise.resolve();
   }
 
-  user(token: string): Promise<User> {
-    const payload = _.split(this.accessToken, ".")[1];
+  user(token: string): Promise<UserData> {
+    const payload = _.split(token, ".")[1];
     const userId = JSON.parse(atob(payload)).sub;
     return this.get(`/user/${userId}`);
+  }
+
+  async unauthorized() {
+    await this.signOut();
+    router.replace({ name: "Login" });
   }
 
   authHeader() {
@@ -59,11 +63,6 @@ class ApiService {
     } else {
       return {};
     }
-  }
-
-  async unauthorized() {
-    await this.signOut();
-    router.replace({ name: "signIn" });
   }
 
   async get(path: string, config?: AxiosRequestConfig): Promise<any> {
@@ -84,4 +83,5 @@ class ApiService {
 }
 
 const accessToken = localStorage.getItem("accessToken");
+
 export default new ApiService(accessToken);

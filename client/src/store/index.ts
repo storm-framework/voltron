@@ -49,7 +49,7 @@ export default new Vuex.Store({
   },
 
   actions: {
-    signIn({ dispatch, commit }, auth: AuthInfo) {
+    async signIn({ dispatch, commit }, auth: AuthInfo) {
       ApiService.signIn(auth)
         .then(res => {
           console.log("ApiService.signIn", res);
@@ -76,10 +76,10 @@ export default new Vuex.Store({
       ApiService.user(token)
         .then(payload => commit("setUserData", payload))
         .catch(error => {
-            if (error?.response?.status == 401) {
-              ApiService.unauthorized();
-            }
-            throw error;
+          if (error?.response?.status == 401) {
+            ApiService.unauthorized();
+          }
+          throw error;
         })
     // syncSessionUserData: ({ commit, state }) => {
     //   console.log("syncSessionUserData", state.accessToken);
