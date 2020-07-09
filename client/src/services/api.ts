@@ -1,4 +1,4 @@
-import { LoginResponse, UserData, AuthInfo } from "@/types";
+import { EnrollStudent, LoginResponse, UserData, AuthInfo } from "@/types";
 
 import Mock from "./api.mock";
 import Server from "./api.server";
@@ -10,10 +10,11 @@ interface ApiService {
   user(token: string): Promise<UserData>;
   unauthorized(): Promise<void>;
   signOut(): Promise<void>;
+  enroll(students: EnrollStudent[]): Promise<string[]>;
 }
 
-const module: ApiService = Server;
-//  const module: ApiService = Mock;
+// const module: ApiService = Server;
+const module: ApiService = Mock;
 
 // if (process.env.VUE_APP_MOCK_API_SERVICE == "true") {
 // if (0 == 1) {

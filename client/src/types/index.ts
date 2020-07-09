@@ -44,3 +44,14 @@ export interface ClassView<T> {
   index: number;
   data: T;
 }
+
+export interface EnrollStudent {
+  class: string;
+  email: string;
+  group: string;
+}
+
+export interface Enroll {
+  newBuffers: Array<Buffer>;
+  newEnrolls: Array<EnrollStudent>
+}

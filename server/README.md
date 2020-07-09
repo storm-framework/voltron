@@ -23,57 +23,25 @@ Enroll
 
 ## TODO
 
-- Create MANUAL DB
-  - [x] add-user   -email=EMAIL      -password=PASSWORD -first=NAME -last=NAME
-  - [x] add-class  -institution=NAME -name=NAME         -instructor=EMAIL
-  - [x] add-group  -class=NAME       -editorLink=HASH   -name=NAME
-  - [x] add-enroll -student=EMAIL    -class=NAME        -group=NAME
-  - [x] test
+- [ ] 'Enroll'
+  
+  - type EnrollStudent = { className: string, studentEmail: string, groupName: string } 
 
-- [x] Fix the `accessToken` business in front/back
-  - [x] back
-  - [x] front
-
-
-- [ ] Enroll HEREHEREHERERHERE 
-  - type Enroll      = { className: string, studentEmail: string, groupName: string } 
-  - type GroupEnroll = { newBuffers : Buffer[], newEnrolls: Enroll[] }
+  - type Enroll = { newBuffers : Buffer[], newEnrolls: EnrollStudent[] }
 
   - FRONT
-  	- [ ] page to allow upload of CSV -> render into a JSON `Enroll` object
+  	- [ ] 'Enroll' page to allow upload of CSV -> render into a JSON `Enroll` object
+	- [ ] Generate an `Enroll` object as above
+	- [ ] POST /api/enroll 
 
-- [ ] 'Groups' route for instructor (to create new groups)
-  - NEED client side route because editor buffers only created at CLIENT
-  -
-  - [ ] front
-	- CSV OR textbox of group
-    - [ ] back
-	- POST `/api/group`  Array<NewGroup> 
-	- POST `/api/enroll` Array<Enroll> 
-	- create group in db
+  - BACK 
+    	- [] create GROUPs   if they don't exist
+    	- [] create STUDENTs if they don't exist using email-user as password
+    	- [] create ENROLLs  (if they don't exist)
 
-- [ ] 'Enroll' route for instructor (to assign students to a group in a class)
-    - create GROUPs   if they don't exist
-    - create STUDENTs if they don't exist using email-user as password
-    - create ENROLLs  (if they don't exist)
+- [ ] 'Settings'
 
-    - [ ] front
-    	- CSV or textbox of email, group
-
-    - [ ] back
-    	- `/api/enroll`
-
-	- create student account (with random password) and add to group in db, send EMAIL to student?
-
-- [ ] Check if 
-    - GROUP EXISTS 
-    - CLASS EXISTS
-
-ASK Nico, do we want "signup" or "reset" password?
-
-- [ ] 'signup' route for student
-    - [ ]  choose password etc
-    - [ ] `/api/signup`
+- [ ] 'Reset Password'
 
 ## Populating the Database
 

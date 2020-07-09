@@ -1,7 +1,7 @@
 <template>
   <b-navbar toggleable="lg" type="dark" variant="primary">
     <b-navbar-brand
-      :to="{ name: 'Home', params: { classId: $store.getters.currentClassId }}"
+      :to="{ name: 'Home', params: { classId: $store.getters.currentClassId } }"
       >Voltron</b-navbar-brand
     >
     <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
@@ -29,6 +29,19 @@
               {{ item.name }}
             </b-dropdown-item>
           </template>
+        </b-nav-item-dropdown>
+        <b-nav-item-dropdown
+          v-if="isSignedIn && isInstructor"
+          text="Enroll"
+          right
+        >
+          <b-dropdown-item
+            v-for="item in instructorClasses"
+            :key="item.index"
+            :to="{ name: 'Enroll', params: { classId: item.index } }"
+          >
+            {{ item.name }}
+          </b-dropdown-item>
         </b-nav-item-dropdown>
         <b-nav-item to="/contact">Contact</b-nav-item>
         <b-nav-item v-if="isSignedIn" v-on:click="signOut()">Logout</b-nav-item>
@@ -79,15 +92,5 @@ export default class Navbar extends Vue {
     this.$store.dispatch("signOut");
     this.$router.push({ name: "Login" });
   }
-
-  // mounted() {
-  //   console.log("syncUser");
-  //   this.$store.dispatch("syncSessionUserData").catch(error => {
-  //     // Don't panic if the user is not yet authenticated
-  //     if (error?.response?.status !== 401) {
-  //       throw error;
-  //     }
-  //   });
-  // }
 }
 </script>

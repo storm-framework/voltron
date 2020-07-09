@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter, { Route, RouteConfig } from "vue-router";
 import Home from "../views/Home.vue";
+import Enroll from "../views/Enroll.vue";
 import Contact from "../views/Contact.vue";
 import About from "../views/About.vue";
 import SignIn from "../views/SignIn.vue";
@@ -25,6 +26,11 @@ const routes: Array<RouteConfig> = [
       path: "/login",
       name: "Login",
       component: SignIn
+    },
+    {
+      path: "/enroll/:classId",
+      name: "Enroll",
+      component: Enroll
     },
     {
       path: "/contact",

@@ -1,4 +1,4 @@
-import { UserData, User, Buffer, AuthInfo, LoginResponse } from "@/types";
+import { UserData, User, Buffer, AuthInfo, LoginResponse, EnrollStudent } from "@/types";
 import router from "@/router";
 
 function delay(ms = 1000) {
@@ -174,6 +174,10 @@ class ApiService {
     console.log("unauthorized");
     await this.signOut();
     router.replace({ name: "Login" });
+  }
+
+  async enroll(students: EnrollStudent[]) {
+    return [];
   }
 }
 
