@@ -4,7 +4,7 @@
       <section class="py-5">
         <div class="row mt-5">
           <div class="col-8 offset-2">
-            <h2 class="d-inline">Enrollment for {{ className }}</h2>
+            <h2 class="d-inline">Enrollment for {{ classData.class }}</h2>
             <b-button
               v-if="!loading"
               variant="success"
@@ -65,7 +65,8 @@
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
 import { VueCsvImport } from "vue-csv-import";
-import { EnrollInfo } from "@/types";
+import { EnrollInfo, Instructor } from "@/types";
+import EnrollService from "@/services/enroll";
 
 @Component({
   components: { VueCsvImport }
@@ -86,16 +87,16 @@ export default class Enroll extends Vue {
     return "hideme";
   }
 
-  get className() {
+  get classData(): Instructor {
     const classId = this.$route.params.classId;
-    const classData = this.$store.getters.classById(classId);
-    console.log("Enroll-className", classId, classData);
-    return classData.class;
+    const ret = this.$store.getters.classById(classId);
+    console.log("Enroll-classData", ret);
+    return ret;
   }
 
   onEnroll() {
-    const payload = this.loadedEnrolls;
-    console.log("onEnroll", payload);
+    const enroll = EnrollService.makeEnroll(this.classData, this.loadedEnrolls);
+    console.log("onEnroll", enroll);
   }
 }
 </script>

@@ -1,5 +1,5 @@
 export interface Buffer {
-  id:   number;
+  id:   string;
   hash: string;
   text: string;
   div:  string;
@@ -14,12 +14,12 @@ export interface Student {
 export interface Instructor {
   tag: "Instructor";
   class: string;
-  allBuffers: Array<Buffer>;
+  allBuffers: Buffer[];
 } 
 
 export interface UserData {
   user: User;
-  classes: Array<ClassData>;
+  classes: ClassData[];
 }
 
 export type ClassData = Instructor | Student;
@@ -45,15 +45,10 @@ export interface ClassView<T> {
   data: T;
 }
 
-export interface EnrollStudent {
-  class: string;
-  email: string;
-  group: string;
-}
-
 export interface Enroll {
-  newBuffers: Buffer[];
-  newEnrolls: EnrollStudent[]
+  className: string;
+  buffers: Buffer[];
+  enrolls: EnrollInfo[];
 }
 
 export interface EnrollInfo {

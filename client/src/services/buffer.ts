@@ -13,7 +13,7 @@ const config = {
 };
 
 const initApp = firebase.initializeApp(config);
-const initializedBuffers: { [bufId: number]: boolean } = {};
+const initializedBuffers: { [bufId: string]: boolean } = {};
 
 function isInit(buf: Buffer): boolean {
   const done = initializedBuffers[buf.id];
@@ -29,7 +29,7 @@ class BufferService {
     return ref.child(buf.hash);
   }
 
-  makeFirepadRef() {
+  makeFirepadRef():string {
     const ref = firebase.database().ref();
     const newRef = ref.push();
     console.log("makeFirepadRef", newRef.key);
