@@ -4,7 +4,17 @@
       <section class="py-5">
         <div class="row mt-5">
           <div class="col-8 offset-2">
-            <h4 class="mb-4">Result:</h4>
+            <h2 class="d-inline">Enrollment for className</h2>
+            <b-button
+              v-if="!loading"
+              variant="success"
+              size="lg"
+              class="float-right"
+            >
+              Enroll
+            </b-button>
+            <br />
+            <br />
             <vue-csv-import
               v-model="csv"
               :map-fields="['email', 'firstName', 'lastName', 'group']"
@@ -17,24 +27,18 @@
                 File type is invalid
               </template>
 
-              <template slot="thead" v-show="false">
-                <tr>
-                  <th>My Fields</th>
-                  <th>Column</th>
-                </tr>
-              </template>
-
               <template slot="next" slot-scope="{ load }">
-                <b-button variant="success" size="lg" @click.prevent="load"
-                  >Load!</b-button
-                >
+                <b-button @click.prevent="load">Upload</b-button>
               </template>
 
-              <template slot="submit" slot-scope="{ submit }">
-                <button @click.prevent="submit">send!</button>
-              </template>
+              <!-- <template slot="submit" slot-scope="{ submit }">
+                  <button @submit.prevent="submit">Enroll!</button>
+                </template>-->
             </vue-csv-import>
-            <div class="mt-2">
+
+            <br />
+
+            <div v-show="!loading" class="mt-2">
               <table class="table">
                 <thead>
                   <tr>
@@ -65,17 +69,28 @@
 import { Vue, Component } from "vue-property-decorator";
 import { VueCsvImport } from "vue-csv-import";
 
+type EnrollInfo = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  group: string;
+};
+
 @Component({
   components: { VueCsvImport }
 })
 export default class Enroll extends Vue {
-  
-  csv = null;
+  csv: Array<EnrollInfo> | null = null;
 
-  get loadedEnrolls(){
+  get loading() {
+    return !this.loadedEnrolls;
+  }
+
+  get loadedEnrolls() {
     const myCsv = this.csv;
     return myCsv && myCsv.slice(1);
   }
+
   get hidetable() {
     return "hideme";
   }
