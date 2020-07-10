@@ -83,19 +83,6 @@ export default new Vuex.Store({
           }
           throw error;
         })
-    // syncSessionUserData: ({ commit, state }) => {
-    //   console.log("syncSessionUserData", state.accessToken);
-    //   if (state.accessToken) {
-    //     ApiService.user(state.accessToken)
-    //       .then(payload => commit("setUserData", payload))
-    //       .catch(error => {
-    //         if (error?.response?.status == 401) {
-    //           ApiService.unauthorized();
-    //         }
-    //         throw error;
-    //       });
-    //   } 
-    // }
   },
 
   getters: {
@@ -125,9 +112,13 @@ export default new Vuex.Store({
       console.log("currentClassId", currentClass);
       return currentClass;
     },
+    
+    currentClass: ({ currentClass }, getters) => {
+      return getters.classById(currentClass);
+    },
 
-    currentClass: ({ userData, currentClass }) => {
-      return userData && userData.classes[currentClass];
+    classById: ({ userData }) => (classId:number) => {
+      return userData && userData.classes[classId];
     },
 
     isSignedIn: ({ userData }) => {

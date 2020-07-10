@@ -23,13 +23,17 @@ function isInit(buf: Buffer): boolean {
 }
 
 class BufferService {
-  // codeBufferDiv(buf: Buffer) {
-  //   return "editor-" + buf.id;
-  // }
 
   getFirepadRef(buf: Buffer) {
     const ref = firebase.database().ref();
     return ref.child(buf.hash);
+  }
+
+  makeFirepadRef() {
+    const ref = firebase.database().ref();
+    const newRef = ref.push();
+    console.log("makeFirepadRef", newRef.key);
+    return newRef.key;
   }
 
   initBuf(buf: Buffer) {

@@ -52,6 +52,13 @@ export interface EnrollStudent {
 }
 
 export interface Enroll {
-  newBuffers: Array<Buffer>;
-  newEnrolls: Array<EnrollStudent>
+  newBuffers: Buffer[];
+  newEnrolls: EnrollStudent[]
 }
+
+export interface EnrollInfo {
+  email: string;
+  firstName: string;
+  lastName: string;
+  group: string;
+};
