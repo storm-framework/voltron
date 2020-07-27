@@ -1,4 +1,4 @@
-import { EnrollStudent, LoginResponse, UserData, AuthInfo } from "@/types";
+import { Enrole, LoginResponse, UserData, AuthInfo } from "@/types";
 
 import Mock from "./api.mock";
 import Server from "./api.server";
@@ -10,7 +10,7 @@ interface ApiService {
   user(token: string): Promise<UserData>;
   unauthorized(): Promise<void>;
   signOut(): Promise<void>;
-  enroll(students: EnrollStudent[]): Promise<string[]>;
+  enroll(students: Enrole): Promise<string[]>;
 }
 
 // const module: ApiService = Server;

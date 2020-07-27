@@ -1,4 +1,4 @@
-import { UserData, User, LoginResponse, AuthInfo } from "@/types";
+import { UserData, User, LoginResponse, AuthInfo, Enrole } from "@/types";
 import router from "@/router";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import _ from "lodash";
@@ -23,25 +23,27 @@ class ApiService {
   // Auth
   async signIn(info: AuthInfo): Promise<LoginResponse> {
     await delay();
-    const response: AxiosResponse<LoginResponse> = await axios.post(`${API_URL}/signin`, {
-      emailAddress: info.emailAddress,
-      password: info.password
-    });
+    const response: AxiosResponse<LoginResponse> = await axios.post(
+      `${API_URL}/signin`,
+      {
+        emailAddress: info.emailAddress,
+        password: info.password
+      }
+    );
 
     console.log("server-signIn", response.data);
     if (response.data.accessToken) {
       localStorage.setItem("accessToken", response.data.accessToken);
       console.log("set-access-token", response.data.accessToken);
       this.accessToken = response.data.accessToken;
-
     }
     return response.data;
   }
 
-  isSignedIn() : boolean {
+  isSignedIn(): boolean {
     const res = this.accessToken !== null;
     console.log("isSignedIn", res, this.accessToken);
-    return res; 
+    return res;
   }
 
   signOut() {
@@ -56,6 +58,10 @@ class ApiService {
     const payload = _.split(token, ".")[1];
     const userId = JSON.parse(atob(payload)).sub;
     return this.get(`/user/${userId}`);
+  }
+
+  enroll(students: Enrole): Promise<string[]> {
+    return this.post(`/enroll`, students);
   }
 
   async unauthorized() {
@@ -84,6 +90,24 @@ class ApiService {
         await this.unauthorized();
       }
       throw error;
+    }
+  }
+
+  async post(
+    path: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<any> {
+    await delay();
+    try {
+      const response = await axios.post(`${API_URL}${path}`, data, config);
+      return response.data;
+    } catch (error) {
+      if (error.response?.status == 401) {
+        await this.unauthorized();
+      } else {
+        throw error;
+      }
     }
   }
 }

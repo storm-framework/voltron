@@ -1,4 +1,11 @@
-import { UserData, User, Buffer, AuthInfo, LoginResponse, EnrollStudent } from "@/types";
+import {
+  UserData,
+  User,
+  Buffer,
+  AuthInfo,
+  LoginResponse,
+  Enrole
+} from "@/types";
 import router from "@/router";
 
 function delay(ms = 1000) {
@@ -176,7 +183,8 @@ class ApiService {
     router.replace({ name: "Login" });
   }
 
-  async enroll(students: EnrollStudent[]) {
+  async enroll(info: Enrole) {
+    console.log("enroll", info);
     return [];
   }
 }

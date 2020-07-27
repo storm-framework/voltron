@@ -6,7 +6,8 @@ import {
   UserData,
   AuthInfo,
   Instructor,
-  Student
+  Student,
+  Enrole
 } from "@/types";
 import ApiService from "@/services/api";
 
@@ -49,8 +50,7 @@ export default new Vuex.Store({
   },
 
   actions: {
-    signOut: ({ commit }) =>
-      ApiService.signOut().then(() => commit("signOut")),
+    signOut: ({ commit }) => ApiService.signOut().then(() => commit("signOut")),
     signIn({ dispatch, commit }, auth: AuthInfo) {
       ApiService.signIn(auth)
         .then(res => {
@@ -60,9 +60,9 @@ export default new Vuex.Store({
         })
         .catch(error => console.log("action-signin-catch", error));
 
-      return dispatch("syncSessionUserData")
-        .then(() => console.log("Done syncSessonUserData"));
-
+      return dispatch("syncSessionUserData").then(() =>
+        console.log("Done syncSessonUserData")
+      );
     },
 
     syncSessionUserData: ({ dispatch, state }) => {
@@ -82,6 +82,16 @@ export default new Vuex.Store({
             ApiService.unauthorized();
           }
           throw error;
+        }),
+
+    enroll: ({ dispatch }, enrolls: Enrole) =>
+      ApiService.enroll(enrolls)
+        .then(_payload => dispatch("syncSessionUserData"))
+        .catch(error => {
+          if (error?.response?.status == 401) {
+            ApiService.unauthorized();
+          }
+          throw error;
         })
     // syncSessionUserData: ({ commit, state }) => {
     //   console.log("syncSessionUserData", state.accessToken);
@@ -94,7 +104,7 @@ export default new Vuex.Store({
     //         }
     //         throw error;
     //       });
-    //   } 
+    //   }
     // }
   },
 
@@ -126,8 +136,13 @@ export default new Vuex.Store({
       return currentClass;
     },
 
-    currentClass: ({ userData, currentClass }) => {
-      return userData && userData.classes[currentClass];
+    currentClass: ({ currentClass }, getters) => {
+      return getters.classById(currentClass);
+      // return userData && userData.classes[currentClass];
+    },
+
+    classById: ({ userData }) => (classId: number) => {
+      return userData && userData.classes[classId];
     },
 
     isSignedIn: ({ userData }) => {

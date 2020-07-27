@@ -46,12 +46,14 @@ export interface ClassView<T> {
 }
 
 export interface EnrollStudent {
-  class: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  group: string;
+  group: number;
 }
 
-export interface Enroll {
-  newBuffers: Array<Buffer>;
-  newEnrolls: Array<EnrollStudent>
+export interface Enrole {
+  class: string;
+  buffers: Buffer[];
+  students: EnrollStudent[]
 }

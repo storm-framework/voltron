@@ -4,8 +4,8 @@ declare const firebase: any;
 declare const ace: any;
 declare const Firepad: any;
 
-//Initialize Firebase.
-//TODO: replace with your Firebase project configuration
+// Initialize Firebase.
+// TODO: replace with your Firebase project configuration
 const config = {
   apiKey: "<API_KEY>",
   authDomain: "firepad-tests.firebaseapp.com",
@@ -27,23 +27,29 @@ class BufferService {
   //   return "editor-" + buf.id;
   // }
 
+  newBuffer(groupId: number): Buffer {
+    const newRef = firebase.database().ref().push();
+    return {
+      id: groupId,
+      hash: newRef.key,
+      text: "",
+      div: "editor-" + groupId
+    }
+  }
+
   getFirepadRef(buf: Buffer) {
     const ref = firebase.database().ref();
     return ref.child(buf.hash);
   }
 
   initBuf(buf: Buffer) {
-    // const done: boolean = isInit(buf);
-    // if (done) return;
     const editor = ace.edit(buf.div);
-    // editor.setValue("");
     editor.setTheme("ace/theme/textmate");
     editor.getSession().setMode("ace/mode/haskell");
     editor.setOptions({
       maxLines: 10,
       minLines: 10
     });
-    // editor.$blockScrolling = Infinity;
     const firepadRef = this.getFirepadRef(buf);
     console.log("initBuf", buf.div, editor.getValue());
     const firepad = Firepad.fromACE(firepadRef, editor, {
