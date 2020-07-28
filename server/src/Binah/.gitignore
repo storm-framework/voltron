@@ -1,8 +1,0 @@
-.stack-work/
-.liquid/
-/binah-basic.cabal
-
-*.dyn_hi
-*.dyn_o
-*.hi
-*.o
