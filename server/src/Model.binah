@@ -31,6 +31,8 @@ User
   lastName      Text
   admin         Bool
 
+  UniqueEmailAddress emailAddress
+
   insert {\new viewer -> IsInstructor viewer }
   read   [ password ] @IsSelf
   update [ password, level, emailAddress ] {\_ _ _ -> False}
@@ -45,6 +47,8 @@ Group
   name       Text
   editorLink Text
   class      ClassId
+
+  UniqueGroupClass name class
 
   insert {\_ viewer -> IsInstructor viewer}
   update [ name, editorLink ] {\_ _ viewer -> IsInstructor viewer}

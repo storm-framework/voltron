@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1b366d09be65cae625c16df0b3121adf6a1c00120e501cd6fadc96a4a57dbc5f
+-- hash: 777b18840be7727a9a7f21c02d889bad093a5c12d46a060d2dd045843ab45518
 
 name:           server
 version:        0.1.0.0
@@ -66,6 +66,7 @@ library
     , cmdargs
     , directory
     , either
+    , exceptions
     , filepath
     , frankie
     , jose
@@ -111,6 +112,7 @@ executable voltron
     , cmdargs
     , directory
     , either
+    , exceptions
     , filepath
     , frankie
     , jose
@@ -158,6 +160,7 @@ test-suite server-test
     , cmdargs
     , directory
     , either
+    , exceptions
     , filepath
     , frankie
     , jose

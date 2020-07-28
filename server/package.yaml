@@ -41,6 +41,7 @@ dependencies:
   - monad-time
   - resource-pool
   - lens
+  - exceptions
   - transformers-base
   - monad-control
   - monad-logger

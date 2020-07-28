@@ -28,8 +28,7 @@ import           Binah.Templates
 import           Concurrent
 import qualified Network.AWS                   as AWS
 import qualified Network.AWS.S3                as S3
-import System.IO (stderr)
-
+import           System.IO (stderr)
 import           Model
 
 data Config = Config
@@ -48,11 +47,8 @@ data AWSConfig = AWSConfig
 
 type Controller = TaggedT (ReaderT SqlBackend (ConfigT Config (ControllerT TIO)))
 
-instance Frankie.Log.MonadLog Controller where
+instance (MonadTIO m) => Frankie.Log.MonadLog (TaggedT m) where
   log level msg = liftTIO . TIO $ Frankie.Log.hLog True stderr level msg
-
-instance Frankie.Log.MonadLog Task where
-  log _ msg = liftTIO . TIO $ putStrLn msg
 
 instance Frankie.Auth.HasAuthMethod (Entity User) Controller Config where
   getAuthMethod = configAuthMethod
@@ -73,10 +69,6 @@ runTask task = do
   flip mapTaggedT (forkTIO t) $ \m -> do
     liftTIO m
     return ()
-
-
-yell :: String -> Controller ()
-yell = Frankie.Log.log Frankie.Log.INFO 
 
 --------------------------------------------------------------------------------
 -- | Responses

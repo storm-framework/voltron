@@ -59,9 +59,16 @@ enrollStudents = do
 {-@ ignore addUser @-}
 addUser :: CreateUser -> Task UserId
 addUser (CreateUser {..}) = do
-  Log.log Log.ERROR $ "this is a message: " ++ T.unpack userPassword
   EncryptedPass encrypted <- encryptPassTIO' (Pass (T.encodeUtf8 userPassword))
-  insert $ mkUser userEmail encrypted userFirst userLast False
+  res <- insertMaybe $ mkUser userEmail encrypted userFirst userLast False
+  case res of
+    Just uid -> do 
+      Log.log Log.INFO $ "addUser [ok]: " ++ show uid
+      return uid
+    Nothing -> do
+      Log.log Log.ERROR $ "addUser [fail]: duplicate email " ++ T.unpack userEmail 
+      return undefined
+  
 
 -- Add a class from cmd-line ------------------------------------------------
 {-@ ignore addClass @-}

@@ -91,7 +91,7 @@ User
   firstName Text
   lastName Text
   admin Bool
-  
+  UniqueEmailAddress emailAddress
 
 Class
   institution Text
