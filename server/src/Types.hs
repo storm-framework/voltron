@@ -19,6 +19,9 @@ data Buffer = Buffer
 instance ToJSON Buffer where
   toEncoding = genericToEncoding (stripPrefix "buffer")
 
+instance FromJSON Buffer where
+  parseJSON = genericParseJSON (stripPrefix "buffer")
+
 data UserNG = UserNG
   { userFirstName :: Text
   , userLastName  :: Text
@@ -101,5 +104,27 @@ data CreateEnroll = CreateEnroll
 instance FromJSON CreateEnroll where
   parseJSON = genericParseJSON defaultOptions
 
+data EnrollStudent = EnrollStudent 
+  { esFirstName :: Text
+  , esLastName  :: Text
+  , esEmail     :: Text
+  , esGroup     :: Text
+  }
+  deriving Generic
+
+instance FromJSON EnrollStudent where
+  parseJSON = genericParseJSON (stripPrefix "es")
+
+-- | An `Enrole` datatype that mirrors the client side version -----------------------
+
+data Enrole = Enrole 
+  { enroleClass    :: Text 
+  , enroleBuffers  :: [Buffer] 
+  , enroleStudents :: [EnrollStudent] 
+  }
+  deriving Generic
+
+instance FromJSON Enrole where
+  parseJSON = genericParseJSON (stripPrefix "enrole")
 
 

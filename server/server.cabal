@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c284aceaae8e9cacbb9879c31d732b102a9d29edf30a0ba3f6a234ab6ba75d68
+-- hash: 1b366d09be65cae625c16df0b3121adf6a1c00120e501cd6fadc96a4a57dbc5f
 
 name:           server
 version:        0.1.0.0
@@ -40,6 +40,7 @@ library
       Concurrent
       Config
       Controllers
+      Controllers.Enroller
       Controllers.Invitation
       Controllers.Room
       Controllers.User

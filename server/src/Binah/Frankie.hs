@@ -40,12 +40,13 @@ import qualified Data.Text.Encoding            as Text
 import           Data.Maybe                     ( fromJust )
 import           Data.Bifunctor                 ( bimap )
 
-import           Prelude                 hiding ( log )
+import           Prelude                       hiding ( log )
 
 import           Frankie
 import           Frankie.Config
 import           Frankie.Auth
 import qualified Frankie.Auth
+import           Frankie.Log
 
 import           Binah.Core
 import           Binah.Infrastructure
@@ -140,3 +141,5 @@ parseForm = do
   req    <- request
   parsed <- liftTIO $ TIO $ Wai.parseRequestBody Wai.lbsBackEnd $ unRequestTIO req
   return $ map (bimap Text.decodeUtf8 Text.decodeUtf8) (fst parsed)
+
+

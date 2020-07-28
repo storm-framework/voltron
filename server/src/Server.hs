@@ -31,6 +31,7 @@ import           System.Environment
 import qualified Data.ByteString.Lazy          as LBS
 import           Network.Mime
 import           Frankie.Config
+import           Frankie.Log                   (stdErrLogger)
 import           Frankie.Auth
 import           Data.Maybe
 import qualified Data.Text                     as T
@@ -43,7 +44,7 @@ import           Control.Monad.Trans.Control    ( MonadBaseControl(..)
                                                 , MonadTransControl(..)
                                                 )
 import           Control.Monad.Trans.Class      ( lift )
-import           Control.Monad.Logger           ( runNoLoggingT )
+import qualified Control.Monad.Logger          as Logger -- ( runNoLoggingT )
 import qualified Control.Concurrent.MVar       as MVar
 import           Control.Lens.Lens              ( (&) )
 import           Control.Lens.Operators         ( (^.) )
@@ -51,11 +52,6 @@ import qualified Text.Mustache.Types           as Mustache
 import           Text.Read                      ( readMaybe )
 import           Data.Typeable
 import           Data.Data
-import qualified Network.AWS                   as AWS
-import qualified Network.AWS.S3                as S3
-
-
-
 import           Binah.Core
 import           Binah.Frankie
 import           Binah.Infrastructure
@@ -66,7 +62,8 @@ import           Binah.Filters
 import           Controllers
 import           Controllers.Invitation
 import           Controllers.User
-import           Controllers.Room
+import           Controllers.Enroller
+
 import           Model
 import           Auth
 
@@ -82,11 +79,10 @@ data ServerOpts = ServerOpts
 
 {-@ ignore runServer @-}
 runServer :: ServerOpts -> IO ()
-runServer ServerOpts {..} = runNoLoggingT $ do
+runServer ServerOpts {..} = Logger.runNoLoggingT $ do
     liftIO $ initDB optsDBPath
     templateCache <- liftIO $ MVar.newMVar mempty
     pool          <- createSqlitePool optsDBPath optsPool
-    -- aws           <- liftIO getAwsConfig
     liftIO . runFrankieServer "dev" $ do
         mode "dev" $ do
             host optsHost
@@ -100,7 +96,7 @@ runServer ServerOpts {..} = runNoLoggingT $ do
             -- get  "/api/invitation"     invitationList
             -- get  "/api/user"           userList
             get  "/api/user/:id"       userGet
-            post "/api/enroll"         enroll
+            post "/api/enroll"         enrollStudents
 
             case optsStatic of
                 Just path -> fallback (sendFromDirectory path "index.html")
@@ -118,20 +114,6 @@ runTask' dbpath task = runSqlite dbpath $ do
     let config = Config authMethod templateCache backend
     liftIO . runTIO $ runReaderT (unConfigT (runReaderT (unTag task) backend)) config
 
-
--- getAwsConfig :: IO AWSConfig
--- getAwsConfig = do
---     accessKey <- fromMaybe "" <$> lookupEnv "DISCO_AWS_ACCESS_KEY"
---     secretKey <- fromMaybe "" <$> lookupEnv "DISCO_AWS_SECRET_KEY"
---     region    <- readMaybe . fromMaybe "" <$> lookupEnv "DISCO_AWS_REGION"
---     bucket    <- fromMaybe "distant-socialing" <$> lookupEnv "DISCO_AWS_BUCKET"
---     env       <- AWS.newEnv $ AWS.FromKeys (AWS.AccessKey $ T.encodeUtf8 $ T.pack accessKey)
---                                            (AWS.SecretKey $ T.encodeUtf8 $ T.pack secretKey)
---     return $ AWSConfig { awsAuth   = env ^. AWS.envAuth
---                        , awsRegion = fromMaybe AWS.NorthCalifornia region
---                        , awsBucket = S3.BucketName (T.pack bucket)
---                        }
-
 {-@ ignore initDB @-}
 initDB :: T.Text -> IO ()
 initDB dbpath = runSqlite dbpath $ do
@@ -146,6 +128,14 @@ sendFromDirectory dir fallback = do
     let path = dir </> joinPath (map T.unpack (reqPathInfo req))
     exists <- liftTIO . TIO $ doesFileExist path
     if exists then sendFile path else sendFile (dir </> fallback)
+
+-- _ <- liftTIO . TIO $ Logger.logInfoN "This is a log message!"
+
+-- instance Logger.MonadLogger IO where
+--   monadLoggerLog msg = do
+--     ls <- ask
+--     undefined ls -- liftIO $ pushLogStrLn ls $ Logger.toLogStr msg
+
 
 {-@ ignore sendFile @-}
 sendFile :: FilePath -> Controller ()

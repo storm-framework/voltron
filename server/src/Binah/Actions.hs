@@ -61,7 +61,6 @@ selectFirst filters = do
   backend <- ask
   liftTIO . TIO $ runReaderT (Persist.selectFirst (toPersistFilters filters) []) backend
 
-
 selectFirstOrCrash
   :: ( PersistQueryRead backend
      , PersistRecordBackend record backend

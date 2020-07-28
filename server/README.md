@@ -20,27 +20,24 @@ Enroll
   user       User
   group      Group  -- only writable by instructor
 
-
 ## TODO
 
 - [ ] 'Enroll'
   
-  - type EnrollStudent = { className: string, studentEmail: string, groupName: string } 
+  - [x] type EnrollStudent = { className: string, studentEmail: string, groupName: string } 
+  - [x] type Enroll = { newBuffers : Buffer[], newEnrolls: EnrollStudent[] }
 
-  - type Enroll = { newBuffers : Buffer[], newEnrolls: EnrollStudent[] }
+- FRONT
+  - [] 'Enroll' page to allow upload of CSV -> render into a JSON `Enroll` object
+	- [] Generate an `Enroll` object as above
+	- [] POST /api/enroll 
 
-  - FRONT
-  	- [ ] 'Enroll' page to allow upload of CSV -> render into a JSON `Enroll` object
-	- [ ] Generate an `Enroll` object as above
-	- [ ] POST /api/enroll 
-
-  - BACK 
-    	- [] create GROUPs   if they don't exist
-    	- [] create STUDENTs if they don't exist using email-user as password
-    	- [] create ENROLLs  (if they don't exist)
+- BACK 
+  - [] create GROUPs   if they don't exist
+  - [] create STUDENTs if they don't exist using email-user as password
+  - [] create ENROLLs  (if they don't exist)
 
 - [ ] 'Settings'
-
 - [ ] 'Reset Password'
 
 ## Populating the Database
