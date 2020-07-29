@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 33e9210de400e95e90c7ba048b78cbc9f4dc8de94fc6119bcac1fe64db00eaca
+-- hash: b6c0eabbcf0d0676c750ee5858913c58080a903492ff3a8ebf20aeaea59fa8d5
 
 name:           server
 version:        0.1.0.0
@@ -29,6 +29,7 @@ library
   exposed-modules:
       Auth
       Binah.Actions
+      Binah.Concurrent
       Binah.Core
       Binah.Filters
       Binah.Frankie
@@ -37,7 +38,6 @@ library
       Binah.Insert
       Binah.Templates
       Binah.Updates
-      Concurrent
       Config
       Controllers
       Controllers.Enroller

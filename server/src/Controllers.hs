@@ -26,7 +26,7 @@ import           Binah.Core
 import           Binah.Infrastructure
 import           Binah.Filters
 import           Binah.Templates
-import           Concurrent
+import           Binah.Concurrent
 import qualified Network.AWS                   as AWS
 import qualified Network.AWS.S3                as S3
 import           Network.Socket                 ( PortNumber )
