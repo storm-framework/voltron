@@ -79,7 +79,7 @@ data CreateClass = CreateClass
   , className        :: Text
   , classInstructor  :: Text
   }
-  deriving Generic
+  deriving (Show, Generic)
 
 instance FromJSON CreateClass where
   parseJSON = genericParseJSON defaultOptions

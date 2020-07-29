@@ -45,42 +45,46 @@ import qualified Debug.Trace
 -- Add a full roster of students to a class using an Enrole -----------------
 enrollStudents :: Controller ()
 enrollStudents = do
-  user <- requireAuthUser
+  instr <- requireAuthUser
   roster@Enrole {..} <- decodeBody 
-  undefined -- _please_fixme
+  mapM_ (insertUser   instr) (enroleUsers roster)
+  mapM_ (insertGroup  instr) (enroleGroups roster)
+  mapM_ (insertEnroll instr) (enroleEnrolls roster)
+  return ()
+
+insertUser :: Entity User -> CreateUser -> Controller () 
+insertUser instr = _fixme
+
+insertGroup :: Entity User -> CreateGroup -> Controller () 
+insertGroup = _fixme
+
+insertEnroll :: Entity User -> CreateEnroll -> Controller () 
+insertEnroll = _fixme
 
 enroleUsers :: Enrole -> [CreateUser]
-enroleUsers = undefined -- _fixme
+enroleUsers = _fixme
 
-enroleGroups :: Enrole 
-enroleGroups = undefined
-{- 
-  1. Add new users  -- [CreateUser]
-  2. Add new groups -- [CreateGroup] 
-  3. Add new enroll -- [CreateEnroll]
- -}
+enroleGroups :: Enrole -> [CreateGroup] 
+enroleGroups = _fixme 
+
+enroleEnrolls :: Enrole -> [CreateEnroll]
+enroleEnrolls = _fixme 
 
 -- Add a user from cmd-line -------------------------------------------------
 {-@ ignore addUser @-}
-addUser :: CreateUser -> Task UserId
-addUser (CreateUser {..}) = do
+addUser :: CreateUser -> Task (Maybe UserId)
+addUser r@(CreateUser {..}) = do
   EncryptedPass encrypted <- encryptPassTIO' (Pass (T.encodeUtf8 userPassword))
-  res <- insertMaybe $ mkUser userEmail encrypted userFirst userLast False
-  case res of
-    Just uid -> do 
-      Log.log Log.INFO $ "addUser [ok]: " ++ show uid
-      return uid
-    Nothing -> do
-      Log.log Log.ERROR $ "addUser [fail]: duplicate email " ++ T.unpack userEmail 
-      return undefined
-  
+  let msg = "addUser: duplicate email " ++ T.unpack userEmail 
+  insertOrMsg msg $ mkUser userEmail encrypted userFirst userLast False
 
 -- Add a class from cmd-line ------------------------------------------------
 {-@ ignore addClass @-}
-addClass :: CreateClass -> Task ClassId
-addClass (CreateClass {..}) = do
+addClass :: CreateClass -> Task (Maybe ClassId)
+addClass r@(CreateClass {..}) = do
   instrId <- lookupUserId classInstructor
-  insert $ mkClass classInstitution className instrId
+  let msg =  "addClass: duplicate class" ++ show r 
+  insertOrMsg msg $ mkClass classInstitution className instrId
 
 -- Add a group from cmd-line ------------------------------------------------
 {-@ ignore addGroup @-}

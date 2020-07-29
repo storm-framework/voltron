@@ -30,7 +30,6 @@ import           Binah.Concurrent
 import qualified Network.AWS                   as AWS
 import qualified Network.AWS.S3                as S3
 import           Network.Socket                 ( PortNumber )
-import           System.IO (stderr)
 import           Crypto.JWT                    as JWT
 import           Model
 
@@ -59,8 +58,8 @@ data Config = Config
 
 type Controller = TaggedT (ReaderT SqlBackend (ConfigT Config (ControllerT TIO)))
 
-instance (MonadTIO m) => Frankie.Log.MonadLog (TaggedT m) where
-  log level msg = liftTIO . TIO $ Frankie.Log.hLog True stderr level msg
+-- instance (MonadTIO m) => Frankie.Log.MonadLog (TaggedT m) where
+--   log level msg = liftTIO . TIO $ Frankie.Log.hLog True stderr level msg
 
 instance Frankie.Auth.HasAuthMethod (Entity User) Controller Config where
   getAuthMethod = configAuthMethod

@@ -88,12 +88,7 @@ runServer ServerOpts {..} = runNoLoggingT $ do
             port optsPort
             initWithT $ initFromPool cfg pool
         dispatch $ do
-            -- post "/api/signup"         signUp
             post "/api/signin"         signIn
-            -- put  "/api/invitation"     invitationPut
-            -- get  "/api/invitation/:id" invitationGet 
-            -- get  "/api/invitation"     invitationList
-            -- get  "/api/user"           userList
             get  "/api/user/:id"       userGet
             post "/api/enroll"         enrollStudents
 
@@ -117,7 +112,6 @@ readConfig = Config authMethod
              -- <*> readAWSConfig 
              -- <*> readSMTPConfig 
              -- <*> readSecretKey
-
 
 {-@ ignore initDB @-}
 initDB :: T.Text -> IO ()
@@ -146,7 +140,6 @@ sendFile path = do
 initFromPool :: Config -> Pool SqlBackend -> Controller () -> TaggedT (ControllerT TIO) ()
 initFromPool cfg pool = mapTaggedT run
     where run act = Pool.withResource pool $ configure cfg . runReaderT act
-
 
 instance MonadBase IO TIO where
     liftBase = TIO

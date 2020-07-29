@@ -28,14 +28,14 @@ Enroll
   - [x] type Enroll = { newBuffers : Buffer[], newEnrolls: EnrollStudent[] }
 
 - FRONT
-  - [] 'Enroll' page to allow upload of CSV -> render into a JSON `Enroll` object
-	- [] Generate an `Enroll` object as above
-	- [] POST /api/enroll 
+  - [x] 'Enroll' page to allow upload of CSV -> render into a JSON `Enroll` object
+	- [x] Generate an `Enroll` object as above
+	- [x] POST /api/enroll 
 
 - BACK 
-  - [] create GROUPs   if they don't exist
-  - [] create STUDENTs if they don't exist using email-user as password
-  - [] create ENROLLs  (if they don't exist)
+  - [ ] create STUDENTs if they don't exist using email-user as password
+  - [ ] create GROUPs   if they don't exist
+  - [ ] create ENROLLs  (if they don't exist)
 
 - [ ] 'Settings'
 - [ ] 'Reset Password'
