@@ -1,16 +1,17 @@
 {-# LANGUAGE FlexibleContexts #-}
-module Concurrent where
+module Concurrent
+  ( forkTIO
+  , ThreadId
+  )
+where
 
-
-import           Control.Monad.Reader           ( MonadReader(..)
-                                                , ReaderT(..)
-                                                )
 import           Database.Persist.Sqlite        ( SqlBackend )
 
-import qualified Control.Concurrent            as C
+import           Control.Concurrent
 
+import           Binah.Core
 import           Binah.Infrastructure
+import           Model
 
--- TODO: Figure out the types
-forkTIO :: TaggedT TIO () -> TaggedT TIO C.ThreadId
-forkTIO = TaggedT . TIO . C.forkIO . runTIO . unTag
+forkTIO :: MonadTIO m => TIO () -> m ThreadId
+forkTIO = liftTIO . TIO . forkIO . runTIO

@@ -12,6 +12,7 @@ import           Control.Monad.Reader           ( MonadReader(..)
                                                 , ReaderT(..)
                                                 , runReaderT
                                                 )
+import           Control.Monad.Trans            ( MonadTrans(..) )
 import           Database.Persist.Sqlite        ( SqlBackend )
 import qualified Control.Concurrent.MVar       as MVar
 import qualified Text.Mustache.Types           as Mustache
@@ -28,22 +29,33 @@ import           Binah.Templates
 import           Concurrent
 import qualified Network.AWS                   as AWS
 import qualified Network.AWS.S3                as S3
+import           Network.Socket                 ( PortNumber )
 import           System.IO (stderr)
+import           Crypto.JWT                    as JWT
 import           Model
 
 data Config = Config
-  { configAuthMethod :: !(AuthMethod (Entity User) Controller)
+  { configAuthMethod    :: !(AuthMethod (Entity User) Controller)
   , configTemplateCache :: !(MVar.MVar Mustache.TemplateCache)
-  -- , configAWS :: AWSConfig
-  , configBackend :: SqlBackend
   }
 
+--   , configAWS :: AWSConfig
+--   , configSMTP :: SMTPConfig
+--   , configSecretKey :: JWT.JWK
+--   }
 
-data AWSConfig = AWSConfig
-  { awsAuth :: AWS.Auth
-  , awsRegion:: AWS.Region
-  , awsBucket :: S3.BucketName
-  }
+-- data SMTPConfig = SMTPConfig
+--   { smtpHost :: String
+--   , smtpPort :: PortNumber
+--   , smtpUser :: String
+--   , smtpPass :: String
+--   }
+
+-- data AWSConfig = AWSConfig
+--   { awsAuth :: AWS.Auth
+--   , awsRegion:: AWS.Region
+--   , awsBucket :: S3.BucketName
+--   }
 
 type Controller = TaggedT (ReaderT SqlBackend (ConfigT Config (ControllerT TIO)))
 
@@ -53,9 +65,6 @@ instance (MonadTIO m) => Frankie.Log.MonadLog (TaggedT m) where
 instance Frankie.Auth.HasAuthMethod (Entity User) Controller Config where
   getAuthMethod = configAuthMethod
 
-instance HasSqlBackend Config where
-  getSqlBackend = configBackend
-
 instance HasTemplateCache Config where
   getTemplateCache = configTemplateCache
 
@@ -63,12 +72,11 @@ type Task = TaggedT (ReaderT SqlBackend (ConfigT Config TIO))
 
 runTask :: Task () -> Controller ()
 runTask task = do
-  b      <- backend
-  config <- getConfig
-  let t = mapTaggedT (\t -> runReaderT (unConfigT (runReaderT t b)) config) task
-  flip mapTaggedT (forkTIO t) $ \m -> do
-    liftTIO m
-    return ()
+  backend <- lift ask
+  cfg     <- getConfigT
+  flip mapTaggedT task $ \t -> do
+    forkTIO $ configure cfg (t `runReaderT` backend)
+  return ()
 
 --------------------------------------------------------------------------------
 -- | Responses
@@ -83,6 +91,10 @@ respondJSON status a = respondTagged (jsonResponse status a)
 
 jsonResponse :: ToJSON a => Status -> a -> Response
 jsonResponse status a = Response status defaultHeaders (encode a)
+
+emptyResponse :: Status -> Response
+emptyResponse status = Response status defaultHeaders ""
+
 
 {-@ respondError :: _ -> _ -> TaggedT<{\_ -> True}, {\v -> v == currentUser}> _ _ @-}
 respondError :: Status -> Maybe String -> Controller a
@@ -104,12 +116,10 @@ notFoundJSON = errorResponse status404 Nothing
 hAccessControlAllowOrigin :: HeaderName
 hAccessControlAllowOrigin = "Access-Control-Allow-Origin"
 
--- TODO refine liftTIO
-{-@ ignore decodeBody @-}
 {-@ decodeBody :: TaggedT<{\_ -> True}, {\v -> v == currentUser}> _ _ @-}
 decodeBody :: FromJSON a => Controller a
 decodeBody = do
-  req  <- request
+  req  <- requestT
   body <- liftTIO $ reqBody req
   case eitherDecode body of
     Left  s -> respondError status400 (Just s)

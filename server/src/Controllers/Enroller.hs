@@ -49,6 +49,11 @@ enrollStudents = do
   roster@Enrole {..} <- decodeBody 
   undefined -- _please_fixme
 
+enroleUsers :: Enrole -> [CreateUser]
+enroleUsers = undefined -- _fixme
+
+enroleGroups :: Enrole 
+enroleGroups = undefined
 {- 
   1. Add new users  -- [CreateUser]
   2. Add new groups -- [CreateGroup] 

@@ -52,6 +52,7 @@ dependencies:
   - directory
   - cmdargs
   - time
+  - network 
   - scrypt
   - amazonka
   - amazonka-s3

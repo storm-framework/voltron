@@ -1,0 +1,3 @@
+[submodule "server/src/Binah"]
+	path = server/src/Binah
+	url = git@github.com:binah-framework/binah.git

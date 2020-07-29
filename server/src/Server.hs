@@ -80,13 +80,13 @@ data ServerOpts = ServerOpts
 runServer :: ServerOpts -> IO ()
 runServer ServerOpts {..} = runNoLoggingT $ do
     liftIO $ initDB optsDBPath
-    templateCache <- liftIO $ MVar.newMVar mempty
-    pool          <- createSqlitePool optsDBPath optsPool
+    cfg  <- liftIO readConfig
+    pool <- createSqlitePool optsDBPath optsPool
     liftIO . runFrankieServer "dev" $ do
         mode "dev" $ do
             host optsHost
             port optsPort
-            initWith $ initFromPool (Config authMethod templateCache) pool
+            initWithT $ initFromPool cfg pool
         dispatch $ do
             -- post "/api/signup"         signUp
             post "/api/signin"         signIn
@@ -107,11 +107,17 @@ runServer ServerOpts {..} = runNoLoggingT $ do
 
 runTask' :: T.Text -> Task a -> IO a
 runTask' dbpath task = runSqlite dbpath $ do
-    templateCache <- liftIO $ MVar.newMVar mempty
-    -- aws           <- liftIO getAwsConfig
-    backend       <- ask
-    let config = Config authMethod templateCache backend
-    liftIO . runTIO $ runReaderT (unConfigT (runReaderT (unTag task) backend)) config
+    cfg     <- liftIO readConfig
+    backend <- ask
+    liftIO . runTIO $ configure cfg (runReaderT (unTag task) backend)
+
+readConfig :: IO Config
+readConfig = Config authMethod 
+                <$> MVar.newMVar mempty 
+             -- <*> readAWSConfig 
+             -- <*> readSMTPConfig 
+             -- <*> readSecretKey
+
 
 {-@ ignore initDB @-}
 initDB :: T.Text -> IO ()
@@ -128,14 +134,6 @@ sendFromDirectory dir fallback = do
     exists <- liftTIO . TIO $ doesFileExist path
     if exists then sendFile path else sendFile (dir </> fallback)
 
--- _ <- liftTIO . TIO $ Logger.logInfoN "This is a log message!"
-
--- instance Logger.MonadLogger IO where
---   monadLoggerLog msg = do
---     ls <- ask
---     undefined ls -- liftIO $ pushLogStrLn ls $ Logger.toLogStr msg
-
-
 {-@ ignore sendFile @-}
 sendFile :: FilePath -> Controller ()
 sendFile path = do
@@ -145,9 +143,10 @@ sendFile path = do
 
 -- TODO find a way to provide this without exposing the instance of MonadBaseControl
 
-initFromPool :: (SqlBackend -> Config) -> Pool SqlBackend -> Controller () -> ControllerT TIO ()
-initFromPool mkConfig pool controller = Pool.withResource pool
-    $ \sqlBackend -> configure (mkConfig sqlBackend) . reading backend . unTag $ controller
+initFromPool :: Config -> Pool SqlBackend -> Controller () -> TaggedT (ControllerT TIO) ()
+initFromPool cfg pool = mapTaggedT run
+    where run act = Pool.withResource pool $ configure cfg . runReaderT act
+
 
 instance MonadBase IO TIO where
     liftBase = TIO

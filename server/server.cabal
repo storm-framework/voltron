@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 777b18840be7727a9a7f21c02d889bad093a5c12d46a060d2dd045843ab45518
+-- hash: 33e9210de400e95e90c7ba048b78cbc9f4dc8de94fc6119bcac1fe64db00eaca
 
 name:           server
 version:        0.1.0.0
@@ -78,6 +78,7 @@ library
     , monad-time
     , mtl
     , mustache
+    , network
     , persistent
     , persistent-sqlite
     , persistent-template
@@ -124,6 +125,7 @@ executable voltron
     , monad-time
     , mtl
     , mustache
+    , network
     , persistent
     , persistent-sqlite
     , persistent-template
@@ -172,6 +174,7 @@ test-suite server-test
     , monad-time
     , mtl
     , mustache
+    , network
     , persistent
     , persistent-sqlite
     , persistent-template
