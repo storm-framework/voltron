@@ -4,7 +4,7 @@ import {
   Buffer,
   AuthInfo,
   LoginResponse,
-  Enrole
+  Roster
 } from "@/types";
 import router from "@/router";
 
@@ -183,7 +183,7 @@ class ApiService {
     router.replace({ name: "Login" });
   }
 
-  async enroll(info: Enrole) {
+  async enroll(info: Roster) {
     console.log("enroll", info);
     return [];
   }

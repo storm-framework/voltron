@@ -7,7 +7,7 @@ import {
   AuthInfo,
   Instructor,
   Student,
-  Enrole
+  Roster
 } from "@/types";
 import ApiService from "@/services/api";
 
@@ -84,7 +84,7 @@ export default new Vuex.Store({
           throw error;
         }),
 
-    enroll: ({ dispatch }, enrolls: Enrole) =>
+    enroll: ({ dispatch }, enrolls: Roster) =>
       ApiService.enroll(enrolls)
         .then(_payload => dispatch("syncSessionUserData"))
         .catch(error => {

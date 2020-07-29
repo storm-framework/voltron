@@ -1,4 +1,4 @@
-import { UserData, User, LoginResponse, AuthInfo, Enrole } from "@/types";
+import { UserData, LoginResponse, AuthInfo, Roster } from "@/types";
 import router from "@/router";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import _ from "lodash";
@@ -60,7 +60,7 @@ class ApiService {
     return this.get(`/user/${userId}`);
   }
 
-  enroll(students: Enrole): Promise<string[]> {
+  enroll(students: Roster): Promise<string[]> {
     return this.post(`/enroll`, students);
   }
 

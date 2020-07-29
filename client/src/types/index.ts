@@ -52,7 +52,7 @@ export interface EnrollStudent {
   group: number;
 }
 
-export interface Enrole {
+export interface Roster {
   class: string;
   buffers: Buffer[];
   students: EnrollStudent[]
