@@ -69,7 +69,7 @@ data CreateUser = CreateUser
   , userFirst    :: Text
   , userLast     :: Text
   }
-  deriving Generic
+  deriving (Show, Generic)
 
 instance FromJSON CreateUser where
   parseJSON = genericParseJSON defaultOptions
@@ -89,17 +89,17 @@ data CreateGroup = CreateGroup
   , groupName       :: Text
   , groupEditorLink :: Text
   }
-  deriving Generic
+  deriving (Show, Generic)
 
 instance FromJSON CreateGroup where
   parseJSON = genericParseJSON defaultOptions
 
 data CreateEnroll = CreateEnroll
-  { enrollStudent :: Text
-  , enrollClass   :: Text
-  , enrollGroup   :: Text
+  { enrollStudent :: Text       -- ^ email of the student
+  , enrollClass   :: Text       -- ^ name  of the class 
+  , enrollGroup   :: Text       -- ^ name  of the group
   }
-  deriving Generic
+  deriving (Show, Generic)
 
 instance FromJSON CreateEnroll where
   parseJSON = genericParseJSON defaultOptions
@@ -115,16 +115,16 @@ data EnrollStudent = EnrollStudent
 instance FromJSON EnrollStudent where
   parseJSON = genericParseJSON (stripPrefix "es")
 
--- | An `Enrole` datatype that mirrors the client side version -----------------------
+-- | An `Roster` datatype that mirrors the client side version -----------------------
 
-data Enrole = Enrole 
-  { enroleClass    :: Text 
-  , enroleBuffers  :: [Buffer] 
-  , enroleStudents :: [EnrollStudent] 
+data Roster = Roster 
+  { rosterClass    :: Text 
+  , rosterBuffers  :: [Buffer] 
+  , rosterStudents :: [EnrollStudent] 
   }
   deriving Generic
 
-instance FromJSON Enrole where
-  parseJSON = genericParseJSON (stripPrefix "enrole")
+instance FromJSON Roster where
+  parseJSON = genericParseJSON (stripPrefix "roster")
 
 

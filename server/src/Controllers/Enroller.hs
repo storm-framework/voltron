@@ -4,17 +4,18 @@
 
 {-@ LIQUID "--no-pattern-inline" @-}
 
-module Controllers.Enroller 
-       ( addUser 
-       , addClass
-       , addGroup
-       , addEnroll 
-       , enrollStudents 
-       )
-       where
+module Controllers.Enroller
+  ( addUser
+  , addClass
+  , addGroup
+  , addEnroll
+  , addRoster
+  )
+where
 
-import qualified Data.Text                      as T
-import qualified Data.Text.Encoding             as T
+import qualified Data.Text                     as T
+import qualified Data.Text.Encoding            as T
+import qualified Data.ByteString.Base64.URL    as B64Url
 import           Data.Int                       ( Int64 )
 import           Data.Maybe
 import           Database.Persist.Sql           ( fromSqlKey
@@ -31,87 +32,108 @@ import           Binah.Helpers
 import           Binah.Infrastructure
 import           Binah.Templates
 import           Binah.Frankie
-import qualified Frankie.Log as Log
+import qualified Frankie.Log                   as Log
 import           Controllers
 import           Controllers.Invitation         ( InvitationCode(..) )
 import           Model
 import           JSON
 import           Crypto
+import           Crypto.Random                  ( getRandomBytes )
 import           Types
 
-import qualified Debug.Trace 
+-------------------------------------------------------------------------------
+-- | Add a full roster of students to a class using an Roster -----------------
+-------------------------------------------------------------------------------
 
-
--- Add a full roster of students to a class using an Enrole -----------------
-enrollStudents :: Controller ()
-enrollStudents = do
-  instr <- requireAuthUser
-  roster@Enrole {..} <- decodeBody 
-  mapM_ (insertUser   instr) (enroleUsers roster)
-  mapM_ (insertGroup  instr) (enroleGroups roster)
-  mapM_ (insertEnroll instr) (enroleEnrolls roster)
+addRoster :: Controller ()
+addRoster = do
+  instr         <- requireAuthUser
+  r@Roster {..} <- decodeBody
+  crUsers       <- mapM createUser rosterStudents
+  mapM_ addUser   crUsers
+  mapM_ addGroup  (rosterGroups r)
+  mapM_ addEnroll (rosterEnrolls r)
   return ()
 
-insertUser :: Entity User -> CreateUser -> Controller () 
-insertUser instr = _fixme
+createUser :: EnrollStudent -> Controller CreateUser
+createUser (EnrollStudent {..}) = do 
+  password <- genRandomText
+  let crUser = CreateUser esEmail password esFirstName esLastName
+  return crUser 
 
-insertGroup :: Entity User -> CreateGroup -> Controller () 
-insertGroup = _fixme
+{-@ genRandomText :: TaggedT<{\_ -> True}, {\_ -> False}> _ _@-}
+genRandomText :: Controller T.Text
+genRandomText = do
+  bytes <- liftTIO (getRandomBytes 24)
+  return $ T.decodeUtf8 $ B64Url.encode bytes
 
-insertEnroll :: Entity User -> CreateEnroll -> Controller () 
-insertEnroll = _fixme
+rosterGroups :: Roster -> [CreateGroup]
+rosterGroups (Roster {..}) =
+  [ CreateGroup rosterClass bufferId bufferHash | Buffer {..} <- rosterBuffers ]
 
-enroleUsers :: Enrole -> [CreateUser]
-enroleUsers = _fixme
+rosterEnrolls :: Roster -> [CreateEnroll]
+rosterEnrolls (Roster {..}) = 
+  [ CreateEnroll esEmail rosterClass esGroup | EnrollStudent {..} <- rosterStudents ]
 
-enroleGroups :: Enrole -> [CreateGroup] 
-enroleGroups = _fixme 
-
-enroleEnrolls :: Enrole -> [CreateEnroll]
-enroleEnrolls = _fixme 
-
--- Add a user from cmd-line -------------------------------------------------
+-------------------------------------------------------------------------------
+-- | Add a user ---------------------------------------------------------------
+-------------------------------------------------------------------------------
 {-@ ignore addUser @-}
-addUser :: CreateUser -> Task (Maybe UserId)
+addUser :: CreateUser -> Controller (Maybe UserId)
 addUser r@(CreateUser {..}) = do
+  Log.log Log.INFO ("addUser: " ++ show r)
   EncryptedPass encrypted <- encryptPassTIO' (Pass (T.encodeUtf8 userPassword))
-  let msg = "addUser: duplicate email " ++ T.unpack userEmail 
+  let msg = "addUser: duplicate email " ++ T.unpack userEmail
   insertOrMsg msg $ mkUser userEmail encrypted userFirst userLast False
 
--- Add a class from cmd-line ------------------------------------------------
+-------------------------------------------------------------------------------
+-- | Add a class --------------------------------------------------------------
+-------------------------------------------------------------------------------
+
 {-@ ignore addClass @-}
-addClass :: CreateClass -> Task (Maybe ClassId)
+addClass :: CreateClass -> Controller (Maybe ClassId)
 addClass r@(CreateClass {..}) = do
+  Log.log Log.INFO ("addClass: " ++ show r)
   instrId <- lookupUserId classInstructor
-  let msg =  "addClass: duplicate class" ++ show r 
+  let msg = "addClass: duplicate class" ++ show r
   insertOrMsg msg $ mkClass classInstitution className instrId
 
--- Add a group from cmd-line ------------------------------------------------
+-------------------------------------------------------------------------------
+-- | Add a group from cmd-line ------------------------------------------------
+-------------------------------------------------------------------------------
+
 {-@ ignore addGroup @-}
-addGroup :: CreateGroup -> Task GroupId
-addGroup (CreateGroup {..}) = do 
+addGroup :: CreateGroup -> Controller (Maybe GroupId)
+addGroup r@(CreateGroup {..}) = do
+  Log.log Log.INFO ("addGroup: " ++ show r)
   clsId <- lookupClassId groupClass
-  insert $ mkGroup groupName groupEditorLink clsId 
+  let msg = "addGroup: duplicate group " ++ show r
+  insertOrMsg msg $ mkGroup groupName groupEditorLink clsId
 
--- Add an enroll, i.e. student to a group from cmd-line ----------------------------------------------
+-------------------------------------------------------------------------------
+-- | Add an enroll, i.e. student to a group ----------------------------------- 
+-------------------------------------------------------------------------------
+
 {-@ ignore addEnroll @-}
-addEnroll :: CreateEnroll -> Task EnrollId
-addEnroll (CreateEnroll {..}) = do
-  studentId <- lookupUserId  enrollStudent
-  groupId   <- lookupGroupId enrollGroup 
-  insert     $ mkEnroll studentId groupId
+addEnroll :: CreateEnroll -> Controller (Maybe EnrollId)
+addEnroll r@(CreateEnroll {..}) = do
+  Log.log Log.INFO ("addEnroll: " ++ show r)
+  studentId <- lookupUserId enrollStudent
+  groupId   <- lookupGroupId enrollGroup
+  let msg = "addGroup: duplicate enroll" ++ show r
+  insertOrMsg msg $ mkEnroll studentId groupId
 
-lookupUserId :: T.Text -> Task UserId
+lookupUserId :: T.Text -> Controller UserId
 lookupUserId email = do
   r <- selectFirstOrCrash (userEmailAddress' ==. email)
   project userId' r
 
-lookupGroupId :: T.Text -> Task GroupId
+lookupGroupId :: T.Text -> Controller GroupId
 lookupGroupId name = do
   r <- selectFirstOrCrash (groupName' ==. name)
   project groupId' r
 
-lookupClassId :: T.Text -> Task ClassId
+lookupClassId :: T.Text -> Controller ClassId
 lookupClassId name = do
   r <- selectFirstOrCrash (className' ==. name)
   project classId' r

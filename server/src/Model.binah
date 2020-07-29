@@ -43,6 +43,8 @@ Class
   name        Text
   instructor  UserId
 
+  UniqueInstClass institution name
+
 Group
   name       Text
   editorLink Text

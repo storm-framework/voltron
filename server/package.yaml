@@ -29,6 +29,7 @@ dependencies:
   - frankie
   - mtl
   - mustache
+  - cryptonite
   - persistent
   - persistent-template
   - persistent-sqlite

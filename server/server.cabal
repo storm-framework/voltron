@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b6c0eabbcf0d0676c750ee5858913c58080a903492ff3a8ebf20aeaea59fa8d5
+-- hash: 318670f212ea5e56dc05ebe8f7a08e76f890588faef929432f8235ba51e70fb0
 
 name:           server
 version:        0.1.0.0
@@ -64,6 +64,7 @@ library
     , base64-bytestring
     , bytestring
     , cmdargs
+    , cryptonite
     , directory
     , either
     , exceptions
@@ -111,6 +112,7 @@ executable voltron
     , base64-bytestring
     , bytestring
     , cmdargs
+    , cryptonite
     , directory
     , either
     , exceptions
@@ -160,6 +162,7 @@ test-suite server-test
     , base64-bytestring
     , bytestring
     , cmdargs
+    , cryptonite
     , directory
     , either
     , exceptions
