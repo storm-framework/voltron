@@ -36,8 +36,11 @@ Enroll
   - [x] create STUDENTs if they don't exist using email-user as password
   - [x] create GROUPs   if they don't exist
   - [x] create ENROLLs  (if they don't exist)
-  - [ ] HEREHEREHEREHEREHEREHEREHERE don't send duplicate groups from CLIENT
 
+- CLIENT
+  - [ ] don't send duplicate groups when enrolling
+  - [ ] automatically refresh after enroll post if success
+  - [ ] perhaps show some message that enroll was successful?
 
 - [ ] 'Settings'
 - [ ] 'Reset Password'
