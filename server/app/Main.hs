@@ -26,22 +26,22 @@ main = do
     Server {..} -> do
       runServer $ ServerOpts port (fromString host) static pool db
 
-    AddUser {..} -> do
-      let thing = CreateUser email password firstName lastName
-      rId <- runTask' db $ Enroller.addUser thing 
-      putStrLn ("Add User: " ++ show rId)
-
     AddClass {..} -> do
-      let thing = CreateClass institution className instructor 
+      let thing = mkCreateClass institution className instructor 
       rId <- runTask' db $ Enroller.addClass thing 
       putStrLn ("Add Class: " ++ show rId)
 
-    AddGroup {..} -> do
-      let thing = CreateGroup className groupName editorLink
-      rId <- runTask' db $ Enroller.addGroup thing 
-      putStrLn ("Add Group: " ++ show rId)
+    AddUser {..} -> do
+      let thing = mkCreateUser email password firstName lastName
+      rId <- runTask' db $ Enroller.addUser thing 
+      putStrLn ("Add User: " ++ show rId)
 
-    AddEnroll {..} -> do
-      let thing = CreateEnroll student className groupName 
-      rId <- runTask' db $ Enroller.addEnroll thing 
-      putStrLn ("Add Group: " ++ show rId)
+    -- AddGroup {..} -> do
+    --   let thing = CreateGroup className groupName editorLink
+    --   rId <- runTask' db $ Enroller.addGroup thing 
+    --   putStrLn ("Add Group: " ++ show rId)
+
+    -- AddEnroll {..} -> do
+    --   let thing = CreateEnroll student className groupName 
+    --   rId <- runTask' db $ Enroller.addEnroll thing 
+    --   putStrLn ("Add Group: " ++ show rId)

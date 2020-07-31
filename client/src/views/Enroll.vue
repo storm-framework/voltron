@@ -67,69 +67,69 @@
 </template>
 
 <script lang="ts">
-  import { Vue, Component } from "vue-property-decorator";
-  import { VueCsvImport } from "vue-csv-import";
-  import { Enrole, EnrollStudent, Buffer, ClassData } from "@/types";
-  import BufferService from "@/services/buffer";
+import { Vue, Component } from "vue-property-decorator";
+import { VueCsvImport } from "vue-csv-import";
+import { Roster, EnrollStudent, Buffer, ClassData } from "@/types";
+import BufferService from "@/services/buffer";
 
-  @Component({
-    components: { VueCsvImport },
-  })
-  export default class Enroll extends Vue {
-    csv: EnrollStudent[] | null = null;
+@Component({
+  components: { VueCsvImport }
+})
+export default class Enroll extends Vue {
+  csv: EnrollStudent[] | null = null;
 
-    get loading() {
-      return !this.loadedEnrolls;
-    }
+  get loading() {
+    return !this.loadedEnrolls;
+  }
 
-    get enrollClass(): ClassData {
-      const classId = this.$route.params.classId;
-      return this.$store.getters.classById(classId);
-    }
+  get enrollClass(): ClassData {
+    const classId = this.$route.params.classId;
+    return this.$store.getters.classById(classId);
+  }
 
-    get loadedEnrolls() {
-      const myCsv = this.csv;
-      return myCsv && myCsv.slice(1);
-    }
+  get loadedEnrolls() {
+    const myCsv = this.csv;
+    return myCsv && myCsv.slice(1);
+  }
 
-    get hidetable() {
-      return "hideme";
-    }
+  get hidetable() {
+    return "hideme";
+  }
 
-    private makeEnroll(
-      className: string,
-      currBufs: Map<number, Buffer>,
-      students: EnrollStudent[]
-    ): Enrole {
-      const groups: number[] = students
-        .map((x) => x.group)
-        .filter((grpId) => !currBufs.has(grpId));
-      const buffers: Buffer[] = groups.map((groupId) =>
-        BufferService.newBuffer(groupId)
-      );
-      return { class: className, buffers, students };
-    }
+  private makeEnroll(
+    className: string,
+    currBufs: Map<number, Buffer>,
+    students: EnrollStudent[]
+  ): Roster {
+    const groups: number[] = students
+      .map(x => x.group)
+      .filter(grpId => !currBufs.has(grpId));
+    const buffers: Buffer[] = groups.map(groupId =>
+      BufferService.newBuffer(groupId)
+    );
+    return { class: className, buffers, students };
+  }
 
-    submitEnrolls(enrolls: EnrollStudent[]) {
-      const cur = this.enrollClass;
-      console.log("anima-submitEnrolls", enrolls, cur);
-      switch (cur.tag) {
-        case "Instructor": {
-          const bufs = new Map<number, Buffer>(
-            cur.allBuffers.map((x) => [x.id, x] as [number, Buffer])
-          );
-          const info = this.makeEnroll(cur.class, bufs, enrolls);
-          this.$store.dispatch("enroll", info);
-        }
+  submitEnrolls(enrolls: EnrollStudent[]) {
+    const cur = this.enrollClass;
+    console.log("anima-submitEnrolls", enrolls, cur);
+    switch (cur.tag) {
+      case "Instructor": {
+        const bufs = new Map<number, Buffer>(
+          cur.allBuffers.map(x => [x.id, x] as [number, Buffer])
+        );
+        const info = this.makeEnroll(cur.class, bufs, enrolls);
+        this.$store.dispatch("enroll", info);
       }
     }
   }
+}
 </script>
 
 <style lang="scss">
-  body {
-    .hideme {
-      display: none;
-    }
+body {
+  .hideme {
+    display: none;
   }
+}
 </style>

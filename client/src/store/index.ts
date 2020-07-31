@@ -7,6 +7,7 @@ import {
   AuthInfo,
   Instructor,
   Student,
+  Buffer,
   Roster
 } from "@/types";
 import ApiService from "@/services/api";
@@ -178,8 +179,9 @@ export default new Vuex.Store({
       const cur = getters.currentClass;
       if (cur) {
         switch (cur.tag) {
-          case "Instructor":
-            return cur.allBuffers;
+          case "Instructor": {
+            return cur.allBuffers.sort((b1: Buffer, b2: Buffer) => b1.id - b2.id);
+          }
         }
       }
       return null;

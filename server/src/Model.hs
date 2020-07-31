@@ -5,9 +5,11 @@
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
+
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
+
 
 {-@ LIQUID "--compile-spec" @-}
 
@@ -97,13 +99,13 @@ Class
   institution Text
   name Text
   instructor UserId
-  
+  UniqueInstClass institution name
 
 Group
   name Text
   editorLink Text
   class ClassId
-  
+  UniqueGroupClass name class
 
 Enroll
   student UserId

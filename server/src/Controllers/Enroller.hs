@@ -13,6 +13,7 @@ module Controllers.Enroller
   )
 where
 
+import qualified Data.HashMap.Strict           as M
 import qualified Data.Text                     as T
 import qualified Data.Text.Encoding            as T
 import qualified Data.ByteString.Base64.URL    as B64Url
@@ -47,18 +48,22 @@ import           Types
 
 addRoster :: Controller ()
 addRoster = do
+  Log.log Log.INFO "addRoster-start"
   instr         <- requireAuthUser
+  Log.log Log.INFO "addRoster-req-auth"
   r@Roster {..} <- decodeBody
   crUsers       <- mapM createUser rosterStudents
   mapM_ addUser   crUsers
-  mapM_ addGroup  (rosterGroups r)
+  let grps = rosterGroups r
+  Log.log Log.INFO ("groups: " ++ show grps)
+  mapM_ addGroup  grps -- (rosterGroups r)
   mapM_ addEnroll (rosterEnrolls r)
-  return ()
+  respondJSON status200 ("OK:addRoster" :: T.Text)
 
 createUser :: EnrollStudent -> Controller CreateUser
 createUser (EnrollStudent {..}) = do 
   password <- genRandomText
-  let crUser = CreateUser esEmail password esFirstName esLastName
+  let crUser = mkCreateUser esEmail password esFirstName esLastName
   return crUser 
 
 {-@ genRandomText :: TaggedT<{\_ -> True}, {\_ -> False}> _ _@-}
@@ -68,19 +73,26 @@ genRandomText = do
   return $ T.decodeUtf8 $ B64Url.encode bytes
 
 rosterGroups :: Roster -> [CreateGroup]
-rosterGroups (Roster {..}) =
-  [ CreateGroup rosterClass bufferId bufferHash | Buffer {..} <- rosterBuffers ]
+rosterGroups (Roster {..}) = [ g | (_, g) <- M.toList groupM ]
+  where
+    groupM = M.fromList [ (bufferId , group)
+                          | Buffer {..} <- rosterBuffers 
+                          , let group    = mkCreateGroup rosterClass bufferId bufferHash
+                        ]
 
 rosterEnrolls :: Roster -> [CreateEnroll]
 rosterEnrolls (Roster {..}) = 
-  [ CreateEnroll esEmail rosterClass esGroup | EnrollStudent {..} <- rosterStudents ]
+  [ mkCreateEnroll esEmail rosterClass esGroup | EnrollStudent {..} <- rosterStudents ]
 
 -------------------------------------------------------------------------------
 -- | Add a user ---------------------------------------------------------------
 -------------------------------------------------------------------------------
 {-@ ignore addUser @-}
-addUser :: CreateUser -> Controller (Maybe UserId)
+-- addUser :: CreateUser -> Controller (Maybe UserId)
+addUser :: (MonadTIO m) => CreateUser -> TasCon m (Maybe UserId)
 addUser r@(CreateUser {..}) = do
+  let email' = T.strip userEmail
+  let first' = T.strip userFirst 
   Log.log Log.INFO ("addUser: " ++ show r)
   EncryptedPass encrypted <- encryptPassTIO' (Pass (T.encodeUtf8 userPassword))
   let msg = "addUser: duplicate email " ++ T.unpack userEmail
@@ -91,7 +103,8 @@ addUser r@(CreateUser {..}) = do
 -------------------------------------------------------------------------------
 
 {-@ ignore addClass @-}
-addClass :: CreateClass -> Controller (Maybe ClassId)
+-- addClass :: CreateClass -> Controller (Maybe ClassId)
+addClass :: (MonadTIO m) => CreateClass -> TasCon m (Maybe ClassId)
 addClass r@(CreateClass {..}) = do
   Log.log Log.INFO ("addClass: " ++ show r)
   instrId <- lookupUserId classInstructor
@@ -123,17 +136,21 @@ addEnroll r@(CreateEnroll {..}) = do
   let msg = "addGroup: duplicate enroll" ++ show r
   insertOrMsg msg $ mkEnroll studentId groupId
 
-lookupUserId :: T.Text -> Controller UserId
+lookupUserId :: (MonadTIO m) => T.Text -> TasCon m UserId 
+-- lookupUserId :: T.Text -> Controller UserId
 lookupUserId email = do
   r <- selectFirstOrCrash (userEmailAddress' ==. email)
   project userId' r
 
-lookupGroupId :: T.Text -> Controller GroupId
+lookupGroupId :: (MonadTIO m) => T.Text -> TasCon m GroupId 
+-- lookupGroupId :: T.Text -> Controller GroupId
 lookupGroupId name = do
   r <- selectFirstOrCrash (groupName' ==. name)
   project groupId' r
 
-lookupClassId :: T.Text -> Controller ClassId
+
+lookupClassId :: (MonadTIO m) => T.Text -> TasCon m ClassId
+-- lookupClassId :: T.Text -> Controller ClassId
 lookupClassId name = do
   r <- selectFirstOrCrash (className' ==. name)
   project classId' r

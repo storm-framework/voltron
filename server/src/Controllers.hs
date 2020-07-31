@@ -56,6 +56,7 @@ data Config = Config
 --   , awsBucket :: S3.BucketName
 --   }
 
+type TasCon m = TaggedT (ReaderT SqlBackend (ConfigT Config m))
 type Controller = TaggedT (ReaderT SqlBackend (ConfigT Config (ControllerT TIO)))
 
 -- instance (MonadTIO m) => Frankie.Log.MonadLog (TaggedT m) where

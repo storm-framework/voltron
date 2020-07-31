@@ -33,9 +33,11 @@ Enroll
 	- [x] POST /api/enroll 
 
 - BACK 
-  - [ ] create STUDENTs if they don't exist using email-user as password
-  - [ ] create GROUPs   if they don't exist
-  - [ ] create ENROLLs  (if they don't exist)
+  - [x] create STUDENTs if they don't exist using email-user as password
+  - [x] create GROUPs   if they don't exist
+  - [x] create ENROLLs  (if they don't exist)
+  - [ ] HEREHEREHEREHEREHEREHEREHERE don't send duplicate groups from CLIENT
+
 
 - [ ] 'Settings'
 - [ ] 'Reset Password'

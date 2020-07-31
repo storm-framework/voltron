@@ -100,7 +100,12 @@ class ApiService {
   ): Promise<any> {
     await delay();
     try {
-      const response = await axios.post(`${API_URL}${path}`, data, config);
+      const response = await axios.post(`${API_URL}${path}`, data, {
+        headers: this.authHeader(),
+        ...config
+      });
+
+
       return response.data;
     } catch (error) {
       if (error.response?.status == 401) {

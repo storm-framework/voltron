@@ -4,7 +4,7 @@
 module Types where
 
 import           Data.Aeson
-import           Data.Text                      ( Text(..) )
+import           Data.Text                      ( Text(..), strip)
 import           GHC.Generics
 import           JSON
 
@@ -71,6 +71,10 @@ data CreateUser = CreateUser
   }
   deriving (Show, Generic)
 
+mkCreateUser :: Text -> Text -> Text -> Text -> CreateUser
+mkCreateUser email pass first last =
+  CreateUser (strip email) pass (strip first) (strip last)
+
 instance FromJSON CreateUser where
   parseJSON = genericParseJSON defaultOptions
 
@@ -80,6 +84,10 @@ data CreateClass = CreateClass
   , classInstructor  :: Text
   }
   deriving (Show, Generic)
+
+
+mkCreateClass :: Text -> Text -> Text -> CreateClass
+mkCreateClass inst name instr = CreateClass (strip inst) (strip name) (strip instr)
 
 instance FromJSON CreateClass where
   parseJSON = genericParseJSON defaultOptions
@@ -91,6 +99,10 @@ data CreateGroup = CreateGroup
   }
   deriving (Show, Generic)
 
+mkCreateGroup :: Text -> Text -> Text -> CreateGroup
+mkCreateGroup klass name link =
+  CreateGroup (strip klass) (strip name) link
+
 instance FromJSON CreateGroup where
   parseJSON = genericParseJSON defaultOptions
 
@@ -100,6 +112,10 @@ data CreateEnroll = CreateEnroll
   , enrollGroup   :: Text       -- ^ name  of the group
   }
   deriving (Show, Generic)
+
+mkCreateEnroll :: Text -> Text -> Text -> CreateEnroll
+mkCreateEnroll email klass group = CreateEnroll (strip email) (strip klass) (strip group)
+
 
 instance FromJSON CreateEnroll where
   parseJSON = genericParseJSON defaultOptions

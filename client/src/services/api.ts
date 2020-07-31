@@ -13,8 +13,8 @@ interface ApiService {
   enroll(students: Roster): Promise<string[]>;
 }
 
-// const module: ApiService = Server;
-const module: ApiService = Mock;
+const module: ApiService = Server;
+// const module: ApiService = Mock;
 
 // if (process.env.VUE_APP_MOCK_API_SERVICE == "true") {
 // if (0 == 1) {
