@@ -4,13 +4,15 @@
       <section class="py-5">
         <div class="row mt-5">
           <div class="col-8 offset-2">
-            <h2 class="d-inline">New Enrollment for {{ enrollClass.class }}</h2>
+            <h2 class="d-inline">
+              New Enrollment for {{ currentClass.class }}
+            </h2>
             <b-button
               v-if="!loading"
               variant="success"
               size="lg"
               class="float-right"
-              v-on:click="submitEnrolls(loadedEnrolls)"
+              v-on:click="submitEnrolls(newEnrolls)"
             >
               Enroll
             </b-button>
@@ -34,34 +36,13 @@
 
             <br />
 
-            <roster-table :enrolls="loadedEnrolls" />
+            <roster-table :enrolls="newEnrolls" />
 
             <hr />
 
             <h2 class="d-inline">
-              Current Enrollment for {{ enrollClass.class }}
+              Current Enrollment for {{ currentClass.class }}
             </h2>
-
-            <!-- <div v-show="!loading" class="mt-2">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th scope="col">Email</th>
-                    <th scope="col">First</th>
-                    <th scope="col">Last</th>
-                    <th scope="col">Group</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in loadedEnrolls" :key="item.email">
-                    <td>{{ item.email }}</td>
-                    <td>{{ item.firstName }}</td>
-                    <td>{{ item.lastName }}</td>
-                    <td>{{ item.group }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div> -->
           </div>
         </div>
       </section>
@@ -75,23 +56,26 @@ import { VueCsvImport } from "vue-csv-import";
 import { Roster, EnrollStudent, Buffer, ClassData } from "@/types";
 import BufferService from "@/services/buffer";
 import RosterTable from "@/components/RosterTable.vue";
+import ApiService from "@/services/api";
 
 @Component({
   components: { VueCsvImport, RosterTable }
 })
 export default class Enroll extends Vue {
   csv: EnrollStudent[] | null = null;
-  currentEnrolls: EnrollStudent[] = [];
+  oldEnrolls: EnrollStudent[] = [];
+  fatalError = false;
+  fatalErrorMsg = "";
 
   get loading() {
-    return !this.loadedEnrolls;
+    return !this.newEnrolls;
   }
 
-  get enrollClass(): ClassData {
+  get currentClass(): ClassData {
     return this.$store.getters.currentClass;
   }
 
-  get loadedEnrolls() {
+  get newEnrolls() {
     const myCsv = this.csv;
     return myCsv && myCsv.slice(1);
   }
@@ -114,7 +98,7 @@ export default class Enroll extends Vue {
   }
 
   submitEnrolls(enrolls: EnrollStudent[]) {
-    const cur = this.enrollClass;
+    const cur = this.currentClass;
     console.log("anima-submitEnrolls", enrolls, cur);
     switch (cur.tag) {
       case "Instructor": {
@@ -122,9 +106,16 @@ export default class Enroll extends Vue {
           cur.allBuffers.map(x => [x.id, x] as [number, Buffer])
         );
         const info = this.makeEnroll(cur.class, bufs, enrolls);
-        this.$store.dispatch("enroll", info).catch(error => {
-          this.showError("Unexpected error: " + error.response?.status);
-        });
+
+        ApiService.enroll(info)
+          .then(newEnrolls => {
+            this.csv = null;
+            this.oldEnrolls = newEnrolls;
+            this.$store.dispatch("syncSessionUserData");
+          })
+          .catch(error => {
+            this.showError("Unexpected error: " + error.response?.status);
+          });
       }
     }
   }
@@ -136,6 +127,16 @@ export default class Enroll extends Vue {
       variant: "danger",
       solid: true
     });
+  }
+
+  mounted() {
+    ApiService.roster(this.currentClass.class)
+      .then(enrolls => {
+        this.oldEnrolls = enrolls;
+      })
+      .catch(resp => {
+        this.showError("Unexpected error: " + resp);
+      });
   }
 }
 </script>
