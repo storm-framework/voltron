@@ -38,12 +38,15 @@ Enroll
   - [x] create ENROLLs  (if they don't exist)
 
 - CLIENT
-  - [ ] don't send duplicate groups when enrolling
-  - [ ] automatically refresh after enroll post if success
-  - [ ] perhaps show some message that enroll was successful?
+  - [x] don't send duplicate groups when enrolling
+  - [?] auto refresh after enroll / show enroll successfull? 
 
-- [ ] 'Settings'
 - [ ] 'Reset Password'
+
+- [ ] 'Settings' CLIENT
+  - [ ] editor themes 
+  - [ ] sync from instructor buffer
+
 
 ## Populating the Database
 

@@ -101,12 +101,11 @@ export default class Enroll extends Vue {
     currBufs: Map<number, Buffer>,
     students: EnrollStudent[]
   ): Roster {
-    const groups: number[] = students
+    const allGroups = students
       .map(x => x.group)
       .filter(grpId => !currBufs.has(grpId));
-    const buffers: Buffer[] = groups.map(groupId =>
-      BufferService.newBuffer(groupId)
-    );
+    const groups = Array.from(new Set(allGroups));
+    const buffers = groups.map(groupId => BufferService.newBuffer(groupId));
     return { class: className, buffers, students };
   }
 
@@ -119,9 +118,20 @@ export default class Enroll extends Vue {
           cur.allBuffers.map(x => [x.id, x] as [number, Buffer])
         );
         const info = this.makeEnroll(cur.class, bufs, enrolls);
-        this.$store.dispatch("enroll", info);
+        this.$store.dispatch("enroll", info).catch(error => {
+          this.showError("Unexpected error: " + error.response?.status);
+        });
       }
     }
+  }
+
+  showError(msg: string) {
+    this.$bvToast.toast(msg, {
+      title: "Error",
+      toaster: "b-toaster-top-center",
+      variant: "danger",
+      solid: true
+    });
   }
 }
 </script>
