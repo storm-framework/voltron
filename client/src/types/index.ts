@@ -54,6 +54,6 @@ export interface EnrollStudent {
 
 export interface Roster {
   class: string;
-  buffers: Buffer[];
-  students: EnrollStudent[]
+  buffers?: Buffer[];
+  students?: EnrollStudent[]
 }

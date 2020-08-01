@@ -7,7 +7,8 @@
     <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
     <b-collapse id="nav-collapse" is-nav>
       <b-navbar-nav>
-        <b-nav-item-dropdown v-if="isSignedIn" text="Classes" right>
+        <b-nav-item-dropdown v-if="isSignedIn">
+          <template slot="button-content"> {{ currentClassName }} </template>
           <template v-if="isInstructor">
             <b-dropdown-header>Instructor</b-dropdown-header>
             <b-dropdown-item
@@ -30,7 +31,10 @@
             </b-dropdown-item>
           </template>
         </b-nav-item-dropdown>
-        <b-nav-item-dropdown
+        <b-nav-item v-if="isSignedIn && showRoster" :to="{ name: 'Enroll' }"
+          >Roster</b-nav-item
+        >
+        <!-- <b-nav-item-dropdown
           v-if="isSignedIn && isInstructor"
           text="Enroll"
           right
@@ -42,7 +46,8 @@
           >
             {{ item.name }}
           </b-dropdown-item>
-        </b-nav-item-dropdown>
+        </b-nav-item-dropdown> -->
+
         <b-nav-item to="/contact">Contact</b-nav-item>
         <b-nav-item v-if="isSignedIn" v-on:click="signOut()">Logout</b-nav-item>
       </b-navbar-nav>
@@ -72,6 +77,11 @@ export default class Navbar extends Vue {
     return this.instructorClasses.length > 0;
   }
 
+  get showRoster() {
+    const cur = this.$store.getters.currentClass;
+    return cur.tag == "Instructor"; 
+  }
+
   get studentClasses() {
     const classes = this.$store.getters.studentClasses;
     console.log("student-classes", classes);
@@ -80,6 +90,11 @@ export default class Navbar extends Vue {
 
   get isStudent() {
     return this.studentClasses.length > 0;
+  }
+
+  get currentClassName(): string {
+    const cur = this.$store.getters.currentClass;
+    return `${cur.tag}: ${cur.class}`;
   }
 
   setClass(classId: string) {

@@ -28,7 +28,7 @@ const routes: Array<RouteConfig> = [
       component: SignIn
     },
     {
-      path: "/enroll/:classId",
+      path: "/enroll",
       name: "Enroll",
       component: Enroll
     },

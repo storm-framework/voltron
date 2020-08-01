@@ -4,7 +4,7 @@
       <section class="py-5">
         <div class="row mt-5">
           <div class="col-8 offset-2">
-            <h2 class="d-inline">Enrollment for {{ enrollClass.class }}</h2>
+            <h2 class="d-inline">New Enrollment for {{ enrollClass.class }}</h2>
             <b-button
               v-if="!loading"
               variant="success"
@@ -27,19 +27,22 @@
               <template slot="error">
                 File type is invalid
               </template>
-
               <template slot="next" slot-scope="{ load }">
                 <b-button @click.prevent="load">Upload</b-button>
               </template>
-
-              <!-- <template slot="submit" slot-scope="{ submit }">
-                <button @submit.prevent="submit">Enroll!</button>
-              </template> -->
             </vue-csv-import>
 
             <br />
 
-            <div v-show="!loading" class="mt-2">
+            <roster-table :enrolls="loadedEnrolls" />
+
+            <hr />
+
+            <h2 class="d-inline">
+              Current Enrollment for {{ enrollClass.class }}
+            </h2>
+
+            <!-- <div v-show="!loading" class="mt-2">
               <table class="table">
                 <thead>
                   <tr>
@@ -58,7 +61,7 @@
                   </tr>
                 </tbody>
               </table>
-            </div>
+            </div> -->
           </div>
         </div>
       </section>
@@ -71,20 +74,21 @@ import { Vue, Component } from "vue-property-decorator";
 import { VueCsvImport } from "vue-csv-import";
 import { Roster, EnrollStudent, Buffer, ClassData } from "@/types";
 import BufferService from "@/services/buffer";
+import RosterTable from "@/components/RosterTable.vue";
 
 @Component({
-  components: { VueCsvImport }
+  components: { VueCsvImport, RosterTable }
 })
 export default class Enroll extends Vue {
   csv: EnrollStudent[] | null = null;
+  currentEnrolls: EnrollStudent[] = [];
 
   get loading() {
     return !this.loadedEnrolls;
   }
 
   get enrollClass(): ClassData {
-    const classId = this.$route.params.classId;
-    return this.$store.getters.classById(classId);
+    return this.$store.getters.currentClass;
   }
 
   get loadedEnrolls() {
