@@ -34,20 +34,6 @@
         <b-nav-item v-if="isSignedIn && showRoster" :to="{ name: 'Enroll' }"
           >Roster</b-nav-item
         >
-        <!-- <b-nav-item-dropdown
-          v-if="isSignedIn && isInstructor"
-          text="Enroll"
-          right
-        >
-          <b-dropdown-item
-            v-for="item in instructorClasses"
-            :key="item.index"
-            :to="{ name: 'Enroll', params: { classId: item.index } }"
-          >
-            {{ item.name }}
-          </b-dropdown-item>
-        </b-nav-item-dropdown> -->
-
         <b-nav-item to="/contact">Contact</b-nav-item>
         <b-nav-item v-if="isSignedIn" v-on:click="signOut()">Logout</b-nav-item>
       </b-navbar-nav>
@@ -79,7 +65,7 @@ export default class Navbar extends Vue {
 
   get showRoster() {
     const cur = this.$store.getters.currentClass;
-    return cur.tag == "Instructor"; 
+    return cur.tag == "Instructor";
   }
 
   get studentClasses() {
@@ -104,8 +90,9 @@ export default class Navbar extends Vue {
   }
 
   signOut() {
-    this.$store.dispatch("signOut");
-    this.$router.push({ name: "Login" });
+    this.$store
+      .dispatch("signOut")
+      .then(() => this.$router.push({ name: "Login" }));
   }
 }
 </script>

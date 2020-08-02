@@ -5,44 +5,51 @@ import Enroll from "../views/Enroll.vue";
 import Contact from "../views/Contact.vue";
 import About from "../views/About.vue";
 import SignIn from "../views/SignIn.vue";
+import Reset from "../views/Reset.vue";
 import ApiService from "@/services/api";
 import store from "../store";
 
 Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
-    {
-      path: "/home",
-      redirect: _to => {
-        const classId = store.getters.currentClassId;
-        return { name: "Home", params: { classId } } ;
-      }
-    },
-    {
-      path: "/home/:classId",
-      name: "Home",
-      component: Home
-    },
-    {
-      path: "/login",
-      name: "Login",
-      component: SignIn
-    },
-    {
-      path: "/enroll",
-      name: "Enroll",
-      component: Enroll
-    },
-    {
-      path: "/contact",
-      name: "Contact",
-      component: Contact
-    },
-    {
-      path: "/about",
-      name: "About",
-      component: About
+  {
+    path: "/home",
+    redirect: _to => {
+      const classId = store.getters.currentClassId;
+      return { name: "Home", params: { classId } };
     }
-  ]
+  },
+  {
+    path: "/home/:classId",
+    name: "Home",
+    component: Home
+  },
+  {
+    path: "/login",
+    name: "Login",
+    component: SignIn
+  },
+  {
+    path: "/enroll",
+    name: "Enroll",
+    component: Enroll
+  },
+  {
+    path: "/contact",
+    name: "Contact",
+    component: Contact
+  },
+  {
+    path: "/about",
+    name: "About",
+    component: About
+  },
+  {
+    path: "/reset",
+    name: "Reset",
+    component: Reset
+  }
+];
+
 
 const router = new VueRouter({
   mode: "history",

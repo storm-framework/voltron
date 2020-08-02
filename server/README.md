@@ -39,12 +39,31 @@ Enroll
 
 - CLIENT
   - [x] don't send duplicate groups when enrolling
-  - [?] auto refresh after enroll / show enroll successfull? 
+  - [x] auto refresh after enroll / show enroll successfull? 
 
 - [ ] 'Reset Password'
+  - [x] FRONT 'Reset' view
+  - [ ] BACK  'post /api/reset' -- generate code and send email with code
+  - [ ] FRONT 'ResetPassword/code' 
+  - [ ] BACK  'post /api/resetpassword' -- validate and update password
+
+	ResetInfo
+	  { email : string }
+
+	ResetPassword 
+	  { email : string,
+	  , password : string, 
+	  , code : string
+	  }
+
+        Reset 
+	  code Text
+	  valid Bool
+	  UniqueReset code
 
 - [ ] 'Settings' CLIENT
-  - [ ] editor themes 
+  - [ ] (user) editor theme
+  - [ ] (course) language theme
   - [ ] sync from instructor buffer
 
 

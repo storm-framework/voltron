@@ -32,6 +32,10 @@
       >
         Sign in
       </b-button>
+      <br />
+      <i>
+        Click <router-link to="/reset">here</router-link> to reset password.
+      </i>
     </b-form>
   </div>
 </template>

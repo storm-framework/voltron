@@ -1,24 +1,15 @@
 <template>
-  <div class="signin">
-    <b-form class="form-signin text-center" @submit.prevent="onSubmit">
-      <h3 class="mb-8">
-        Enroll to {{ $route.params.classId }}
-      </h3>
-
+  <div class="reset">
+    <b-form class="form-reset text-center" @submit.prevent="onSubmit">
+      <br />
+      <h3 class="mb-8">Reset your password</h3>
+      <br />
       <b-form-input
         id="email-address"
         type="email"
         v-model="emailAddress"
         required
         placeholder="Email address"
-      ></b-form-input>
-
-      <b-form-input
-        id="password"
-        type="password"
-        v-model="password"
-        required
-        placeholder="Password"
       ></b-form-input>
 
       <b-form-invalid-feedback :state="isValid">
@@ -33,75 +24,77 @@
         type="submit"
         class="mt-4"
       >
-        Sign in
+        Reset
       </b-button>
+      <br />
     </b-form>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { AuthInfo } from "@/types";
+import { ResetInfo } from "@/types";
+import ApiService from "@/services/api";
 
 @Component
-export default class SignIn extends Vue {
+export default class Reset extends Vue {
   emailAddress = "";
   password = "";
-  isValid = true;
   loading = false;
 
-  get className() {
-    return this.$store.getters.currentClass.class;
-  }
   onSubmit() {
     this.loading = true;
-    const auth: AuthInfo = {
-      emailAddress: this.emailAddress,
-      password: this.password
+    const reset: ResetInfo = {
+      emailAddress: this.emailAddress
     };
-    this.$store
-      .dispatch("signIn", auth)
+    ApiService.reset(reset)
       .then(() => {
-        this.isValid = true;
-        this.$router.replace({
-          name: "Home",
-          params: { classId: this.$store.getters.currentClassId }
-        });
+        const msg = "Please check your email for a reset link";
+        this.showMessage(msg, "Thanks!", "success");
       })
       .catch(() => {
-        this.loading = false;
-        this.isValid = false;
+        const msg = "There is no account associated with that address!";
+        this.showMessage(msg, "Sorry!", "danger");
       });
+  }
+
+  showMessage(msg: string, title: string, variant: string) {
+    this.$bvToast.toast(msg, {
+      toaster: "b-toaster-top-center",
+      solid: true,
+      title,
+      variant
+    });
   }
 }
 </script>
 
 <style lang="scss">
-.signin {
+.reset {
   width: 100%;
   display: flex;
   align-items: center;
 }
 
-.form-signin {
+.form-reset {
   width: 100%;
   max-width: 350px;
   padding: 15px;
   margin: 0 auto;
 }
 
-.form-signin input[type="email"] {
+.form-reset input[type="email"] {
   margin-bottom: -1px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
 
-.form-signin input[type="password"] {
+.form-reset input[type="password"] {
   margin-bottom: 10px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
-.form-signin .form-control {
+.form-reset .form-control {
   height: auto;
   position: relative;
   box-sizing: border-box;

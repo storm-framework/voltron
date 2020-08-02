@@ -24,6 +24,10 @@ export interface UserData {
 
 export type ClassData = Instructor | Student;
 
+export interface ResetInfo {
+  emailAddress: string;
+}
+
 export interface AuthInfo {
   emailAddress: string;
   password: string;
