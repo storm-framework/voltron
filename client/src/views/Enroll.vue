@@ -5,7 +5,8 @@
         <div class="row mt-5">
           <div class="col-8 offset-2">
             <h2 class="d-inline">
-              New Enrollment for {{ currentClass.class }}
+              New Enrollment
+              <!-- for {{ currentClass.class }} -->
             </h2>
             <b-button
               v-if="!loading"
@@ -14,7 +15,7 @@
               class="float-right"
               v-on:click="submitEnrolls(newEnrolls)"
             >
-              Enroll
+              Enroll in {{ currentClass.class }}
             </b-button>
             <br />
             <br />
@@ -34,15 +35,22 @@
               </template>
             </vue-csv-import>
 
+            <roster-table :enrolls="newEnrolls" emptyText="" />
+
+            <br />
+            <hr />
             <br />
 
-            <roster-table :enrolls="newEnrolls" />
-
-            <hr />
-
             <h2 class="d-inline">
-              Current Enrollment for {{ currentClass.class }}
+              Current Enrollment
+              <!-- for {{ currentClass.class }} -->
             </h2>
+            <br />
+            <br />
+            <roster-table
+              :enrolls="oldEnrolls"
+              emptyText="(no students enrolled yet)"
+            />
           </div>
         </div>
       </section>
@@ -109,6 +117,11 @@ export default class Enroll extends Vue {
 
         ApiService.enroll(info)
           .then(newEnrolls => {
+            const newStudents = newEnrolls.length - this.oldEnrolls.length;
+            const className = this.currentClass.class;
+            this.showSuccess(
+              `Enrolled ${newStudents} students to ${className}`
+            );
             this.csv = null;
             this.oldEnrolls = newEnrolls;
             this.$store.dispatch("syncSessionUserData");
@@ -118,6 +131,15 @@ export default class Enroll extends Vue {
           });
       }
     }
+  }
+
+  showSuccess(msg: string) {
+    this.$bvToast.toast(msg, {
+      title: "Success",
+      toaster: "b-toaster-top-center",
+      variant: "success",
+      solid: true
+    });
   }
 
   showError(msg: string) {

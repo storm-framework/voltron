@@ -13,20 +13,21 @@ const config = {
 };
 
 const initApp = firebase.initializeApp(config);
-const initializedBuffers: { [bufId: number]: boolean } = {};
+const initializedBuffers: Set<any> = new Set();
 
-function isInit(buf: Buffer): boolean {
-  const done = initializedBuffers[buf.id];
-  initializedBuffers[buf.id] = true;
-  console.log("isInit", buf, done);
-  return done;
-}
+// function isInit(buf: Buffer): boolean {
+//   const done = initializedBuffers[buf.id];
+//   initializedBuffers[buf.id] = true;
+//   console.log("isInit", buf, done);
+//   return done;
+// }
 
 class BufferService {
   // codeBufferDiv(buf: Buffer) {
   //   return "editor-" + buf.id;
   // }
-
+  // initializedBuffers: Set<number> = new Set(); 
+    
   newBuffer(groupId: number): Buffer {
     const newRef = firebase.database().ref().push();
     return {
@@ -44,6 +45,11 @@ class BufferService {
 
   initBuf(buf: Buffer) {
     const editor = ace.edit(buf.div);
+    // console.log("initBuf-0", editor);
+
+    if (initializedBuffers.has(editor)) return;
+    initializedBuffers.add(editor);
+
     editor.setTheme("ace/theme/textmate");
     editor.getSession().setMode("ace/mode/haskell");
     editor.setOptions({
@@ -56,6 +62,7 @@ class BufferService {
       defaultText:
         "-- blank"
     });
+
   }
 }
 

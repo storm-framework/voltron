@@ -25,6 +25,9 @@
         </div>
       </div>
     </div>
+    <div v-if="instructorBuffers.length == 0">
+      <i>No groups yet, enroll students in the <b>Roster</b> tab.</i>
+    </div>
   </b-container>
 </template>
 
@@ -37,6 +40,8 @@ import { Buffer } from "../types";
 export default class Instructor extends Vue {
   name = "Instructor";
 
+  initializedBuffers: Set<number> = new Set();
+
   get instructorName() {
     return this.$store.getters.currentUser.firstName;
   }
@@ -44,21 +49,26 @@ export default class Instructor extends Vue {
     return this.$store.getters.currentClass.class;
   }
   get instructorBuffers(): Array<Buffer> {
-    return this.$store.getters.instructorBuffers;
+    const bufs = this.$store.getters.instructorBuffers;
+    console.log("instructorBuffers", bufs);
+    return bufs;
   }
 
-  initBuffers() {
+  initBuffers(all: boolean) {
     for (const buf of this.instructorBuffers) {
-      BufferService.initBuf(buf);
+      if (all || !this.initializedBuffers.has(buf.id)) {
+        BufferService.initBuf(buf);
+        this.initializedBuffers.add(buf.id);
+      }
     }
   }
 
   mounted() {
-    this.initBuffers();
+    this.initBuffers(true);
   }
 
   updated() {
-    this.initBuffers();
+    this.initBuffers(false);
   }
 }
 </script>

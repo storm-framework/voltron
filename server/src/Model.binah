@@ -56,9 +56,12 @@ Group
   update [ name, editorLink ] {\_ _ viewer -> IsInstructor viewer}
 
 Enroll
-  student    UserId       
+  student    UserId      
+  class      ClassId
   group      GroupId
-
+  
+  UniqueEnroll student class
+  
 policy IsSelf = \user viewer ->
   viewer == user
 

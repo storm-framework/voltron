@@ -91,6 +91,7 @@ runServer ServerOpts {..} = runNoLoggingT $ do
             post "/api/signin"         signIn
             get  "/api/user/:id"       userGet
             post "/api/enroll"         addRoster
+            get  "/api/roster/:class"  getRoster
 
             case optsStatic of
                 Just path -> fallback (sendFromDirectory path "index.html")

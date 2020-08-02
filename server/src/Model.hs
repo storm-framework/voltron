@@ -6,6 +6,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 
+
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -52,6 +53,7 @@ module Model
   , groupClass'
   , enrollId'
   , enrollStudent'
+  , enrollClass'
   , enrollGroup'
   , InvitationId
   , UserId
@@ -109,8 +111,9 @@ Group
 
 Enroll
   student UserId
+  class ClassId
   group GroupId
-  
+  UniqueEnroll student class
 |]
 
 {-@
@@ -552,14 +555,15 @@ groupClass' = EntityFieldWrapper GroupClass
 -- * Enroll
 {-@ mkEnroll ::
      x_0: UserId
-  -> x_1: GroupId
+  -> x_1: ClassId
+  -> x_2: GroupId
   -> BinahRecord <
-       {\row -> enrollStudent (entityVal row) == x_0 && enrollGroup (entityVal row) == x_1}
+       {\row -> enrollStudent (entityVal row) == x_0 && enrollClass (entityVal row) == x_1 && enrollGroup (entityVal row) == x_2}
      , {\_ _ -> True}
      , {\x_0 x_1 -> False}
      > Enroll
 @-}
-mkEnroll x_0 x_1 = BinahRecord (Enroll x_0 x_1)
+mkEnroll x_0 x_1 x_2 = BinahRecord (Enroll x_0 x_1 x_2)
 
 {-@ invariant {v: Entity Enroll | v == getJust (entityKey v)} @-}
 
@@ -590,6 +594,21 @@ enrollId' = EntityFieldWrapper EnrollId
 @-}
 enrollStudent' :: EntityFieldWrapper Enroll UserId
 enrollStudent' = EntityFieldWrapper EnrollStudent
+
+{-@ measure enrollClass :: Enroll -> ClassId @-}
+
+{-@ measure enrollClassCap :: Entity Enroll -> Bool @-}
+
+{-@ assume enrollClass' :: EntityFieldWrapper <
+    {\_ _ -> True}
+  , {\row field -> field == enrollClass (entityVal row)}
+  , {\field row -> field == enrollClass (entityVal row)}
+  , {\old -> enrollClassCap old}
+  , {\old _ _ -> enrollClassCap old}
+  > Enroll ClassId
+@-}
+enrollClass' :: EntityFieldWrapper Enroll ClassId
+enrollClass' = EntityFieldWrapper EnrollClass
 
 {-@ measure enrollGroup :: Enroll -> GroupId @-}
 

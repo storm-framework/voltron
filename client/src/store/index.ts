@@ -59,7 +59,10 @@ export default new Vuex.Store({
           commit("initUser", res);
           dispatch("syncUser", res.accessToken);
         })
-        .catch(error => console.log("action-signin-catch", error));
+        .catch(error => {
+          console.log("action-signin-catch", error);
+          ApiService.unauthorized();
+        });
 
       return dispatch("syncSessionUserData").then(() =>
         console.log("Done syncSessonUserData")
@@ -68,7 +71,7 @@ export default new Vuex.Store({
 
     syncSessionUserData: ({ dispatch, state }) => {
       console.log("syncSessionUserData", state.accessToken);
-      if (state.accessToken !== null && state.userData == null) {
+      if (state.accessToken !== null) {
         return dispatch("syncUser", state.accessToken);
       } else {
         return Promise.resolve();
@@ -85,15 +88,15 @@ export default new Vuex.Store({
           throw error;
         }),
 
-    enroll: ({ dispatch }, enrolls: Roster) =>
-      ApiService.enroll(enrolls)
-        .then(_payload => dispatch("syncSessionUserData"))
-        .catch(error => {
-          if (error?.response?.status == 401) {
-            ApiService.unauthorized();
-          }
-          throw error;
-        })
+    // enroll: ({ dispatch }, enrolls: Roster) =>
+    //   ApiService.enroll(enrolls)
+    //     .then(_payload => dispatch("syncSessionUserData"))
+    //     .catch(error => {
+    //       if (error?.response?.status == 401) {
+    //         ApiService.unauthorized();
+    //       }
+    //       throw error;
+    //     })
     // syncSessionUserData: ({ commit, state }) => {
     //   console.log("syncSessionUserData", state.accessToken);
     //   if (state.accessToken) {

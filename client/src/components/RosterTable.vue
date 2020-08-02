@@ -19,6 +19,7 @@
       </tbody>
     </table>
   </div>
+  <div v-else><i>{{ emptyText }} </i></div>
 </template>
 
 <script lang="ts">
@@ -29,6 +30,9 @@ import { EnrollStudent } from "@/types";
 export default class RosterTable extends Vue {
   @Prop()
   enrolls?: EnrollStudent[];
+
+  @Prop()
+  emptyText?: string;
 
   get loadedEnrolls() {
     console.log("loadedEnrolls", this.enrolls);

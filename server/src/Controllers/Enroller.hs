@@ -10,6 +10,7 @@ module Controllers.Enroller
   , addGroup
   , addEnroll
   , addRoster
+  , getRoster
   )
 where
 
@@ -43,22 +44,48 @@ import           Crypto.Random                  ( getRandomBytes )
 import           Types
 
 -------------------------------------------------------------------------------
+-- | Respond with Current [EnrollStudent] for className -----------------------
+-------------------------------------------------------------------------------
+
+getRoster :: T.Text -> Controller ()
+getRoster className = do
+  instr   <- requireAuthUser
+  -- TODO: check that `instr` is an instructor for className
+  clsId   <- lookupClassId className
+  enrolls <- selectList (enrollClass' ==. clsId)
+  roster  <- mapMC enrollEnrollStudent enrolls
+  respondJSON status200 roster 
+
+enrollEnrollStudent :: Entity Enroll -> Controller EnrollStudent
+enrollEnrollStudent enroll = do
+  userId  <- project enrollStudent' enroll
+  user    <- selectFirstOr notFoundJSON (userId' ==. userId)
+  groupId <- project enrollGroup' enroll
+  group   <- selectFirstOr notFoundJSON (groupId' ==. groupId)
+  EnrollStudent
+    `fmap` project userFirstName'    user
+    <*>    project userLastName'     user
+    <*>    project userEmailAddress' user
+    <*>    project groupName'        group
+
+  
+
+-------------------------------------------------------------------------------
 -- | Add a full roster of students to a class using an Roster -----------------
 -------------------------------------------------------------------------------
 
 addRoster :: Controller ()
 addRoster = do
-  Log.log Log.INFO "addRoster-start"
   instr         <- requireAuthUser
-  Log.log Log.INFO "addRoster-req-auth"
   r@Roster {..} <- decodeBody
   crUsers       <- mapM createUser rosterStudents
+
+  clsId <- lookupClassId rosterClass
   mapM_ addUser   crUsers
-  let grps = rosterGroups r
-  Log.log Log.INFO ("groups: " ++ show grps)
-  mapM_ addGroup  grps -- (rosterGroups r)
-  mapM_ addEnroll (rosterEnrolls r)
-  respondJSON status200 ("OK:addRoster" :: T.Text)
+  mapM_ (addGroup  clsId) (rosterGroups r)
+  mapM_ (addEnroll clsId) (rosterEnrolls r)
+  getRoster rosterClass 
+  -- respondJSON status200 ("OK:addRoster" :: T.Text)
 
 createUser :: EnrollStudent -> Controller CreateUser
 createUser (EnrollStudent {..}) = do 
@@ -116,10 +143,9 @@ addClass r@(CreateClass {..}) = do
 -------------------------------------------------------------------------------
 
 {-@ ignore addGroup @-}
-addGroup :: CreateGroup -> Controller (Maybe GroupId)
-addGroup r@(CreateGroup {..}) = do
+addGroup :: ClassId -> CreateGroup -> Controller (Maybe GroupId)
+addGroup clsId r@(CreateGroup {..}) = do
   Log.log Log.INFO ("addGroup: " ++ show r)
-  clsId <- lookupClassId groupClass
   let msg = "addGroup: duplicate group " ++ show r
   insertOrMsg msg $ mkGroup groupName groupEditorLink clsId
 
@@ -128,13 +154,13 @@ addGroup r@(CreateGroup {..}) = do
 -------------------------------------------------------------------------------
 
 {-@ ignore addEnroll @-}
-addEnroll :: CreateEnroll -> Controller (Maybe EnrollId)
-addEnroll r@(CreateEnroll {..}) = do
+addEnroll :: ClassId -> CreateEnroll -> Controller (Maybe EnrollId)
+addEnroll clsId r@(CreateEnroll {..}) = do
   Log.log Log.INFO ("addEnroll: " ++ show r)
   studentId <- lookupUserId enrollStudent
   groupId   <- lookupGroupId enrollGroup
   let msg = "addGroup: duplicate enroll" ++ show r
-  insertOrMsg msg $ mkEnroll studentId groupId
+  insertOrMsg msg $ mkEnroll studentId clsId groupId
 
 lookupUserId :: (MonadTIO m) => T.Text -> TasCon m UserId 
 -- lookupUserId :: T.Text -> Controller UserId

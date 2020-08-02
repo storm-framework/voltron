@@ -131,6 +131,10 @@ data EnrollStudent = EnrollStudent
 instance FromJSON EnrollStudent where
   parseJSON = genericParseJSON (stripPrefix "es")
 
+instance ToJSON EnrollStudent where
+  toEncoding = genericToEncoding (stripPrefix "es")
+
+
 -- | An `Roster` datatype that mirrors the client side version -----------------------
 
 data Roster = Roster 
