@@ -11,7 +11,6 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-
 {-@ LIQUID "--compile-spec" @-}
 
 module Model
@@ -24,11 +23,13 @@ module Model
   , mkClass
   , mkGroup
   , mkEnroll
+  , mkResetPassword
   , Invitation
   , User
   , Class
   , Group
   , Enroll
+  , ResetPassword
   , invitationId'
   , invitationCode'
   , invitationEmailAddress'
@@ -55,11 +56,16 @@ module Model
   , enrollStudent'
   , enrollClass'
   , enrollGroup'
+  , resetPasswordId'
+  , resetPasswordCode'
+  , resetPasswordEmail'
+  , resetPasswordValid'
   , InvitationId
   , UserId
   , ClassId
   , GroupId
   , EnrollId
+  , ResetPasswordId
   )
 
 where
@@ -114,6 +120,12 @@ Enroll
   class ClassId
   group GroupId
   UniqueEnroll student class
+
+ResetPassword
+  code Text
+  email Text
+  valid Bool
+  UniqueReset code
 |]
 
 {-@
@@ -624,6 +636,79 @@ enrollClass' = EntityFieldWrapper EnrollClass
 @-}
 enrollGroup' :: EntityFieldWrapper Enroll GroupId
 enrollGroup' = EntityFieldWrapper EnrollGroup
+
+-- * ResetPassword
+{-@ mkResetPassword ::
+     x_0: Text
+  -> x_1: Text
+  -> x_2: Bool
+  -> BinahRecord <
+       {\row -> resetPasswordCode (entityVal row) == x_0 && resetPasswordEmail (entityVal row) == x_1 && resetPasswordValid (entityVal row) == x_2}
+     , {\_ _ -> True}
+     , {\x_0 x_1 -> False}
+     > ResetPassword
+@-}
+mkResetPassword x_0 x_1 x_2 = BinahRecord (ResetPassword x_0 x_1 x_2)
+
+{-@ invariant {v: Entity ResetPassword | v == getJust (entityKey v)} @-}
+
+
+
+{-@ assume resetPasswordId' :: EntityFieldWrapper <
+    {\row viewer -> True}
+  , {\row field  -> field == entityKey row}
+  , {\field row  -> field == entityKey row}
+  , {\_ -> False}
+  , {\_ _ _ -> True}
+  > ResetPassword ResetPasswordId
+@-}
+resetPasswordId' :: EntityFieldWrapper ResetPassword ResetPasswordId
+resetPasswordId' = EntityFieldWrapper ResetPasswordId
+
+{-@ measure resetPasswordCode :: ResetPassword -> Text @-}
+
+{-@ measure resetPasswordCodeCap :: Entity ResetPassword -> Bool @-}
+
+{-@ assume resetPasswordCode' :: EntityFieldWrapper <
+    {\_ _ -> True}
+  , {\row field -> field == resetPasswordCode (entityVal row)}
+  , {\field row -> field == resetPasswordCode (entityVal row)}
+  , {\old -> resetPasswordCodeCap old}
+  , {\old _ _ -> resetPasswordCodeCap old}
+  > ResetPassword Text
+@-}
+resetPasswordCode' :: EntityFieldWrapper ResetPassword Text
+resetPasswordCode' = EntityFieldWrapper ResetPasswordCode
+
+{-@ measure resetPasswordEmail :: ResetPassword -> Text @-}
+
+{-@ measure resetPasswordEmailCap :: Entity ResetPassword -> Bool @-}
+
+{-@ assume resetPasswordEmail' :: EntityFieldWrapper <
+    {\_ _ -> True}
+  , {\row field -> field == resetPasswordEmail (entityVal row)}
+  , {\field row -> field == resetPasswordEmail (entityVal row)}
+  , {\old -> resetPasswordEmailCap old}
+  , {\old _ _ -> resetPasswordEmailCap old}
+  > ResetPassword Text
+@-}
+resetPasswordEmail' :: EntityFieldWrapper ResetPassword Text
+resetPasswordEmail' = EntityFieldWrapper ResetPasswordEmail
+
+{-@ measure resetPasswordValid :: ResetPassword -> Bool @-}
+
+{-@ measure resetPasswordValidCap :: Entity ResetPassword -> Bool @-}
+
+{-@ assume resetPasswordValid' :: EntityFieldWrapper <
+    {\_ _ -> True}
+  , {\row field -> field == resetPasswordValid (entityVal row)}
+  , {\field row -> field == resetPasswordValid (entityVal row)}
+  , {\old -> resetPasswordValidCap old}
+  , {\old _ _ -> resetPasswordValidCap old}
+  > ResetPassword Bool
+@-}
+resetPasswordValid' :: EntityFieldWrapper ResetPassword Bool
+resetPasswordValid' = EntityFieldWrapper ResetPasswordValid
 
 --------------------------------------------------------------------------------
 -- | Inline

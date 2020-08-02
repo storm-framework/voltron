@@ -11,6 +11,7 @@ module Controllers.Enroller
   , addEnroll
   , addRoster
   , getRoster
+  , genRandomText
   )
 where
 

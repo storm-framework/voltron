@@ -147,4 +147,22 @@ data Roster = Roster
 instance FromJSON Roster where
   parseJSON = genericParseJSON (stripPrefix "roster")
 
+-- | Payload for a login/sign-in request ---------------------------------------------
 
+data AuthInfo = AuthInfo 
+  { authInfoEmailAddress :: Text
+  , authInfoPassword :: Text
+  }
+  deriving Generic
+
+instance FromJSON AuthInfo where
+  parseJSON = genericParseJSON (stripPrefix "authInfo")
+
+-- | Payload for a reset-password request ---------------------------------------------
+
+data ResetInfo = ResetInfo 
+  { resetInfoEmailAddress :: Text }
+  deriving Generic
+
+instance FromJSON ResetInfo where
+  parseJSON = genericParseJSON (stripPrefix "resetInfo")

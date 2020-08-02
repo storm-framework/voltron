@@ -55,6 +55,7 @@ import           Binah.Frankie
 import           Controllers
 import           Controllers.User               ( extractUserData, extractUserNG )
 import           Controllers.Invitation         ( InvitationCode(..) )
+import           Controllers.Enroller           ( genRandomText )
 import           Model
 import           JSON
 import           Crypto
@@ -68,16 +69,12 @@ import           Types
 {-@ ignore signIn @-}
 signIn :: Controller ()
 signIn = do
-   SignInReq emailAddress password <- decodeBody
-   user                            <- authUser emailAddress password
-   -- respondTagged $ errorResponse status401 (Just "Got USER!")
-   userId                          <- project userId' user
-   token                           <- genJwt userId
-   -- userData                        <- extractUserData user
-   userNG                          <- extractUserNG user
-   -- respondTagged $ errorResponse status401 (Just "Got USER-DATA!")
+   AuthInfo emailAddress password <- decodeBody
+   user                           <- authUser emailAddress password
+   userId                         <- project userId' user
+   token                          <- genJwt userId
+   userNG                         <- extractUserNG user
    respondJSON status200 $ LoginResponse (unpackLazy8 token) userNG
-   -- respondTagged $ errorResponse status401 (Just "Got JFC!")
 
 {-@ ignore authUser @-}
 authUser :: Text -> Text -> Controller (Entity User)
@@ -89,14 +86,22 @@ authUser emailAddress password = do
     then return user
     else respondError status401 (Just "Incorrect credentials")
 
-data SignInReq = SignInReq
-  { signInReqEmailAddress :: Text
-  , signInReqPassword :: Text
-  }
-  deriving Generic
 
-instance FromJSON SignInReq where
-  parseJSON = genericParseJSON (stripPrefix "signInReq")
+
+-------------------------------------------------------------------------------
+-- | Reset password : generate a random code and send to user's email 
+-------------------------------------------------------------------------------
+{-@ ignore reset @-}
+reset :: Controller ()
+reset = do 
+   ResetInfo {..} <- decodeBody
+  --  user           <- selectFirstOr 
+  --                      (errorResponse status401 (Just "Unknown email address"))
+  --                      (userEmailAddress' ==. resetInfoEmailAddress)
+   code           <- genRandomText
+   insert (mkResetPassword code resetInfoEmailAddress True)
+   sendResetEmail code resetInfoEmailAddress 
+   respondJSON status200 $ "OK: Please check " <> resetInfoEmailAddress
 
 -------------------------------------------------------------------------------
 -- | SignUp

@@ -61,7 +61,14 @@ Enroll
   group      GroupId
   
   UniqueEnroll student class
+
+ResetPassword 
+  code  Text
+  email Text
+  valid Bool
   
+  UniqueReset code
+
 policy IsSelf = \user viewer ->
   viewer == user
 
