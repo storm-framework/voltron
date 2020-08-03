@@ -37,7 +37,6 @@ import           Binah.Templates
 import           Binah.Frankie
 import qualified Frankie.Log                   as Log
 import           Controllers
-import           Controllers.Invitation         ( InvitationCode(..) )
 import           Model
 import           JSON
 import           Crypto

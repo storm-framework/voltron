@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 440c40541e4c66378ea5e2bd8e6b4417785f4fb3ccc94e99e44a6760bcb530dc
+-- hash: 5c7157d47dde67068be99201b89c5bb6765321bc95a4ab0756850dd6b83bff18
 
 name:           server
 version:        0.1.0.0
@@ -36,13 +36,12 @@ library
       Binah.Helpers
       Binah.Infrastructure
       Binah.Insert
-      Binah.Mail
+      Binah.SMTP
       Binah.Templates
       Binah.Updates
       Config
       Controllers
       Controllers.Enroller
-      Controllers.Invitation
       Controllers.Room
       Controllers.User
       Crypto
@@ -50,7 +49,6 @@ library
       JSON
       Model
       Server
-      SMTP
       Types
   other-modules:
       Paths_server

@@ -56,10 +56,11 @@ Enroll
 	  , code : string
 	  }
 
-        Reset 
-	  code Text
-	  valid Bool
-	  UniqueReset code
+    Reset 
+	    code  Text
+      email Text
+	    valid Bool
+	    UniqueReset code
 
 - [ ] 'Settings' CLIENT
   - [ ] (user) editor theme

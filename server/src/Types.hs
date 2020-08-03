@@ -161,8 +161,18 @@ instance FromJSON AuthInfo where
 -- | Payload for a reset-password request ---------------------------------------------
 
 data ResetInfo = ResetInfo 
-  { resetInfoEmailAddress :: Text }
+  { resetEmailAddress :: Text }
   deriving Generic
 
 instance FromJSON ResetInfo where
-  parseJSON = genericParseJSON (stripPrefix "resetInfo")
+  parseJSON = genericParseJSON (stripPrefix "reset")
+
+data ResetPassInfo = ResetPassInfo 
+  { resetPassEmail    :: Text 
+  , resetPassPassword :: Text
+  , resetPassCode     :: Text 
+  }
+  deriving Generic
+
+instance FromJSON ResetPassInfo where
+  parseJSON = genericParseJSON (stripPrefix "resetPass")

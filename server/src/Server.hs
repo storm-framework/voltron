@@ -57,9 +57,8 @@ import           Binah.Infrastructure
 import           Binah.Insert
 import           Binah.Actions
 import           Binah.Filters
-import qualified Binah.Mail as Mail
+import qualified Binah.SMTP as SMTP 
 import           Controllers
-import           Controllers.Invitation
 import           Controllers.User
 import           Controllers.Enroller
 
@@ -90,6 +89,7 @@ runServer ServerOpts {..} = runNoLoggingT $ do
         dispatch $ do
             post "/api/signin"         signIn
             post "/api/reset"          reset
+            post "/api/resetpass"      resetPass
             get  "/api/user/:id"       userGet
             post "/api/enroll"         addRoster
             get  "/api/roster/:class"  getRoster
@@ -111,7 +111,7 @@ runTask' dbpath task = runSqlite dbpath $ do
 readConfig :: IO Config
 readConfig = Config authMethod 
                 <$> MVar.newMVar mempty 
-                <*> Mail.readSMTPConfig "VOLTRON" 
+                <*> SMTP.readSMTPConfig "VOLTRON" 
              -- <*> readAWSConfig 
              -- <*> readSecretKey
 

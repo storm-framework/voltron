@@ -52,11 +52,10 @@ import           Binah.Helpers
 import           Binah.Infrastructure
 import           Binah.Templates
 import           Binah.Frankie
-import           Binah.Mail
+import           Binah.SMTP
 
 import           Controllers
 import           Controllers.User               ( extractUserData, extractUserNG )
-import           Controllers.Invitation         ( InvitationCode(..) )
 import           Controllers.Enroller           ( genRandomText )
 import           Model
 import           JSON
@@ -95,27 +94,29 @@ authUser emailAddress password = do
 -------------------------------------------------------------------------------
 {-@ ignore reset @-}
 reset :: Controller ()
-reset = do 
-   ResetInfo {..} <- decodeBody
-  --  user           <- selectFirstOr 
-  --                      (errorResponse status401 (Just "Unknown email address"))
-  --                      (userEmailAddress' ==. resetInfoEmailAddress)
-   code           <- genRandomText
-   insert (mkResetPassword resetInfoEmailAddress code True)
-   sendResetMail code resetInfoEmailAddress 
-   respondJSON status200 $ "OK: Please check " <> resetInfoEmailAddress
+reset = do
+  ResetInfo {..} <- decodeBody
+ --  user           <- selectFirstOr 
+ --                      (errorResponse status401 (Just "Unknown email address"))
+ --                      (userEmailAddress' ==. resetInfoEmailAddress)
+  _    <- updateWhere 
+            (resetPasswordEmail' ==. resetEmailAddress) 
+            (resetPasswordValid' `assign` False)
+  code <- genRandomText
+  insert (mkResetPassword resetEmailAddress code True)
+  sendResetMail code resetEmailAddress
+  respondJSON status200 $ "OK: Please check " <> resetEmailAddress
 
 sendResetMail :: Text -> Text -> Controller ()
-sendResetMail code address = do 
+sendResetMail code userEmail = do 
   smtpConfig <- configSMTP <$> getConfig
-  sendMail smtpConfig (mkResetEmail smtpConfig code address)
-
-mkResetEmail :: SMTPConfig -> Text -> Text -> Mail
-mkResetEmail (SMTPConfig {..}) code address = simpleMail' from to subject (mkBody code)
- where
-  from    = mkPublicAddress (Just "Voltron") (T.pack smtpUser)
-  to      = mkPublicAddress Nothing address
-  subject = "VOLTRON Password Reset Code"
+  let subject = "VOLTRON Password Reset Code"
+  let to      = mkPublicAddress (T.unpack userEmail)
+  let from    = mkPublicAddress (smtpUser smtpConfig) 
+  res        <- sendPlainTextMail smtpConfig to from subject (mkBody code)
+  case res of 
+    Right _ -> return () 
+    Left _  -> respondError status401 (Just "Error sending email!")
 
 mkBody :: Text -> LT.Text
 mkBody code =
@@ -124,41 +125,28 @@ mkBody code =
     <> code
 
 -------------------------------------------------------------------------------
--- | SignUp
+-- | `resetPass` actually resets the password using a previously mailed code
 -------------------------------------------------------------------------------
-
-{-@ ignore signUp @-}
-signUp :: Controller ()
-signUp = do
-  (SignUpReq (InvitationCode id code) CreateUser {..}) <- decodeBody
-  EncryptedPass encrypted <- encryptPassTIO' (Pass (T.encodeUtf8 userPassword))
-  let user = mkUser userEmail
-                    encrypted
-                    userFirst
-                    userLast
-                    False 
+{-@ ignore resetPass @-}
+resetPass :: Controller ()
+resetPass = do
+  ResetPassInfo {..} <- decodeBody
+  -- 1. Check if the code is valid
   _ <- selectFirstOr
-    (errorResponse status403 (Just "invalid invitation"))
-    (   (invitationId' ==. id)
-    &&: (invitationCode' ==. code)
-    &&: (invitationEmailAddress' ==. userEmail)
-    &&: (invitationAccepted' ==. False)
-    )
-  userId   <- insert user
-  _        <- updateWhere (invitationId' ==. id) (invitationAccepted' `assign` True)
-  user     <- selectFirstOr notFoundJSON (userId' ==. userId)
-  token    <- genJwt userId
-  userData <- extractUserNG user
-  respondJSON status201 $ LoginResponse (unpackLazy8 token) userData
-
-data SignUpReq = SignUpReq
-  { signUpReqInvitationCode :: InvitationCode
-  , signUpReqUser :: CreateUser
-  }
-  deriving Generic
-
-instance FromJSON SignUpReq where
-  parseJSON = genericParseJSON (stripPrefix "signUpReq")
+        (errorResponse status403 (Just "invalid reset code"))
+        ((resetPasswordCode'  ==. resetPassCode) &&: 
+         (resetPasswordEmail' ==. resetPassEmail) &&: 
+         (resetPasswordValid' ==. True))
+  -- 2. Invalidate the code 
+  _  <- updateWhere 
+          (resetPasswordCode' ==. resetPassCode) 
+          (resetPasswordValid' `assign` False)
+  -- 3. Update the user's information
+  EncryptedPass encrypted <- encryptPassTIO' (Pass (T.encodeUtf8 resetPassPassword))
+  _  <- updateWhere 
+          (userEmailAddress' ==. resetPassEmail)
+          (userPassword' `assign` encrypted)
+  respondJSON status200 ("OK: Login with new password" :: T.Text) 
 
 -------------------------------------------------------------------------------
 -- | Auth method
