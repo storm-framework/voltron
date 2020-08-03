@@ -27,6 +27,7 @@ import           Binah.Infrastructure
 import           Binah.Filters
 import           Binah.Templates
 import           Binah.Concurrent
+import           Binah.Mail
 import qualified Network.AWS                   as AWS
 import qualified Network.AWS.S3                as S3
 import           Network.Socket                 ( PortNumber )
@@ -36,10 +37,10 @@ import           Model
 data Config = Config
   { configAuthMethod    :: !(AuthMethod (Entity User) Controller)
   , configTemplateCache :: !(MVar.MVar Mustache.TemplateCache)
+  , configSMTP          :: SMTPConfig
   }
 
 --   , configAWS :: AWSConfig
---   , configSMTP :: SMTPConfig
 --   , configSecretKey :: JWT.JWK
 --   }
 

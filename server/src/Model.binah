@@ -63,11 +63,10 @@ Enroll
   UniqueEnroll student class
 
 ResetPassword 
-  code  Text
   email Text
+  code  Text
   valid Bool
-  
-  UniqueReset code
+  UniqueReset code 
 
 policy IsSelf = \user viewer ->
   viewer == user

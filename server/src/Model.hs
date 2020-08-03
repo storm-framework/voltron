@@ -57,8 +57,8 @@ module Model
   , enrollClass'
   , enrollGroup'
   , resetPasswordId'
-  , resetPasswordCode'
   , resetPasswordEmail'
+  , resetPasswordCode'
   , resetPasswordValid'
   , InvitationId
   , UserId
@@ -122,8 +122,8 @@ Enroll
   UniqueEnroll student class
 
 ResetPassword
-  code Text
   email Text
+  code Text
   valid Bool
   UniqueReset code
 |]
@@ -643,7 +643,7 @@ enrollGroup' = EntityFieldWrapper EnrollGroup
   -> x_1: Text
   -> x_2: Bool
   -> BinahRecord <
-       {\row -> resetPasswordCode (entityVal row) == x_0 && resetPasswordEmail (entityVal row) == x_1 && resetPasswordValid (entityVal row) == x_2}
+       {\row -> resetPasswordEmail (entityVal row) == x_0 && resetPasswordCode (entityVal row) == x_1 && resetPasswordValid (entityVal row) == x_2}
      , {\_ _ -> True}
      , {\x_0 x_1 -> False}
      > ResetPassword
@@ -665,21 +665,6 @@ mkResetPassword x_0 x_1 x_2 = BinahRecord (ResetPassword x_0 x_1 x_2)
 resetPasswordId' :: EntityFieldWrapper ResetPassword ResetPasswordId
 resetPasswordId' = EntityFieldWrapper ResetPasswordId
 
-{-@ measure resetPasswordCode :: ResetPassword -> Text @-}
-
-{-@ measure resetPasswordCodeCap :: Entity ResetPassword -> Bool @-}
-
-{-@ assume resetPasswordCode' :: EntityFieldWrapper <
-    {\_ _ -> True}
-  , {\row field -> field == resetPasswordCode (entityVal row)}
-  , {\field row -> field == resetPasswordCode (entityVal row)}
-  , {\old -> resetPasswordCodeCap old}
-  , {\old _ _ -> resetPasswordCodeCap old}
-  > ResetPassword Text
-@-}
-resetPasswordCode' :: EntityFieldWrapper ResetPassword Text
-resetPasswordCode' = EntityFieldWrapper ResetPasswordCode
-
 {-@ measure resetPasswordEmail :: ResetPassword -> Text @-}
 
 {-@ measure resetPasswordEmailCap :: Entity ResetPassword -> Bool @-}
@@ -694,6 +679,21 @@ resetPasswordCode' = EntityFieldWrapper ResetPasswordCode
 @-}
 resetPasswordEmail' :: EntityFieldWrapper ResetPassword Text
 resetPasswordEmail' = EntityFieldWrapper ResetPasswordEmail
+
+{-@ measure resetPasswordCode :: ResetPassword -> Text @-}
+
+{-@ measure resetPasswordCodeCap :: Entity ResetPassword -> Bool @-}
+
+{-@ assume resetPasswordCode' :: EntityFieldWrapper <
+    {\_ _ -> True}
+  , {\row field -> field == resetPasswordCode (entityVal row)}
+  , {\field row -> field == resetPasswordCode (entityVal row)}
+  , {\old -> resetPasswordCodeCap old}
+  , {\old _ _ -> resetPasswordCodeCap old}
+  > ResetPassword Text
+@-}
+resetPasswordCode' :: EntityFieldWrapper ResetPassword Text
+resetPasswordCode' = EntityFieldWrapper ResetPasswordCode
 
 {-@ measure resetPasswordValid :: ResetPassword -> Bool @-}
 

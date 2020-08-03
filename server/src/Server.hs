@@ -57,7 +57,7 @@ import           Binah.Infrastructure
 import           Binah.Insert
 import           Binah.Actions
 import           Binah.Filters
-
+import qualified Binah.Mail as Mail
 import           Controllers
 import           Controllers.Invitation
 import           Controllers.User
@@ -111,8 +111,8 @@ runTask' dbpath task = runSqlite dbpath $ do
 readConfig :: IO Config
 readConfig = Config authMethod 
                 <$> MVar.newMVar mempty 
+                <*> Mail.readSMTPConfig "VOLTRON" 
              -- <*> readAWSConfig 
-             -- <*> readSMTPConfig 
              -- <*> readSecretKey
 
 {-@ ignore initDB @-}

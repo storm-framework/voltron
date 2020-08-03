@@ -27,6 +27,7 @@ import           Crypto.JWT
 import           Crypto.JOSE.Types              ( Base64Octets(..) )
 import           Data.Text                      ( Text(..) )
 import qualified Data.Text                     as T
+import qualified Data.Text.Lazy                as LT
 import qualified Data.Text.Encoding            as T
 import qualified Data.Text.Lazy.Encoding       as L
 import           Data.ByteString                ( ByteString )
@@ -51,6 +52,7 @@ import           Binah.Helpers
 import           Binah.Infrastructure
 import           Binah.Templates
 import           Binah.Frankie
+import           Binah.Mail
 
 import           Controllers
 import           Controllers.User               ( extractUserData, extractUserNG )
@@ -99,9 +101,27 @@ reset = do
   --                      (errorResponse status401 (Just "Unknown email address"))
   --                      (userEmailAddress' ==. resetInfoEmailAddress)
    code           <- genRandomText
-   insert (mkResetPassword code resetInfoEmailAddress True)
-   sendResetEmail code resetInfoEmailAddress 
+   insert (mkResetPassword resetInfoEmailAddress code True)
+   sendResetMail code resetInfoEmailAddress 
    respondJSON status200 $ "OK: Please check " <> resetInfoEmailAddress
+
+sendResetMail :: Text -> Text -> Controller ()
+sendResetMail code address = do 
+  smtpConfig <- configSMTP <$> getConfig
+  sendMail smtpConfig (mkResetEmail smtpConfig code address)
+
+mkResetEmail :: SMTPConfig -> Text -> Text -> Mail
+mkResetEmail (SMTPConfig {..}) code address = simpleMail' from to subject (mkBody code)
+ where
+  from    = mkPublicAddress (Just "Voltron") (T.pack smtpUser)
+  to      = mkPublicAddress Nothing address
+  subject = "VOLTRON Password Reset Code"
+
+mkBody :: Text -> LT.Text
+mkBody code =
+  LT.fromStrict
+    $  "Please use the following code to reset your VOLTRON password: "
+    <> code
 
 -------------------------------------------------------------------------------
 -- | SignUp
