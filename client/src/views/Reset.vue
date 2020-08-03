@@ -12,8 +12,8 @@
         placeholder="Email address"
       ></b-form-input>
 
-      <b-form-invalid-feedback :state="isValid">
-        Incorrect email address or password.
+      <b-form-invalid-feedback :state="isValidEmail">
+        Invalid email address.
       </b-form-invalid-feedback>
 
       <b-button
@@ -24,10 +24,50 @@
         type="submit"
         class="mt-4"
       >
-        Reset
+        Get Reset Code
       </b-button>
       <br />
     </b-form>
+
+    <b-modal
+      id="reset-modal"
+      ref="modal"
+      title="Use code to reset your password"
+      @ok="resetPass"
+    >
+      <b-form-input
+        id="reset-code"
+        type="password"
+        v-model="resetCode"
+        required
+        placeholder="Reset code emailed from Voltron.sys"
+      ></b-form-input>
+
+      <b-form-input
+        id="new-password"
+        type="password"
+        v-model="resetPassword"
+        required
+        placeholder="New password"
+      ></b-form-input>
+
+      <b-form-invalid-feedback :state="isValidReset">
+        Invalid reset code
+      </b-form-invalid-feedback>
+    </b-modal>
+
+    <b-modal
+      id="reset-success-modal"
+      ref="modal"
+      title="Reset Successful!"
+      @ok="repeatLogin"
+    >
+      Please login with your new password.
+    </b-modal>
+
+    <b-modal id="reset-failure-modal" ref="modal" title="Reset Failed!">
+      Please try again!
+    </b-modal>
   </div>
 </template>
 
@@ -39,7 +79,8 @@ import ApiService from "@/services/api";
 @Component
 export default class Reset extends Vue {
   emailAddress = "";
-  password = "";
+  resetPassword = "";
+  resetCode = "";
   loading = false;
 
   onSubmit() {
@@ -49,8 +90,7 @@ export default class Reset extends Vue {
     };
     ApiService.reset(reset)
       .then(() => {
-        const msg = "Please check your email for a reset link";
-        this.showMessage(msg, "Thanks!", "success");
+        this.$bvModal.show("reset-modal");
       })
       .catch(() => {
         const msg = "There is no account associated with that address!";
@@ -65,6 +105,21 @@ export default class Reset extends Vue {
       title,
       variant
     });
+  }
+
+  resetPass() {
+    const resetInfo = {
+      email: this.emailAddress,
+      password: this.resetPassword,
+      code: this.resetCode
+    };
+    ApiService.resetPass(resetInfo)
+      .then(() => {
+        this.$bvModal.show("reset-success-modal");
+      })
+      .catch(() => {
+        this.$bvModal.show("reset-failure-modal");
+      });
   }
 }
 </script>

@@ -28,6 +28,12 @@ export interface ResetInfo {
   emailAddress: string;
 }
 
+export interface ResetPassInfo { 
+  email: string;
+  password: string;
+  code: string;
+}
+
 export interface AuthInfo {
   emailAddress: string;
   password: string;

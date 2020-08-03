@@ -1,4 +1,4 @@
-import { UserData, LoginResponse, ResetInfo, AuthInfo, Roster, EnrollStudent } from "@/types";
+import { UserData, LoginResponse, ResetInfo, ResetPassInfo, AuthInfo, Roster, EnrollStudent } from "@/types";
 import router from "@/router";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import _ from "lodash";
@@ -41,14 +41,15 @@ class ApiService {
   }
 
   async reset(info: ResetInfo): Promise<string> {
-    const response: AxiosResponse<string> = await axios.post(
-      `${API_URL}/signin`,
-      {
-        emailAddress: info.emailAddress
-      }
-    );
+    const response: AxiosResponse<string> = await axios.post(`${API_URL}/reset`, info);
     return response.data;
   }
+
+  async resetPass(info: ResetPassInfo): Promise<string> {
+    const response: AxiosResponse<string> = await axios.post(`${API_URL}/resetpass`, info);
+    return response.data;
+  }
+
 
   isSignedIn(): boolean {
     const res = this.accessToken !== null;
