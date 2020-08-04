@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5c7157d47dde67068be99201b89c5bb6765321bc95a4ab0756850dd6b83bff18
+-- hash: 2236e6c593a0004917de12485db477ee6a04c53aecf2800e494ae711b148f588
 
 name:           server
 version:        0.1.0.0
@@ -42,7 +42,6 @@ library
       Config
       Controllers
       Controllers.Enroller
-      Controllers.Room
       Controllers.User
       Crypto
       Exception
