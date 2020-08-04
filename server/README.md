@@ -47,10 +47,10 @@ Enroll
   - [x] FRONT 'ResetPassword/code' 
   - [x] BACK  'post /api/resetpassword' -- validate and update password
 
-  HEREHEREHEREHERE
-
-  - [ ] FRONT allow me to retype "GetResetCode" if I failed (currently shadows out)
-  - [ ] FRONT automatically redirect to "Login" after successfully resetting
+   
+  - [?] FRONT allow me to retype "GetResetCode" if I failed (currently shadows out)
+  - [?] FRONT automatically redirect to "Login" after successfully resetting
+  - [ ] Use plain-text for "invalid email?" 
 
 - [ ] 'Settings' CLIENT
   - [ ] (user) editor theme

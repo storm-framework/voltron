@@ -19,7 +19,9 @@
       </tbody>
     </table>
   </div>
-  <div v-else><i>{{ emptyText }} </i></div>
+  <div v-else>
+    <i>{{ emptyText }} </i>
+  </div>
 </template>
 
 <script lang="ts">
