@@ -22,7 +22,7 @@ Enroll
 
 ## TODO
 
-- [ ] 'Enroll'
+- [x] 'Enroll'
   
   - [x] type EnrollStudent = { className: string, studentEmail: string, groupName: string } 
   - [x] type Enroll = { newBuffers : Buffer[], newEnrolls: EnrollStudent[] }
@@ -48,15 +48,14 @@ Enroll
   - [x] BACK  'post /api/resetpassword' -- validate and update password
 
    
-  - [?] FRONT allow me to retype "GetResetCode" if I failed (currently shadows out)
-  - [?] FRONT automatically redirect to "Login" after successfully resetting
-  - [ ] Use plain-text for "invalid email?" 
+  - [x] FRONT allow me to retype "GetResetCode" if I failed (currently shadows out)
+  - [x] FRONT automatically redirect to "Login" after successfully resetting
+  - [x] Use plain-text for "invalid email?" 
 
 - [ ] 'Settings' CLIENT
   - [ ] (user) editor theme
   - [ ] (course) language theme
   - [ ] sync from instructor buffer
-
 
 ## Populating the Database
 

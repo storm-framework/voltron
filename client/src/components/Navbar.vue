@@ -31,8 +31,8 @@
             </b-dropdown-item>
           </template>
         </b-nav-item-dropdown>
-        <b-nav-item v-if="isSignedIn && showRoster" :to="{ name: 'Enroll' }"
-          >Roster</b-nav-item
+        <b-nav-item v-if="isSignedIn && showRoster" :to="{ name: 'Settings' }"
+          >Settings</b-nav-item
         >
         <b-nav-item to="/contact">Contact</b-nav-item>
         <b-nav-item v-if="isSignedIn" v-on:click="signOut()">Logout</b-nav-item>

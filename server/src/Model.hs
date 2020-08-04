@@ -1,3 +1,6 @@
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -5,11 +8,6 @@
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
-
-
-{-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE UndecidableInstances #-}
 
 {-@ LIQUID "--compile-spec" @-}
 
@@ -43,11 +41,14 @@ module Model
   , userPassword'
   , userFirstName'
   , userLastName'
+  , userTheme'
+  , userKeyBinds'
   , userAdmin'
   , classId'
   , classInstitution'
   , className'
   , classInstructor'
+  , classEditorLang'
   , groupId'
   , groupName'
   , groupEditorLink'
@@ -100,6 +101,8 @@ User
   password ByteString
   firstName Text
   lastName Text
+  theme Text
+  keyBinds Text
   admin Bool
   UniqueEmailAddress emailAddress
 
@@ -107,6 +110,7 @@ Class
   institution Text
   name Text
   instructor UserId
+  editorLang Text
   UniqueInstClass institution name
 
 Group
@@ -319,14 +323,16 @@ invitationEmailError' = EntityFieldWrapper InvitationEmailError
   -> x_1: ByteString
   -> x_2: Text
   -> x_3: Text
-  -> x_4: Bool
+  -> x_4: Text
+  -> x_5: Text
+  -> x_6: Bool
   -> BinahRecord <
-       {\row -> userEmailAddress (entityVal row) == x_0 && userPassword (entityVal row) == x_1 && userFirstName (entityVal row) == x_2 && userLastName (entityVal row) == x_3 && userAdmin (entityVal row) == x_4}
+       {\row -> userEmailAddress (entityVal row) == x_0 && userPassword (entityVal row) == x_1 && userFirstName (entityVal row) == x_2 && userLastName (entityVal row) == x_3 && userTheme (entityVal row) == x_4 && userKeyBinds (entityVal row) == x_5 && userAdmin (entityVal row) == x_6}
      , {\new viewer -> IsInstructor viewer}
      , {\x_0 x_1 -> (x_1 == x_0)}
      > User
 @-}
-mkUser x_0 x_1 x_2 x_3 x_4 = BinahRecord (User x_0 x_1 x_2 x_3 x_4)
+mkUser x_0 x_1 x_2 x_3 x_4 x_5 x_6 = BinahRecord (User x_0 x_1 x_2 x_3 x_4 x_5 x_6)
 
 {-@ invariant {v: Entity User | v == getJust (entityKey v)} @-}
 
@@ -403,6 +409,36 @@ userFirstName' = EntityFieldWrapper UserFirstName
 userLastName' :: EntityFieldWrapper User Text
 userLastName' = EntityFieldWrapper UserLastName
 
+{-@ measure userTheme :: User -> Text @-}
+
+{-@ measure userThemeCap :: Entity User -> Bool @-}
+
+{-@ assume userTheme' :: EntityFieldWrapper <
+    {\_ _ -> True}
+  , {\row field -> field == userTheme (entityVal row)}
+  , {\field row -> field == userTheme (entityVal row)}
+  , {\old -> userThemeCap old}
+  , {\old _ _ -> userThemeCap old}
+  > User Text
+@-}
+userTheme' :: EntityFieldWrapper User Text
+userTheme' = EntityFieldWrapper UserTheme
+
+{-@ measure userKeyBinds :: User -> Text @-}
+
+{-@ measure userKeyBindsCap :: Entity User -> Bool @-}
+
+{-@ assume userKeyBinds' :: EntityFieldWrapper <
+    {\_ _ -> True}
+  , {\row field -> field == userKeyBinds (entityVal row)}
+  , {\field row -> field == userKeyBinds (entityVal row)}
+  , {\old -> userKeyBindsCap old}
+  , {\old _ _ -> userKeyBindsCap old}
+  > User Text
+@-}
+userKeyBinds' :: EntityFieldWrapper User Text
+userKeyBinds' = EntityFieldWrapper UserKeyBinds
+
 {-@ measure userAdmin :: User -> Bool @-}
 
 {-@ measure userAdminCap :: Entity User -> Bool @-}
@@ -423,13 +459,14 @@ userAdmin' = EntityFieldWrapper UserAdmin
      x_0: Text
   -> x_1: Text
   -> x_2: UserId
+  -> x_3: Text
   -> BinahRecord <
-       {\row -> classInstitution (entityVal row) == x_0 && className (entityVal row) == x_1 && classInstructor (entityVal row) == x_2}
+       {\row -> classInstitution (entityVal row) == x_0 && className (entityVal row) == x_1 && classInstructor (entityVal row) == x_2 && classEditorLang (entityVal row) == x_3}
      , {\_ _ -> True}
      , {\x_0 x_1 -> False}
      > Class
 @-}
-mkClass x_0 x_1 x_2 = BinahRecord (Class x_0 x_1 x_2)
+mkClass x_0 x_1 x_2 x_3 = BinahRecord (Class x_0 x_1 x_2 x_3)
 
 {-@ invariant {v: Entity Class | v == getJust (entityKey v)} @-}
 
@@ -490,6 +527,21 @@ className' = EntityFieldWrapper ClassName
 @-}
 classInstructor' :: EntityFieldWrapper Class UserId
 classInstructor' = EntityFieldWrapper ClassInstructor
+
+{-@ measure classEditorLang :: Class -> Text @-}
+
+{-@ measure classEditorLangCap :: Entity Class -> Bool @-}
+
+{-@ assume classEditorLang' :: EntityFieldWrapper <
+    {\_ _ -> True}
+  , {\row field -> field == classEditorLang (entityVal row)}
+  , {\field row -> field == classEditorLang (entityVal row)}
+  , {\old -> classEditorLangCap old}
+  , {\old _ _ -> classEditorLangCap old}
+  > Class Text
+@-}
+classEditorLang' :: EntityFieldWrapper Class Text
+classEditorLang' = EntityFieldWrapper ClassEditorLang
 
 -- * Group
 {-@ mkGroup ::

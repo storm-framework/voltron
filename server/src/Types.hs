@@ -34,10 +34,12 @@ instance ToJSON UserNG where
 data ClassData
   = Student
      { classClass     :: Text
+     , classLanguage  :: Text
      , classGrpBuffer :: Buffer
      }
   | Instructor
      { classClass      :: Text
+     , classLanguage  :: Text
      , classAllBuffers :: [Buffer]
      }
   deriving Generic
@@ -46,8 +48,10 @@ instance ToJSON ClassData where
   toEncoding = genericToEncoding (stripPrefix "class")
 
 data UserData = UserData
-  { userUser    :: UserNG
-  , userClasses :: [ClassData]
+  { userUser     :: UserNG
+  , userTheme    :: Text
+  , userKeyBinds :: Text
+  , userClasses  :: [ClassData]
   }
   deriving Generic
 
@@ -64,30 +68,33 @@ instance ToJSON LoginResponse where
   toEncoding = genericToEncoding (stripPrefix "resp")
 
 data CreateUser = CreateUser
-  { userEmail    :: Text
-  , userPassword :: Text
-  , userFirst    :: Text
-  , userLast     :: Text
+  { crUserEmail    :: Text
+  , crUserPassword :: Text
+  , crUserFirst    :: Text
+  , crUserLast     :: Text
+  , crUserTheme    :: Text
+  , crUserKeyBinds :: Text
   }
   deriving (Show, Generic)
 
-mkCreateUser :: Text -> Text -> Text -> Text -> CreateUser
-mkCreateUser email pass first last =
-  CreateUser (strip email) pass (strip first) (strip last)
+mkCreateUser :: Text -> Text -> Text -> Text -> Text -> Text -> CreateUser
+mkCreateUser email pass first last theme keyBinds =
+  CreateUser (strip email) pass (strip first) (strip last) (strip theme) (strip keyBinds)
 
 instance FromJSON CreateUser where
   parseJSON = genericParseJSON defaultOptions
 
 data CreateClass = CreateClass
-  { classInstitution :: Text
-  , className        :: Text
-  , classInstructor  :: Text
+  { crClassInstitution :: Text
+  , crClassName        :: Text
+  , crClassInstructor  :: Text
+  , crClassLanguage    :: Text
   }
   deriving (Show, Generic)
 
 
-mkCreateClass :: Text -> Text -> Text -> CreateClass
-mkCreateClass inst name instr = CreateClass (strip inst) (strip name) (strip instr)
+mkCreateClass :: Text -> Text -> Text -> Text -> CreateClass
+mkCreateClass inst name instr lang = CreateClass (strip inst) (strip name) (strip instr) (strip lang)
 
 instance FromJSON CreateClass where
   parseJSON = genericParseJSON defaultOptions
@@ -133,6 +140,17 @@ instance FromJSON EnrollStudent where
 
 instance ToJSON EnrollStudent where
   toEncoding = genericToEncoding (stripPrefix "es")
+
+-- | An Set-Class-Language datatype that mirrors the client side version -----------------------
+
+data ClassLangInfo = ClassLangInfo 
+ { cliClass    :: Text
+ , cliLanguage :: Text 
+ }
+ deriving Generic
+
+instance FromJSON ClassLangInfo where
+  parseJSON = genericParseJSON (stripPrefix "cli")
 
 
 -- | An `Roster` datatype that mirrors the client side version -----------------------

@@ -29,6 +29,8 @@ User
   password      ByteString
   firstName     Text
   lastName      Text
+  theme         Text
+  keyBinds      Text
   admin         Bool
 
   UniqueEmailAddress emailAddress
@@ -42,6 +44,7 @@ Class
   institution Text
   name        Text
   instructor  UserId
+  editorLang  Text
 
   UniqueInstClass institution name
 

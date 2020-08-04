@@ -38,6 +38,7 @@ data Voltron
     { institution :: T.Text
     , className   :: T.Text
     , instructor  :: T.Text -- email
+    , language    :: T.Text 
     , db          :: T.Text
     }
   | AddUser
@@ -91,6 +92,10 @@ modeAddClass = AddClass
   , instructor  = "" 
                    &= typ "EMAIL"
                    &= help "The email identifier for class' instructor"
+  , language    = "" 
+                   &= typ "LANGUAGE"
+                   &= help "A language-mode for ace.js e.g. 'haskell', 'rust', 'java', 'prolog', 'markdown'"
+
   , db       = "db.sqlite" 
                    &= typ "PATH" 
                    &= help "Database path (default db.sqlite)"

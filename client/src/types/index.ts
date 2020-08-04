@@ -8,17 +8,21 @@ export interface Buffer {
 export interface Student { 
   tag: "Student";
   class: string;
+  language: string;
   grpBuffer: Buffer;
 }
 
 export interface Instructor {
   tag: "Instructor";
   class: string;
+  language: string;
   allBuffers: Array<Buffer>;
 } 
 
 export interface UserData {
   user: User;
+  theme: string;
+  keyBinds: string;
   classes: Array<ClassData>;
 }
 
@@ -37,6 +41,11 @@ export interface ResetPassInfo {
 export interface AuthInfo {
   emailAddress: string;
   password: string;
+}
+
+export interface ClassLangInfo {
+  class: string;
+  language: string;
 }
 
 export interface User {

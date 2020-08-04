@@ -43,7 +43,7 @@ class BufferService {
     return ref.child(buf.hash);
   }
 
-  initBuf(buf: Buffer) {
+  initBuf(buf: Buffer, language: string) {
     const editor = ace.edit(buf.div);
     // console.log("initBuf-0", editor);
 
@@ -51,7 +51,9 @@ class BufferService {
     initializedBuffers.add(editor);
 
     editor.setTheme("ace/theme/textmate");
-    editor.getSession().setMode("ace/mode/haskell");
+    const mode = "ace/mode/" + language;
+    editor.getSession().setMode(mode);
+    // editor.getSession().setMode("ace/mode/haskell");
     editor.setOptions({
       maxLines: 10,
       minLines: 10

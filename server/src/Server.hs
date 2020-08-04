@@ -92,6 +92,7 @@ runServer ServerOpts {..} = runNoLoggingT $ do
             post "/api/resetpass"      resetPass
             get  "/api/user/:id"       userGet
             post "/api/enroll"         addRoster
+            post "/api/setlanguage"    setLanguage
             get  "/api/roster/:class"  getRoster
 
             case optsStatic of

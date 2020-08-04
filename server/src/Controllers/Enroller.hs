@@ -11,6 +11,7 @@ module Controllers.Enroller
   , addEnroll
   , addRoster
   , getRoster
+  , setLanguage
   , genRandomText
   )
 where
@@ -42,6 +43,22 @@ import           JSON
 import           Crypto
 import           Crypto.Random                  ( getRandomBytes )
 import           Types
+
+-------------------------------------------------------------------------------
+-- | Update the language-mode used for a given class --------------------------
+-------------------------------------------------------------------------------
+setLanguage :: Controller ()
+setLanguage = do
+  instr <- requireAuthUser 
+  ClassLangInfo {..} <- decodeBody
+  cls <- selectFirstOr404 (className' ==. cliClass)
+  -- TODO: check that `instr` is the instructor for className
+  _  <- updateWhere 
+          (className' ==. cliClass) 
+          (classEditorLang' `assign` cliLanguage)
+  respondJSON status200 ("OK: updated language for " <> cliClass <> " to " <> cliLanguage)
+
+
 
 -------------------------------------------------------------------------------
 -- | Respond with Current [EnrollStudent] for className -----------------------
@@ -90,7 +107,7 @@ addRoster = do
 createUser :: EnrollStudent -> Controller CreateUser
 createUser (EnrollStudent {..}) = do 
   password <- genRandomText
-  let crUser = mkCreateUser esEmail password esFirstName esLastName
+  let crUser = mkCreateUser esEmail password esFirstName esLastName "" ""
   return crUser 
 
 {-@ genRandomText :: TaggedT<{\_ -> True}, {\_ -> False}> _ _@-}
@@ -118,12 +135,10 @@ rosterEnrolls (Roster {..}) =
 -- addUser :: CreateUser -> Controller (Maybe UserId)
 addUser :: (MonadTIO m) => CreateUser -> TasCon m (Maybe UserId)
 addUser r@(CreateUser {..}) = do
-  let email' = T.strip userEmail
-  let first' = T.strip userFirst 
   Log.log Log.INFO ("addUser: " ++ show r)
-  EncryptedPass encrypted <- encryptPassTIO' (Pass (T.encodeUtf8 userPassword))
-  let msg = "addUser: duplicate email " ++ T.unpack userEmail
-  insertOrMsg msg $ mkUser userEmail encrypted userFirst userLast False
+  EncryptedPass encrypted <- encryptPassTIO' (Pass (T.encodeUtf8 crUserPassword))
+  let msg = "addUser: duplicate email " ++ T.unpack crUserEmail
+  insertOrMsg msg $ mkUser crUserEmail encrypted crUserFirst crUserLast "" "" False
 
 -------------------------------------------------------------------------------
 -- | Add a class --------------------------------------------------------------
@@ -134,9 +149,9 @@ addUser r@(CreateUser {..}) = do
 addClass :: (MonadTIO m) => CreateClass -> TasCon m (Maybe ClassId)
 addClass r@(CreateClass {..}) = do
   Log.log Log.INFO ("addClass: " ++ show r)
-  instrId <- lookupUserId classInstructor
+  instrId <- lookupUserId crClassInstructor
   let msg = "addClass: duplicate class" ++ show r
-  insertOrMsg msg $ mkClass classInstitution className instrId
+  insertOrMsg msg $ mkClass crClassInstitution crClassName instrId crClassLanguage
 
 -------------------------------------------------------------------------------
 -- | Add a group from cmd-line ------------------------------------------------

@@ -27,12 +27,12 @@ main = do
       runServer $ ServerOpts port (fromString host) static pool db
 
     AddClass {..} -> do
-      let thing = mkCreateClass institution className instructor 
+      let thing = mkCreateClass institution className instructor language 
       rId <- runTask' db $ Enroller.addClass thing 
       putStrLn ("Add Class: " ++ show rId)
 
     AddUser {..} -> do
-      let thing = mkCreateUser email password firstName lastName
+      let thing = mkCreateUser email password firstName lastName "" ""
       rId <- runTask' db $ Enroller.addUser thing 
       putStrLn ("Add User: " ++ show rId)
 

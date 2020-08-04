@@ -5,8 +5,34 @@
         <div class="row mt-5">
           <div class="col-8 offset-2">
             <h2 class="d-inline">
+              Syntax Highlighting
+            </h2>
+
+            <br />
+            <br />
+            <div class="col4">
+              <b-dropdown
+                id="dropdown-left"
+                :text="selectedLang"
+                variant="light"
+                class="m-2"
+              >
+                <b-dropdown-item
+                  v-for="item in languages"
+                  :key="item.index"
+                  v-on:click="setLanguage(item)"
+                >
+                  {{ item }}
+                </b-dropdown-item>
+              </b-dropdown>
+            </div>
+
+            <br />
+            <hr />
+            <br />
+
+            <h2 class="d-inline">
               New Enrollment
-              <!-- for {{ currentClass.class }} -->
             </h2>
             <b-button
               v-if="!loading"
@@ -43,7 +69,6 @@
 
             <h2 class="d-inline">
               Current Enrollment
-              <!-- for {{ currentClass.class }} -->
             </h2>
             <br />
             <br />
@@ -74,6 +99,20 @@ export default class Enroll extends Vue {
   oldEnrolls: EnrollStudent[] = [];
   fatalError = false;
   fatalErrorMsg = "";
+  selectedLang = this.currentClass.language;
+  languages = [
+    "haskell",
+    "java",
+    "rust",
+    "go",
+    "markdown",
+    "python",
+    "javascript",
+    "typescript",
+    "prolog",
+    "ocaml",
+    "latex"
+  ];
 
   get loading() {
     return !this.newEnrolls;
@@ -92,6 +131,10 @@ export default class Enroll extends Vue {
     return "hideme";
   }
 
+  get syntaxCurrentLanguage() {
+    return "Syntax Highlighting: " + this.selectedLang;
+  }
+
   private makeEnroll(
     className: string,
     currBufs: Map<number, Buffer>,
@@ -103,6 +146,18 @@ export default class Enroll extends Vue {
     const groups = Array.from(new Set(allGroups));
     const buffers = groups.map(groupId => BufferService.newBuffer(groupId));
     return { class: className, buffers, students };
+  }
+
+  setLanguage(language: string) {
+    this.selectedLang = language;
+    console.log("setLanguage", language);
+    const cur = this.currentClass;
+    const info = { class: cur.class, language };
+    ApiService.setLanguage(info)
+      .then(() => this.$store.dispatch("syncSessionUserData"))
+      .catch(error =>
+        this.showError("Unexpected error: " + error.response?.status)
+      );
   }
 
   submitEnrolls(enrolls: EnrollStudent[]) {

@@ -1,4 +1,4 @@
-import { UserData, LoginResponse, ResetInfo, ResetPassInfo, AuthInfo, Roster, EnrollStudent } from "@/types";
+import { UserData, LoginResponse, ResetInfo, ResetPassInfo, AuthInfo, Roster, EnrollStudent, ClassLangInfo } from "@/types";
 import router from "@/router";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import _ from "lodash";
@@ -50,7 +50,6 @@ class ApiService {
     return response.data;
   }
 
-
   isSignedIn(): boolean {
     const res = this.accessToken !== null;
     console.log("isSignedIn", res, this.accessToken);
@@ -75,6 +74,10 @@ class ApiService {
     return this.post(`/enroll`, students);
   }
   
+  setLanguage(info: ClassLangInfo): Promise<string> {
+    return this.post(`/setlanguage`, info);
+  }
+
   roster(className: string): Promise<EnrollStudent[]> {
     return this.get(`/roster/${className}`);
   }

@@ -65,55 +65,70 @@ const BUFFERS: { [id: string]: Buffer } = {
 const USERS: { [id: string]: UserData } = {
   rjhala: {
     user: MOCKUSERS["rjhala"],
+    theme: "",
+    keyBinds: "",
     classes: [
       {
         tag: "Instructor",
         class: "CSE230",
+        language: "haskell",
         allBuffers: [BUFFERS[0], BUFFERS[1], BUFFERS[2]]
       },
       {
         tag: "Instructor",
         class: "CSE130",
+        language: "ocaml",
         allBuffers: [BUFFERS[3], BUFFERS[4], BUFFERS[5]]
       },
       {
         tag: "Student",
         class: "CSE230",
+        language: "haskell",
         grpBuffer: BUFFERS[2]
       }
     ]
   },
   nico: {
     user: MOCKUSERS["nico"],
+    theme: "",
+    keyBinds: "",
     classes: [
       {
         tag: "Student",
         class: "CSE130",
+        language: "ocaml",
         grpBuffer: BUFFERS[4]
       }
     ]
   },
   rose: {
     user: MOCKUSERS["rose"],
+    theme: "",
+    keyBinds: "",
     classes: [
       {
         tag: "Student",
         class: "CSE130",
+        language: "ocaml",
         grpBuffer: BUFFERS[4]
       },
       {
         tag: "Student",
         class: "CSE230",
+        language: "haskell",
         grpBuffer: BUFFERS[2]
       }
     ]
   },
   nadia: {
     user: MOCKUSERS["nadia"],
+    theme: "",
+    keyBinds: "",
     classes: [
       {
         tag: "Instructor",
         class: "CSE130",
+        language: "ocaml",
         allBuffers: [BUFFERS[3], BUFFERS[4], BUFFERS[5]]
       }
     ]

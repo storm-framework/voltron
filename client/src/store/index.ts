@@ -87,29 +87,7 @@ export default new Vuex.Store({
           }
           throw error;
         }),
-
-    // enroll: ({ dispatch }, enrolls: Roster) =>
-    //   ApiService.enroll(enrolls)
-    //     .then(_payload => dispatch("syncSessionUserData"))
-    //     .catch(error => {
-    //       if (error?.response?.status == 401) {
-    //         ApiService.unauthorized();
-    //       }
-    //       throw error;
-    //     })
-    // syncSessionUserData: ({ commit, state }) => {
-    //   console.log("syncSessionUserData", state.accessToken);
-    //   if (state.accessToken) {
-    //     ApiService.user(state.accessToken)
-    //       .then(payload => commit("setUserData", payload))
-    //       .catch(error => {
-    //         if (error?.response?.status == 401) {
-    //           ApiService.unauthorized();
-    //         }
-    //         throw error;
-    //       });
-    //   }
-    // }
+    
   },
 
   getters: {

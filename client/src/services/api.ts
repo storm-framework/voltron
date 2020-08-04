@@ -1,4 +1,4 @@
-import { EnrollStudent, Roster, LoginResponse, UserData, AuthInfo, ResetInfo, ResetPassInfo } from "@/types";
+import { ClassLangInfo, EnrollStudent, Roster, LoginResponse, UserData, AuthInfo, ResetInfo, ResetPassInfo } from "@/types";
 
 import Mock from "./api.mock";
 import Server from "./api.server";
@@ -14,6 +14,7 @@ interface ApiService {
   roster(className: string): Promise<EnrollStudent[]>;
   reset(reset: ResetInfo): Promise<string>;
   resetPass(reset: ResetPassInfo): Promise<string>;
+  setLanguage(info: ClassLangInfo): Promise<string>;
 }
 
 const module: ApiService = Server;

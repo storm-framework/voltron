@@ -57,7 +57,7 @@ export default class Instructor extends Vue {
   initBuffers(all: boolean) {
     for (const buf of this.instructorBuffers) {
       if (all || !this.initializedBuffers.has(buf.id)) {
-        BufferService.initBuf(buf);
+        BufferService.initBuf(buf, this.$store.getters.currentClass.language);
         this.initializedBuffers.add(buf.id);
       }
     }

@@ -54,9 +54,11 @@ extractUserData u = do
   emailAddress <- project userEmailAddress' u
   firstName    <- project userFirstName' u
   lastName     <- project userLastName' u
+  theme        <- project userTheme' u
+  keyBinds     <- project userKeyBinds' u
   let uNG       = UserNG firstName lastName
   classes      <- extractUserClasses u
-  return $ UserData uNG classes
+  return $ UserData uNG theme keyBinds classes
 
 extractUserClasses :: Entity User -> Controller [ClassData]
 extractUserClasses u = do
@@ -74,9 +76,10 @@ extractInstrData :: Entity User -> Entity Class -> Controller ClassData
 extractInstrData u cls = do
   clsId     <- project classId' cls
   clsName   <- project className' cls
+  clsLang   <- project classEditorLang' cls
   allGroups <- selectList (groupClass' ==. clsId)
   allBufs   <- mapMC (extractBuffer clsName False) allGroups
-  return (Instructor clsName allBufs)
+  return (Instructor clsName clsLang allBufs)
 
 extractStudentClasses :: Entity User -> Controller [ClassData]
 extractStudentClasses u = do 
@@ -91,8 +94,9 @@ enrollClassData u enroll = do
   clsId   <- project groupClass' grp
   cls     <- selectFirstOr notFoundJSON (classId' ==. clsId)
   clsName <- project className' cls
+  lang    <- project classEditorLang' cls
   grpBuf  <- extractBuffer clsName True grp
-  return (Student clsName grpBuf)
+  return (Student clsName lang grpBuf)
 
 extractBuffer :: Text -> Bool -> Entity Group -> Controller Buffer
 extractBuffer clsName isStudent group = do
