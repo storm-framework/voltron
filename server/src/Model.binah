@@ -1,29 +1,5 @@
 import Data.ByteString (ByteString)
 
-Invitation
-  code Text
-  emailAddress Text
-  firstName Text
-  lastName Text
-  accepted Bool
-  emailStatus String
-  emailError String Maybe
-
-  insert {\invitation viewer ->
-    not (invitationAccepted invitation)
-    && IsInstructor viewer
-    && emailStatus invitation == "not_sent"
-  }
-
-  update [ accepted ] {\old new _ ->
-    not (invitationAccepted old) && invitationAccepted new
-  }
-
-  update [ emailStatus ] {\_ new _ ->
-     IsInstructor viewer
-     && (emailStatus new == "sent" || emailStatus new == "error")
-  }
-
 User
   emailAddress  Text
   password      ByteString

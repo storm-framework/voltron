@@ -22,53 +22,8 @@ Enroll
 
 ## TODO
 
-- [x] 'Enroll'
-  
-  - [x] type EnrollStudent = { className: string, studentEmail: string, groupName: string } 
-  - [x] type Enroll = { newBuffers : Buffer[], newEnrolls: EnrollStudent[] }
-
-- FRONT
-  - [x] 'Enroll' page to allow upload of CSV -> render into a JSON `Enroll` object
-	- [x] Generate an `Enroll` object as above
-	- [x] POST /api/enroll 
-
-- BACK 
-  - [x] create STUDENTs if they don't exist using email-user as password
-  - [x] create GROUPs   if they don't exist
-  - [x] create ENROLLs  (if they don't exist)
-
-- CLIENT
-  - [x] don't send duplicate groups when enrolling
-  - [x] auto refresh after enroll / show enroll successfull? 
-
-- [x] 'Reset Password'
-  - [x] FRONT 'Reset' view
-  - [x] BACK  'post /api/reset' -- generate code and send email with code
-  - [x] FRONT 'ResetPassword/code' 
-  - [x] BACK  'post /api/resetpassword' -- validate and update password
-
-   
-  - [x] FRONT allow me to retype "GetResetCode" if I failed (currently shadows out)
-  - [x] FRONT automatically redirect to "Login" after successfully resetting
-  - [x] Use plain-text for "invalid email?" 
-
-- [ ] 'Settings' CLIENT
-  - [ ] (user) editor theme
-  - [ ] (course) language theme
-  - [ ] sync from instructor buffer
-
-## Populating the Database
-
-```sh
-$ stack exec -- voltron add-instructor --email=rjhala@eng.ucsd.edu --password=rjhala
-$ stack exec -- voltron add-group --grpname=0 --editorlink=-M9Kx-cxRIUgCqVCtjCr
-$ stack exec -- voltron add-group --grpname=1 --editorlink=-M9L5YBS0kgvUfuz0Ckc
-$ stack exec -- voltron add-group --grpname=2 --editorlink=-M9L5oPt0fsruy16vntv
-$ stack exec -- voltron add-group --grpname=3 --editorlink=-M9L5vCVa5FQ0noobA9V
-$ stack exec -- voltron add-student --email=wkunkel@eng.ucsd.edu --password=rose --grpname=0
-$ stack exec -- voltron add-student --email=nlehmann@eng.ucsd.edu --password=nico --grpname=0
-$ stack exec -- voltron add-student --email=rkici@eng.ucsd.edu --password=rkici --grpname=1
-```
+- [ ] use editor theme, keyBinds
+- [ ] sync from instructor buffer
 
 ## Dependencies
 
