@@ -42,7 +42,7 @@ import           GHC.Generics
 import           Text.Read                      ( readMaybe )
 import           Text.Printf                    ( printf )
 import           Frankie.Config
-
+import qualified Frankie.Log                   as Log
 import           Binah.Core
 import           Binah.Actions
 import           Binah.Updates
@@ -96,9 +96,9 @@ authUser emailAddress password = do
 reset :: Controller ()
 reset = do
   ResetInfo {..} <- decodeBody
- --  user           <- selectFirstOr 
- --                      (errorResponse status401 (Just "Unknown email address"))
- --                      (userEmailAddress' ==. resetInfoEmailAddress)
+  user           <- selectFirstOr 
+                      (errorResponse status401 (Just "Unknown email address"))
+                      (userEmailAddress' ==. resetEmailAddress)
   _    <- updateWhere 
             (resetPasswordEmail' ==. resetEmailAddress) 
             (resetPasswordValid' `assign` False)
@@ -114,6 +114,7 @@ sendResetMail code userEmail = do
   let to      = mkPublicAddress (T.unpack userEmail)
   let from    = mkPublicAddress (smtpUser smtpConfig) 
   res        <- sendPlainTextMail smtpConfig to from subject (mkBody code)
+  Log.log Log.INFO ("reset email: " ++ show res)
   case res of 
     Right _ -> return () 
     Left _  -> respondError status401 (Just "Error sending email!")

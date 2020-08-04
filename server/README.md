@@ -41,26 +41,16 @@ Enroll
   - [x] don't send duplicate groups when enrolling
   - [x] auto refresh after enroll / show enroll successfull? 
 
-- [ ] 'Reset Password'
+- [x] 'Reset Password'
   - [x] FRONT 'Reset' view
-  - [ ] BACK  'post /api/reset' -- generate code and send email with code
-  - [ ] FRONT 'ResetPassword/code' 
-  - [ ] BACK  'post /api/resetpassword' -- validate and update password
+  - [x] BACK  'post /api/reset' -- generate code and send email with code
+  - [x] FRONT 'ResetPassword/code' 
+  - [x] BACK  'post /api/resetpassword' -- validate and update password
 
-	ResetInfo
-	  { email : string }
+  HEREHEREHEREHERE
 
-	ResetPassword 
-	  { email : string,
-	  , password : string, 
-	  , code : string
-	  }
-
-    Reset 
-	    code  Text
-      email Text
-	    valid Bool
-	    UniqueReset code
+  - [ ] FRONT allow me to retype "GetResetCode" if I failed (currently shadows out)
+  - [ ] FRONT automatically redirect to "Login" after successfully resetting
 
 - [ ] 'Settings' CLIENT
   - [ ] (user) editor theme

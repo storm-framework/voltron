@@ -60,8 +60,6 @@ data Config = Config
 type TasCon m = TaggedT (ReaderT SqlBackend (ConfigT Config m))
 type Controller = TaggedT (ReaderT SqlBackend (ConfigT Config (ControllerT TIO)))
 
--- instance (MonadTIO m) => Frankie.Log.MonadLog (TaggedT m) where
---   log level msg = liftTIO . TIO $ Frankie.Log.hLog True stderr level msg
 
 instance Frankie.Auth.HasAuthMethod (Entity User) Controller Config where
   getAuthMethod = configAuthMethod
