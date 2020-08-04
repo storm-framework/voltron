@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2236e6c593a0004917de12485db477ee6a04c53aecf2800e494ae711b148f588
+-- hash: b20aca8ad8d50dacf64f726f2f30edceed77b20d9bd839efe4238c690ce4cc80
 
 name:           server
 version:        0.1.0.0
@@ -42,6 +42,7 @@ library
       Config
       Controllers
       Controllers.Enroller
+      Controllers.Reset
       Controllers.User
       Crypto
       Exception
