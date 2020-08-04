@@ -94,7 +94,7 @@ import ApiService from "@/services/api";
 @Component({
   components: { VueCsvImport, RosterTable }
 })
-export default class Enroll extends Vue {
+export default class Settings extends Vue {
   csv: EnrollStudent[] | null = null;
   oldEnrolls: EnrollStudent[] = [];
   fatalError = false;

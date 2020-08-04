@@ -46,6 +46,10 @@ export default class StudentVue extends Vue {
   get className() {
     return this.$store.getters.currentClass.class;
   }
+  
+  get classLanguage() {
+    return this.$store.getters.currentClass.language;
+  }
 
   get studentClasses(): Array<ClassView<Student>> {
     return this.$store.getters.studentClasses;
@@ -57,7 +61,7 @@ export default class StudentVue extends Vue {
 
   initBuffers() {
     for (const cls of this.studentClasses) {
-      BufferService.initBuf(cls.data.grpBuffer);
+      BufferService.initBuf(cls.data.grpBuffer, this.classLanguage);
     }
   }
 

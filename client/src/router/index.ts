@@ -31,7 +31,7 @@ const routes: Array<RouteConfig> = [
   {
     path: "/settings",
     name: "Settings",
-    component: Enroll
+    component: Settings 
   },
   {
     path: "/contact",
