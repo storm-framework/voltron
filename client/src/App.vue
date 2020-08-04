@@ -51,7 +51,7 @@
 <style lang="scss">
 @import "~bootstrap/scss/bootstrap";
 @import "~bootstrap-vue/src/index.scss";
-@import "~bootswatch/dist/flatly/bootstrap.css";
+@import "~bootswatch/dist/spacelab/bootstrap.css";
 
 html,
 body {

@@ -1,5 +1,16 @@
 <template>
   <div class="reset">
+    <!-- <b-button
+      variant="danger"
+      block
+      size="lg"
+      type="submit"
+      class="mt-4"
+      @click="doDebug"
+    >
+      Debug
+    </b-button> -->
+
     <b-form class="form-reset text-center" @submit.prevent="onSubmit">
       <br />
       <h3 class="mb-8">Reset your password</h3>
@@ -12,7 +23,7 @@
         placeholder="Email address"
       ></b-form-input>
 
-      <b-form-invalid-feedback :state="isValidEmail">
+      <b-form-invalid-feedback :state="isInvalidEmail">
         Invalid email address.
       </b-form-invalid-feedback>
 
@@ -32,41 +43,89 @@
     <b-modal
       id="reset-modal"
       ref="modal"
-      title="Use code to reset your password"
+      title="Enter code to reset your password"
+      ok-title="Reset Password"
       @ok="resetPass"
+      centered
+      header-bg-variant="success"
+      header-text-variant="light"
+      ok-variant="outline-success"
+      ok-only
     >
-      <b-form-input
-        id="reset-code"
-        type="password"
-        v-model="resetCode"
-        required
-        placeholder="Reset code emailed from Voltron.sys"
-      ></b-form-input>
+      <b-form class="form-reset text-center">
+        <b-form-input
+          id="reset-code"
+          type="text"
+          v-model="resetCode"
+          required
+          placeholder="Reset code (emailed from voltron.sys)"
+        ></b-form-input>
 
-      <b-form-input
-        id="new-password"
-        type="password"
-        v-model="resetPassword"
-        required
-        placeholder="New password"
-      ></b-form-input>
+        <b-form-input
+          id="new-password"
+          type="password"
+          v-model="resetPassword"
+          required
+          placeholder="New password"
+        ></b-form-input>
 
-      <b-form-invalid-feedback :state="isValidReset">
+        <!-- <b-form-invalid-feedback :state="isValidReset">
         Invalid reset code
-      </b-form-invalid-feedback>
+      </b-form-invalid-feedback> -->
+      </b-form>
     </b-modal>
 
     <b-modal
       id="reset-success-modal"
-      ref="modal"
       title="Reset Successful!"
-      @ok="repeatLogin"
+      size="sm"
+      centered
+      header-bg-variant="success"
+      header-text-variant="light"
+      @ok="doLogin"
+      ok-variant="outline-primary"
+      cancel-disabled="true"
+      no-close-on-backdrop="true"
+      no-close-on-esc="true"
+      hide-header-close="true"
+      ok-only
     >
       Please login with your new password.
     </b-modal>
 
-    <b-modal id="reset-failure-modal" ref="modal" title="Reset Failed!">
-      Please try again!
+    <b-modal
+      id="reset-failure-modal"
+      title="Invalid Code!"
+      size="sm"
+      centered
+      header-bg-variant="danger"
+      header-text-variant="light"
+      @ok="doReset"
+      ok-variant="outline-primary"
+      cancel-disabled="true"
+      no-close-on-backdrop="true"
+      no-close-on-esc="true"
+      hide-header-close="true"
+      ok-only
+    >
+      That code is not valid, please try again.
+    </b-modal>
+
+    <b-modal
+      id="reset-unknown-modal"
+      title="Invalid Email!"
+      centered
+      header-bg-variant="danger"
+      header-text-variant="light"
+      @ok="doReset"
+      ok-variant="outline-primary"
+      cancel-disabled="true"
+      no-close-on-backdrop="true"
+      no-close-on-esc="true"
+      hide-header-close="true"
+      ok-only
+    >
+      There is no such account, please try again.
     </b-modal>
   </div>
 </template>
@@ -93,8 +152,7 @@ export default class Reset extends Vue {
         this.$bvModal.show("reset-modal");
       })
       .catch(() => {
-        const msg = "There is no account associated with that address!";
-        this.showMessage(msg, "Sorry!", "danger");
+        this.$bvModal.show("reset-unknown-modal");
       });
   }
 
@@ -121,6 +179,21 @@ export default class Reset extends Vue {
         this.$bvModal.show("reset-failure-modal");
       });
   }
+
+  doReset() {
+    this.loading = false;
+  }
+
+  doLogin() {
+    return ApiService.unauthorized();
+  }
+
+  doDebug() {
+    // this.$bvModal.show("reset-success-modal");
+    // this.$bvModal.show("reset-failure-modal");
+    // this.$bvModal.show("reset-unknown-modal");
+    this.$bvModal.show("reset-modal");
+  }
 }
 </script>
 
@@ -138,7 +211,7 @@ export default class Reset extends Vue {
   margin: 0 auto;
 }
 
-.form-reset input[type="email"] {
+.form-reset input[type="text"] {
   margin-bottom: -1px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
@@ -149,6 +222,7 @@ export default class Reset extends Vue {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
+
 .form-reset .form-control {
   height: auto;
   position: relative;

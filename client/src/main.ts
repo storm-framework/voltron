@@ -6,7 +6,7 @@ import BootstrapVue from "bootstrap-vue";
 import router from "./router";
 import store from "./store";
 // import 'bootstrap/dist/css/bootstrap.css';
-import 'bootswatch/dist/flatly/bootstrap.css';
+import 'bootswatch/dist/spacelab/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 Vue.use(BootstrapVue);
