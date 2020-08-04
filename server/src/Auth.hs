@@ -56,7 +56,7 @@ import           Binah.SMTP
 
 import           Controllers
 import           Controllers.User               ( extractUserData, extractUserNG )
-import           Controllers.Enroller           ( genRandomText )
+import           Controllers.Class              ( genRandomText )
 import           Model
 import           JSON
 import           Crypto

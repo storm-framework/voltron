@@ -4,7 +4,7 @@
 
 {-@ LIQUID "--no-pattern-inline" @-}
 
-module Controllers.Enroller
+module Controllers.Class
   ( addUser
   , addClass
   , addGroup

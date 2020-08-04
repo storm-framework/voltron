@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b20aca8ad8d50dacf64f726f2f30edceed77b20d9bd839efe4238c690ce4cc80
+-- hash: 303b47d1cce6836f5154b82afed8d02aabc5579a7179b9e26c13760e8911c801
 
 name:           server
 version:        0.1.0.0
@@ -41,7 +41,7 @@ library
       Binah.Updates
       Config
       Controllers
-      Controllers.Enroller
+      Controllers.Class
       Controllers.Reset
       Controllers.User
       Crypto
