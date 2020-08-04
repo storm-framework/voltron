@@ -22,6 +22,7 @@ Enroll
 
 ## TODO
 
+- [ ] ADMIN add classes from client
 - [ ] use editor theme, keyBinds
 - [ ] sync from instructor buffer
 
