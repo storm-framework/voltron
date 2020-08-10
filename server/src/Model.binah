@@ -16,6 +16,10 @@ policy IsSelf = \user viewer ->
 
 policy IsAdmin = \_ viewer ->
   isAdmin (entityKey viewer)
+
+policy IsClassInstructorClass = \r _ viewer -> 
+  isInstructor (entityKey r) (entityKey viewer) 
+
 ------------------------------------------------------------------------------------------
 
 User
@@ -43,6 +47,7 @@ Class
   UniqueInstClass institution name
   assert { isInstructor entityKey instructor }
   insert @IsAdmin
+  update [ editorLang ] @IsClassInstructorClass
 
 Group
   name       Text
@@ -65,7 +70,10 @@ Enroll
 
   assert { isStudent class student group }
   insert { \r viewer -> isInstructor (enrollClass r) (entityKey viewer)}
-  update [ student, class ]  {\_ _ _ -> False }
+  update [ student, class ]  { \_ _ _ -> False }
+  read   [ student, group ]  { \r viewer -> isClassInstructor (enrollClass r) (entityKey viewer) || 
+                                    isStudent (enrollClass r) (entityKey viewer) (enrollGroup r)
+                             }
 
 ResetPassword 
   email Text
