@@ -26,7 +26,7 @@
       </div>
     </div>
     <div v-if="instructorBuffers.length == 0">
-      <i>No groups yet, enroll students in the <b>Roster</b> tab.</i>
+      <i>No groups yet, enroll students in the <router-link :to="{ name: 'Settings' }">Settings</router-link> tab.</i>
     </div>
   </b-container>
 </template>
