@@ -1,5 +1,23 @@
 import Data.ByteString (ByteString)
 
+------------------------------------------------------------------------------------------
+predicate isInstructor :: ClassId -> UserId -> Bool 
+predicate isStudent    :: ClassId -> UserId -> GroupId -> Bool 
+predicate isAdmin      :: UserId -> Bool
+------------------------------------------------------------------------------------------
+policy IsClassInstructor = \r viewer ->
+  isInstructor (groupClass r) (entityKey viewer)
+
+policy IsGroupStudent = \r viewer ->
+  isStudent (groupClass r) (entityKey viewer) (entityKey r)
+
+policy IsSelf = \user viewer ->
+  viewer == user
+
+policy IsAdmin = \_ viewer ->
+  isAdmin (entityKey viewer)
+------------------------------------------------------------------------------------------
+
 User
   emailAddress  Text
   password      ByteString
@@ -10,7 +28,7 @@ User
   admin         Bool
 
   UniqueEmailAddress emailAddress
-
+  assert { admin => isAdmin entityKey } 
   insert {\new viewer -> IsInstructor viewer }
   read   [ password ] @IsSelf
   update [ password, level, emailAddress ] {\_ _ _ -> False}
@@ -21,34 +39,36 @@ Class
   name        Text
   instructor  UserId
   editorLang  Text
-
+  
   UniqueInstClass institution name
+  assert { isInstructor entityKey instructor }
+  insert @IsAdmin
 
 Group
   name       Text
-  editorLink Text
+  editorLink Text 
   class      ClassId
 
   UniqueGroupClass name class
 
-  insert {\_ viewer -> IsInstructor viewer}
-  update [ name, editorLink ] {\_ _ viewer -> IsInstructor viewer}
+  insert @IsClassInstructor
+  read   [ editorLink ]       { \r v -> IsClassInstructor r v || IsGroupStudent r v  }
+  update [ name, editorLink ] {\r _ viewer -> IsClassInstructor r viewer}
+  update [ class ]            {\_ _ _ -> False }
 
 Enroll
   student    UserId      
   class      ClassId
   group      GroupId
-  
+
   UniqueEnroll student class
+
+  assert { isStudent class student group }
+  insert { \r viewer -> isInstructor (enrollClass r) (entityKey viewer)}
+  update [ student, class ]  {\_ _ _ -> False }
 
 ResetPassword 
   email Text
   code  Text
   valid Bool
   UniqueReset code 
-
-policy IsSelf = \user viewer ->
-  viewer == user
-
-policy IsInstructor = \user ->
-  userLevel user == "instructor"

@@ -60,7 +60,7 @@ import           Binah.Filters
 import qualified Binah.SMTP as SMTP 
 import           Controllers
 import           Controllers.User
-import           Controllers.Enroller
+import           Controllers.Class
 import           Controllers.Reset
 
 import           Model

@@ -15,7 +15,7 @@ import           System.Environment
 import           Server
 import           Config
 import qualified Auth                           
-import qualified Controllers.Enroller as Enroller
+import qualified Controllers.Class as Class 
 import           Types
 
 main :: IO ()
@@ -28,12 +28,12 @@ main = do
 
     AddClass {..} -> do
       let thing = mkCreateClass institution className instructor language 
-      rId <- runTask' db $ Enroller.addClass thing 
+      rId <- runTask' db $ Class.addClass thing 
       putStrLn ("Add Class: " ++ show rId)
 
     AddUser {..} -> do
       let thing = mkCreateUser email password firstName lastName "" ""
-      rId <- runTask' db $ Enroller.addUser thing 
+      rId <- runTask' db $ Class.addUser thing 
       putStrLn ("Add User: " ++ show rId)
 
     -- AddGroup {..} -> do
