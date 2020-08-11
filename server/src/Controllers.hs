@@ -21,16 +21,16 @@ import           Frankie.Config
 
 import           Binah.Actions
 import           Binah.Frankie
-import qualified Frankie.Log 
+import qualified Frankie.Log
 import           Binah.Core
 import           Binah.Infrastructure
 import           Binah.Filters
 import           Binah.Templates
 import           Binah.Concurrent
-import           Binah.SMTP
+import           Binah.SMTP                    as SMTP
 import qualified Network.AWS                   as AWS
 import qualified Network.AWS.S3                as S3
-import           Network.Socket                 ( PortNumber )
+import           Network.Socket                 ( PortNumber, HostName )
 import           Crypto.JWT                    as JWT
 import           Model
 
@@ -38,6 +38,12 @@ data Config = Config
   { configAuthMethod    :: !(AuthMethod (Entity User) Controller)
   , configTemplateCache :: !(MVar.MVar Mustache.TemplateCache)
   , configSMTP          :: SMTPConfig
+  }
+
+data SMTPConfig = SMTPConfig
+  { smtpHost :: HostName
+  , smtpUser :: SMTP.UserName
+  , smtpPass :: SMTP.Password
   }
 
 --   , configAWS :: AWSConfig
@@ -57,8 +63,8 @@ data Config = Config
 --   , awsBucket :: S3.BucketName
 --   }
 
-type TasCon m = TaggedT (ReaderT SqlBackend (ConfigT Config m))
-type Controller = TaggedT (ReaderT SqlBackend (ConfigT Config (ControllerT TIO)))
+type TasCon m = TaggedT (Entity User) (ReaderT SqlBackend (ConfigT Config m))
+type Controller = TaggedT (Entity User) (ReaderT SqlBackend (ConfigT Config (ControllerT TIO)))
 
 
 instance Frankie.Auth.HasAuthMethod (Entity User) Controller Config where
@@ -67,7 +73,7 @@ instance Frankie.Auth.HasAuthMethod (Entity User) Controller Config where
 instance HasTemplateCache Config where
   getTemplateCache = configTemplateCache
 
-type Task = TaggedT (ReaderT SqlBackend (ConfigT Config TIO))
+type Task = TaggedT (Entity User) (ReaderT SqlBackend (ConfigT Config TIO))
 
 runTask :: Task () -> Controller ()
 runTask task = do
@@ -131,16 +137,3 @@ decodeBody = do
 -- requireInstructor user = do
 --   level <- project userLevel' user
 --   if level == "instructor" then return () else respondError status403 Nothing
-
-{-@ ignore mapMC @-}
-{-@ mapMC :: forall <inn :: Entity User -> Bool, out :: Entity User -> Bool>.
-(a -> TaggedT<inn, out> _ b) -> [a] -> TaggedT<inn, out> _ [b]
-@-}
-mapMC :: MonadTIO m => (a -> TaggedT m b) -> [a] -> TaggedT m [b]
-mapMC = mapM
-
-{-@ forMC :: forall <inn :: Entity User -> Bool, out :: Entity User -> Bool>.
-[a] -> (a -> TaggedT<inn, out> _ b) -> TaggedT<inn, out> _ [b]
-@-}
-forMC :: MonadTIO m => [a] -> (a -> TaggedT m b) -> TaggedT m [b]
-forMC = flip mapMC

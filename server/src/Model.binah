@@ -1,8 +1,9 @@
 import Data.ByteString (ByteString)
+import Data.Text       (Text)
 
 ------------------------------------------------------------------------------------------
-predicate isInstructor :: ClassId -> UserId -> Bool 
-predicate isStudent    :: ClassId -> UserId -> GroupId -> Bool 
+predicate isInstructor :: ClassId -> UserId -> Bool
+predicate isStudent    :: ClassId -> UserId -> GroupId -> Bool
 predicate isAdmin      :: UserId -> Bool
 ------------------------------------------------------------------------------------------
 policy IsClassInstructor = \r viewer ->
@@ -17,8 +18,8 @@ policy IsSelf = \user viewer ->
 policy IsAdmin = \_ viewer ->
   isAdmin (entityKey viewer)
 
-policy IsClassInstructorClass = \r _ viewer -> 
-  isInstructor (entityKey r) (entityKey viewer) 
+policy IsClassInstructorClass = \r _ viewer ->
+  isInstructor (entityKey r) (entityKey viewer)
 
 ------------------------------------------------------------------------------------------
 
@@ -32,18 +33,18 @@ User
   admin         Bool
 
   UniqueEmailAddress emailAddress
-  assert { admin => isAdmin entityKey } 
+  assert { admin => isAdmin entityKey }
   insert {\new viewer -> IsInstructor viewer }
   read   [ password ] @IsSelf
   update [ password, level, emailAddress ] {\_ _ _ -> False}
   update [ firstName, lastName ] {\old _ viewer -> IsSelf old viewer}
 
-Class 
+Class
   institution Text
   name        Text
   instructor  UserId
   editorLang  Text
-  
+
   UniqueInstClass institution name
   assert { isInstructor entityKey instructor }
   insert @IsAdmin
@@ -51,7 +52,7 @@ Class
 
 Group
   name       Text
-  editorLink Text 
+  editorLink Text
   class      ClassId
 
   UniqueGroupClass name class
@@ -62,7 +63,7 @@ Group
   update [ class ]            {\_ _ _ -> False }
 
 Enroll
-  student    UserId      
+  student    UserId
   class      ClassId
   group      GroupId
 
@@ -71,12 +72,12 @@ Enroll
   assert { isStudent class student group }
   insert { \r viewer -> isInstructor (enrollClass r) (entityKey viewer)}
   update [ student, class ]  { \_ _ _ -> False }
-  read   [ student, group ]  { \r viewer -> isClassInstructor (enrollClass r) (entityKey viewer) || 
+  read   [ student, group ]  { \r viewer -> isClassInstructor (enrollClass r) (entityKey viewer) ||
                                     isStudent (enrollClass r) (entityKey viewer) (enrollGroup r)
                              }
 
-ResetPassword 
+ResetPassword
   email Text
   code  Text
   valid Bool
-  UniqueReset code 
+  UniqueReset code
