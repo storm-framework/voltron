@@ -57,7 +57,7 @@ import           Binah.Infrastructure
 import           Binah.Insert
 import           Binah.Actions
 import           Binah.Filters
-import qualified Binah.SMTP as SMTP 
+import qualified Binah.SMTP as SMTP
 import           Controllers
 import           Controllers.User
 import           Controllers.Class
@@ -111,11 +111,18 @@ runTask' dbpath task = runSqlite dbpath $ do
     liftIO . runTIO $ configure cfg (runReaderT (unTag task) backend)
 
 readConfig :: IO Config
-readConfig = Config authMethod 
-                <$> MVar.newMVar mempty 
-                <*> SMTP.readSMTPConfig "VOLTRON" 
-             -- <*> readAWSConfig 
+readConfig = Config authMethod
+                <$> MVar.newMVar mempty
+                <*> readSMTPConfig
+             -- <*> readAWSConfig
              -- <*> readSecretKey
+
+readSMTPConfig :: IO SMTPConfig
+readSMTPConfig = do
+    host <- fromMaybe "localhost" <$> lookupEnv "VOLTRON_SMTP_HOST"
+    user <- fromMaybe ""          <$> lookupEnv "VOLTRON_SMTP_USER"
+    pass <- fromMaybe ""          <$> lookupEnv "VOLTRON_SMTP_PASS"
+    return $ SMTPConfig host user pass
 
 {-@ ignore initDB @-}
 initDB :: T.Text -> IO ()
@@ -141,7 +148,7 @@ sendFile path = do
 
 -- TODO find a way to provide this without exposing the instance of MonadBaseControl
 
-initFromPool :: Config -> Pool SqlBackend -> Controller () -> TaggedT (ControllerT TIO) ()
+initFromPool :: Config -> Pool SqlBackend -> Controller () -> TaggedT (Entity User) (ControllerT TIO) ()
 initFromPool cfg pool = mapTaggedT run
     where run act = Pool.withResource pool $ configure cfg . runReaderT act
 

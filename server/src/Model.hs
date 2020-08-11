@@ -1,6 +1,3 @@
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -8,34 +5,24 @@
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 {-@ LIQUID "--compile-spec" @-}
 
 module Model
-  ( EntityFieldWrapper(..)
-  , migrateAll
-  , BinahRecord
-  , persistentRecord
-  , mkInvitation
+  ( migrateAll
   , mkUser
   , mkClass
   , mkGroup
   , mkEnroll
   , mkResetPassword
-  , Invitation
   , User
   , Class
   , Group
   , Enroll
   , ResetPassword
-  , invitationId'
-  , invitationCode'
-  , invitationEmailAddress'
-  , invitationFirstName'
-  , invitationLastName'
-  , invitationAccepted'
-  , invitationEmailStatus'
-  , invitationEmailError'
   , userId'
   , userEmailAddress'
   , userPassword'
@@ -61,15 +48,14 @@ module Model
   , resetPasswordEmail'
   , resetPasswordCode'
   , resetPasswordValid'
-  , InvitationId
   , UserId
   , ClassId
   , GroupId
   , EnrollId
   , ResetPasswordId
   )
-
 where
+
 
 import           Database.Persist               ( Key )
 import           Database.Persist.TH            ( share
@@ -78,24 +64,24 @@ import           Database.Persist.TH            ( share
                                                 , sqlSettings
                                                 , persistLowerCase
                                                 )
-import           Data.Text                      ( Text )
 import qualified Database.Persist              as Persist
 
 import           Binah.Core
 
 import Data.ByteString (ByteString)
+import Data.Text       (Text)
+
+--------------------------------------------------------------------------------
+-- | Inline
+--------------------------------------------------------------------------------
+
+
+
+--------------------------------------------------------------------------------
+-- | Persistent
+--------------------------------------------------------------------------------
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
-Invitation
-  code Text
-  emailAddress Text
-  firstName Text
-  lastName Text
-  accepted Bool
-  emailStatus String
-  emailError String Maybe
-  
-
 User
   emailAddress Text
   password ByteString
@@ -132,190 +118,35 @@ ResetPassword
   UniqueReset code
 |]
 
-{-@
-data EntityFieldWrapper record typ < querypolicy :: Entity record -> Entity User -> Bool
-                                   , selector :: Entity record -> typ -> Bool
-                                   , flippedselector :: typ -> Entity record -> Bool
-                                   , capability :: Entity record -> Bool
-                                   , updatepolicy :: Entity record -> Entity record -> Entity User -> Bool
-                                   > = EntityFieldWrapper _
-@-}
-
-data EntityFieldWrapper record typ = EntityFieldWrapper (Persist.EntityField record typ)
-{-@ data variance EntityFieldWrapper covariant covariant invariant invariant invariant invariant invariant @-}
-
-{-@ measure currentUser :: Entity User @-}
-
 --------------------------------------------------------------------------------
 -- | Predicates
 --------------------------------------------------------------------------------
 
+{-@ measure isInstructor :: ClassId -> UserId -> Bool @-}
 
+{-@ measure isStudent :: ClassId -> UserId -> GroupId -> Bool @-}
+
+{-@ measure isAdmin :: UserId -> Bool @-}
 
 --------------------------------------------------------------------------------
 -- | Policies
 --------------------------------------------------------------------------------
 
+{-@ predicate IsClassInstructor R VIEWER = isInstructor (groupClass (entityVal R)) (entityKey VIEWER) @-}
+
+{-@ predicate IsGroupStudent R VIEWER = isStudent (groupClass (entityVal R)) (entityKey VIEWER) (entityKey R) @-}
+
 {-@ predicate IsSelf USER VIEWER = VIEWER == USER @-}
 
-{-@ predicate IsInstructor USER = userLevel USER == "instructor" @-}
+{-@ predicate IsAdmin _ VIEWER = isAdmin (entityKey VIEWER) @-}
+
+{-@ predicate IsClassInstructorClass R _ VIEWER = isInstructor (entityKey R) (entityKey VIEWER) @-}
 
 --------------------------------------------------------------------------------
 -- | Records
 --------------------------------------------------------------------------------
 
-{-@ data BinahRecord record <
-    p :: Entity record -> Bool
-  , insertpolicy :: Entity record -> Entity User -> Bool
-  , querypolicy  :: Entity record -> Entity User -> Bool
-  >
-  = BinahRecord _
-@-}
-data BinahRecord record = BinahRecord record
-{-@ data variance BinahRecord invariant covariant invariant invariant @-}
-
-{-@ persistentRecord :: BinahRecord record -> record @-}
-persistentRecord :: BinahRecord record -> record
-persistentRecord (BinahRecord record) = record
-
 {-@ measure getJust :: Key record -> Entity record @-}
-
--- * Invitation
-{-@ mkInvitation ::
-     x_0: Text
-  -> x_1: Text
-  -> x_2: Text
-  -> x_3: Text
-  -> x_4: Bool
-  -> x_5: String
-  -> x_6: (Maybe String)
-  -> BinahRecord <
-       {\row -> invitationCode (entityVal row) == x_0 && invitationEmailAddress (entityVal row) == x_1 && invitationFirstName (entityVal row) == x_2 && invitationLastName (entityVal row) == x_3 && invitationAccepted (entityVal row) == x_4 && invitationEmailStatus (entityVal row) == x_5 && invitationEmailError (entityVal row) == x_6}
-     , {\invitation viewer -> not (invitationAccepted (entityVal invitation)) && IsInstructor viewer && emailStatus invitation == "not_sent"}
-     , {\x_0 x_1 -> False}
-     > Invitation
-@-}
-mkInvitation x_0 x_1 x_2 x_3 x_4 x_5 x_6 = BinahRecord (Invitation x_0 x_1 x_2 x_3 x_4 x_5 x_6)
-
-{-@ invariant {v: Entity Invitation | v == getJust (entityKey v)} @-}
-
-
-
-{-@ assume invitationId' :: EntityFieldWrapper <
-    {\row viewer -> True}
-  , {\row field  -> field == entityKey row}
-  , {\field row  -> field == entityKey row}
-  , {\_ -> False}
-  , {\_ _ _ -> True}
-  > Invitation InvitationId
-@-}
-invitationId' :: EntityFieldWrapper Invitation InvitationId
-invitationId' = EntityFieldWrapper InvitationId
-
-{-@ measure invitationCode :: Invitation -> Text @-}
-
-{-@ measure invitationCodeCap :: Entity Invitation -> Bool @-}
-
-{-@ assume invitationCode' :: EntityFieldWrapper <
-    {\_ _ -> True}
-  , {\row field -> field == invitationCode (entityVal row)}
-  , {\field row -> field == invitationCode (entityVal row)}
-  , {\old -> invitationCodeCap old}
-  , {\old _ _ -> invitationCodeCap old}
-  > Invitation Text
-@-}
-invitationCode' :: EntityFieldWrapper Invitation Text
-invitationCode' = EntityFieldWrapper InvitationCode
-
-{-@ measure invitationEmailAddress :: Invitation -> Text @-}
-
-{-@ measure invitationEmailAddressCap :: Entity Invitation -> Bool @-}
-
-{-@ assume invitationEmailAddress' :: EntityFieldWrapper <
-    {\_ _ -> True}
-  , {\row field -> field == invitationEmailAddress (entityVal row)}
-  , {\field row -> field == invitationEmailAddress (entityVal row)}
-  , {\old -> invitationEmailAddressCap old}
-  , {\old _ _ -> invitationEmailAddressCap old}
-  > Invitation Text
-@-}
-invitationEmailAddress' :: EntityFieldWrapper Invitation Text
-invitationEmailAddress' = EntityFieldWrapper InvitationEmailAddress
-
-{-@ measure invitationFirstName :: Invitation -> Text @-}
-
-{-@ measure invitationFirstNameCap :: Entity Invitation -> Bool @-}
-
-{-@ assume invitationFirstName' :: EntityFieldWrapper <
-    {\_ _ -> True}
-  , {\row field -> field == invitationFirstName (entityVal row)}
-  , {\field row -> field == invitationFirstName (entityVal row)}
-  , {\old -> invitationFirstNameCap old}
-  , {\old _ _ -> invitationFirstNameCap old}
-  > Invitation Text
-@-}
-invitationFirstName' :: EntityFieldWrapper Invitation Text
-invitationFirstName' = EntityFieldWrapper InvitationFirstName
-
-{-@ measure invitationLastName :: Invitation -> Text @-}
-
-{-@ measure invitationLastNameCap :: Entity Invitation -> Bool @-}
-
-{-@ assume invitationLastName' :: EntityFieldWrapper <
-    {\_ _ -> True}
-  , {\row field -> field == invitationLastName (entityVal row)}
-  , {\field row -> field == invitationLastName (entityVal row)}
-  , {\old -> invitationLastNameCap old}
-  , {\old _ _ -> invitationLastNameCap old}
-  > Invitation Text
-@-}
-invitationLastName' :: EntityFieldWrapper Invitation Text
-invitationLastName' = EntityFieldWrapper InvitationLastName
-
-{-@ measure invitationAccepted :: Invitation -> Bool @-}
-
-{-@ measure invitationAcceptedCap :: Entity Invitation -> Bool @-}
-
-{-@ assume invitationAccepted' :: EntityFieldWrapper <
-    {\_ _ -> True}
-  , {\row field -> field == invitationAccepted (entityVal row)}
-  , {\field row -> field == invitationAccepted (entityVal row)}
-  , {\old -> invitationAcceptedCap old}
-  , {\x_0 x_1 x_2 -> ((not (invitationAccepted (entityVal x_0)) && invitationAccepted (entityVal x_1))) => (invitationAcceptedCap x_0)}
-  > Invitation Bool
-@-}
-invitationAccepted' :: EntityFieldWrapper Invitation Bool
-invitationAccepted' = EntityFieldWrapper InvitationAccepted
-
-{-@ measure invitationEmailStatus :: Invitation -> String @-}
-
-{-@ measure invitationEmailStatusCap :: Entity Invitation -> Bool @-}
-
-{-@ assume invitationEmailStatus' :: EntityFieldWrapper <
-    {\_ _ -> True}
-  , {\row field -> field == invitationEmailStatus (entityVal row)}
-  , {\field row -> field == invitationEmailStatus (entityVal row)}
-  , {\old -> invitationEmailStatusCap old}
-  , {\x_0 x_1 x_2 -> ((IsInstructor viewer && (emailStatus x_1 == "sent" || emailStatus x_1 == "error"))) => (invitationEmailStatusCap x_0)}
-  > Invitation String
-@-}
-invitationEmailStatus' :: EntityFieldWrapper Invitation String
-invitationEmailStatus' = EntityFieldWrapper InvitationEmailStatus
-
-{-@ measure invitationEmailError :: Invitation -> (Maybe String) @-}
-
-{-@ measure invitationEmailErrorCap :: Entity Invitation -> Bool @-}
-
-{-@ assume invitationEmailError' :: EntityFieldWrapper <
-    {\_ _ -> True}
-  , {\row field -> field == invitationEmailError (entityVal row)}
-  , {\field row -> field == invitationEmailError (entityVal row)}
-  , {\old -> invitationEmailErrorCap old}
-  , {\old _ _ -> invitationEmailErrorCap old}
-  > Invitation (Maybe String)
-@-}
-invitationEmailError' :: EntityFieldWrapper Invitation (Maybe String)
-invitationEmailError' = EntityFieldWrapper InvitationEmailError
 
 -- * User
 {-@ mkUser ::
@@ -330,13 +161,14 @@ invitationEmailError' = EntityFieldWrapper InvitationEmailError
        {\row -> userEmailAddress (entityVal row) == x_0 && userPassword (entityVal row) == x_1 && userFirstName (entityVal row) == x_2 && userLastName (entityVal row) == x_3 && userTheme (entityVal row) == x_4 && userKeyBinds (entityVal row) == x_5 && userAdmin (entityVal row) == x_6}
      , {\new viewer -> IsInstructor viewer}
      , {\x_0 x_1 -> (x_1 == x_0)}
-     > User
+     > (Entity User) User
 @-}
+mkUser :: Text -> ByteString -> Text -> Text -> Text -> Text -> Bool -> BinahRecord (Entity User) User
 mkUser x_0 x_1 x_2 x_3 x_4 x_5 x_6 = BinahRecord (User x_0 x_1 x_2 x_3 x_4 x_5 x_6)
 
 {-@ invariant {v: Entity User | v == getJust (entityKey v)} @-}
 
-
+{-@ invariant {v: Entity User | (userAdmin (entityVal v)) => isAdmin (entityKey v)} @-}
 
 {-@ assume userId' :: EntityFieldWrapper <
     {\row viewer -> True}
@@ -344,9 +176,9 @@ mkUser x_0 x_1 x_2 x_3 x_4 x_5 x_6 = BinahRecord (User x_0 x_1 x_2 x_3 x_4 x_5 x
   , {\field row  -> field == entityKey row}
   , {\_ -> False}
   , {\_ _ _ -> True}
-  > User UserId
+  > (Entity User) User UserId
 @-}
-userId' :: EntityFieldWrapper User UserId
+userId' :: EntityFieldWrapper (Entity User) User UserId
 userId' = EntityFieldWrapper UserId
 
 {-@ measure userEmailAddress :: User -> Text @-}
@@ -359,9 +191,9 @@ userId' = EntityFieldWrapper UserId
   , {\field row -> field == userEmailAddress (entityVal row)}
   , {\old -> userEmailAddressCap old}
   , {\x_0 x_1 x_2 -> ((False)) => (userEmailAddressCap x_0)}
-  > User Text
+  > (Entity User) User Text
 @-}
-userEmailAddress' :: EntityFieldWrapper User Text
+userEmailAddress' :: EntityFieldWrapper (Entity User) User Text
 userEmailAddress' = EntityFieldWrapper UserEmailAddress
 
 {-@ measure userPassword :: User -> ByteString @-}
@@ -374,9 +206,9 @@ userEmailAddress' = EntityFieldWrapper UserEmailAddress
   , {\field row -> field == userPassword (entityVal row)}
   , {\old -> userPasswordCap old}
   , {\x_0 x_1 x_2 -> ((False)) => (userPasswordCap x_0)}
-  > User ByteString
+  > (Entity User) User ByteString
 @-}
-userPassword' :: EntityFieldWrapper User ByteString
+userPassword' :: EntityFieldWrapper (Entity User) User ByteString
 userPassword' = EntityFieldWrapper UserPassword
 
 {-@ measure userFirstName :: User -> Text @-}
@@ -389,9 +221,9 @@ userPassword' = EntityFieldWrapper UserPassword
   , {\field row -> field == userFirstName (entityVal row)}
   , {\old -> userFirstNameCap old}
   , {\x_0 x_1 x_2 -> ((IsSelf x_0 x_2)) => (userFirstNameCap x_0)}
-  > User Text
+  > (Entity User) User Text
 @-}
-userFirstName' :: EntityFieldWrapper User Text
+userFirstName' :: EntityFieldWrapper (Entity User) User Text
 userFirstName' = EntityFieldWrapper UserFirstName
 
 {-@ measure userLastName :: User -> Text @-}
@@ -404,9 +236,9 @@ userFirstName' = EntityFieldWrapper UserFirstName
   , {\field row -> field == userLastName (entityVal row)}
   , {\old -> userLastNameCap old}
   , {\x_0 x_1 x_2 -> ((IsSelf x_0 x_2)) => (userLastNameCap x_0)}
-  > User Text
+  > (Entity User) User Text
 @-}
-userLastName' :: EntityFieldWrapper User Text
+userLastName' :: EntityFieldWrapper (Entity User) User Text
 userLastName' = EntityFieldWrapper UserLastName
 
 {-@ measure userTheme :: User -> Text @-}
@@ -419,9 +251,9 @@ userLastName' = EntityFieldWrapper UserLastName
   , {\field row -> field == userTheme (entityVal row)}
   , {\old -> userThemeCap old}
   , {\old _ _ -> userThemeCap old}
-  > User Text
+  > (Entity User) User Text
 @-}
-userTheme' :: EntityFieldWrapper User Text
+userTheme' :: EntityFieldWrapper (Entity User) User Text
 userTheme' = EntityFieldWrapper UserTheme
 
 {-@ measure userKeyBinds :: User -> Text @-}
@@ -434,9 +266,9 @@ userTheme' = EntityFieldWrapper UserTheme
   , {\field row -> field == userKeyBinds (entityVal row)}
   , {\old -> userKeyBindsCap old}
   , {\old _ _ -> userKeyBindsCap old}
-  > User Text
+  > (Entity User) User Text
 @-}
-userKeyBinds' :: EntityFieldWrapper User Text
+userKeyBinds' :: EntityFieldWrapper (Entity User) User Text
 userKeyBinds' = EntityFieldWrapper UserKeyBinds
 
 {-@ measure userAdmin :: User -> Bool @-}
@@ -449,9 +281,9 @@ userKeyBinds' = EntityFieldWrapper UserKeyBinds
   , {\field row -> field == userAdmin (entityVal row)}
   , {\old -> userAdminCap old}
   , {\old _ _ -> userAdminCap old}
-  > User Bool
+  > (Entity User) User Bool
 @-}
-userAdmin' :: EntityFieldWrapper User Bool
+userAdmin' :: EntityFieldWrapper (Entity User) User Bool
 userAdmin' = EntityFieldWrapper UserAdmin
 
 -- * Class
@@ -462,15 +294,16 @@ userAdmin' = EntityFieldWrapper UserAdmin
   -> x_3: Text
   -> BinahRecord <
        {\row -> classInstitution (entityVal row) == x_0 && className (entityVal row) == x_1 && classInstructor (entityVal row) == x_2 && classEditorLang (entityVal row) == x_3}
-     , {\_ _ -> True}
+     , {\_ viewer -> isAdmin (entityKey viewer)}
      , {\x_0 x_1 -> False}
-     > Class
+     > (Entity User) Class
 @-}
+mkClass :: Text -> Text -> UserId -> Text -> BinahRecord (Entity User) Class
 mkClass x_0 x_1 x_2 x_3 = BinahRecord (Class x_0 x_1 x_2 x_3)
 
 {-@ invariant {v: Entity Class | v == getJust (entityKey v)} @-}
 
-
+{-@ invariant {v: Entity Class | isInstructor (entityKey v) (classInstructor (entityVal v))} @-}
 
 {-@ assume classId' :: EntityFieldWrapper <
     {\row viewer -> True}
@@ -478,9 +311,9 @@ mkClass x_0 x_1 x_2 x_3 = BinahRecord (Class x_0 x_1 x_2 x_3)
   , {\field row  -> field == entityKey row}
   , {\_ -> False}
   , {\_ _ _ -> True}
-  > Class ClassId
+  > (Entity User) Class ClassId
 @-}
-classId' :: EntityFieldWrapper Class ClassId
+classId' :: EntityFieldWrapper (Entity User) Class ClassId
 classId' = EntityFieldWrapper ClassId
 
 {-@ measure classInstitution :: Class -> Text @-}
@@ -493,9 +326,9 @@ classId' = EntityFieldWrapper ClassId
   , {\field row -> field == classInstitution (entityVal row)}
   , {\old -> classInstitutionCap old}
   , {\old _ _ -> classInstitutionCap old}
-  > Class Text
+  > (Entity User) Class Text
 @-}
-classInstitution' :: EntityFieldWrapper Class Text
+classInstitution' :: EntityFieldWrapper (Entity User) Class Text
 classInstitution' = EntityFieldWrapper ClassInstitution
 
 {-@ measure className :: Class -> Text @-}
@@ -508,9 +341,9 @@ classInstitution' = EntityFieldWrapper ClassInstitution
   , {\field row -> field == className (entityVal row)}
   , {\old -> classNameCap old}
   , {\old _ _ -> classNameCap old}
-  > Class Text
+  > (Entity User) Class Text
 @-}
-className' :: EntityFieldWrapper Class Text
+className' :: EntityFieldWrapper (Entity User) Class Text
 className' = EntityFieldWrapper ClassName
 
 {-@ measure classInstructor :: Class -> UserId @-}
@@ -523,9 +356,9 @@ className' = EntityFieldWrapper ClassName
   , {\field row -> field == classInstructor (entityVal row)}
   , {\old -> classInstructorCap old}
   , {\old _ _ -> classInstructorCap old}
-  > Class UserId
+  > (Entity User) Class UserId
 @-}
-classInstructor' :: EntityFieldWrapper Class UserId
+classInstructor' :: EntityFieldWrapper (Entity User) Class UserId
 classInstructor' = EntityFieldWrapper ClassInstructor
 
 {-@ measure classEditorLang :: Class -> Text @-}
@@ -537,10 +370,10 @@ classInstructor' = EntityFieldWrapper ClassInstructor
   , {\row field -> field == classEditorLang (entityVal row)}
   , {\field row -> field == classEditorLang (entityVal row)}
   , {\old -> classEditorLangCap old}
-  , {\old _ _ -> classEditorLangCap old}
-  > Class Text
+  , {\x_0 x_1 x_2 -> ((isInstructor (entityKey x_0) (entityKey x_2))) => (classEditorLangCap x_0)}
+  > (Entity User) Class Text
 @-}
-classEditorLang' :: EntityFieldWrapper Class Text
+classEditorLang' :: EntityFieldWrapper (Entity User) Class Text
 classEditorLang' = EntityFieldWrapper ClassEditorLang
 
 -- * Group
@@ -550,10 +383,11 @@ classEditorLang' = EntityFieldWrapper ClassEditorLang
   -> x_2: ClassId
   -> BinahRecord <
        {\row -> groupName (entityVal row) == x_0 && groupEditorLink (entityVal row) == x_1 && groupClass (entityVal row) == x_2}
-     , {\_ viewer -> IsInstructor viewer}
-     , {\x_0 x_1 -> False}
-     > Group
+     , {\r viewer -> isInstructor (groupClass (entityVal r)) (entityKey viewer)}
+     , {\x_0 x_1 -> (IsClassInstructor x_0 x_1 || IsGroupStudent x_0 x_1)}
+     > (Entity User) Group
 @-}
+mkGroup :: Text -> Text -> ClassId -> BinahRecord (Entity User) Group
 mkGroup x_0 x_1 x_2 = BinahRecord (Group x_0 x_1 x_2)
 
 {-@ invariant {v: Entity Group | v == getJust (entityKey v)} @-}
@@ -566,9 +400,9 @@ mkGroup x_0 x_1 x_2 = BinahRecord (Group x_0 x_1 x_2)
   , {\field row  -> field == entityKey row}
   , {\_ -> False}
   , {\_ _ _ -> True}
-  > Group GroupId
+  > (Entity User) Group GroupId
 @-}
-groupId' :: EntityFieldWrapper Group GroupId
+groupId' :: EntityFieldWrapper (Entity User) Group GroupId
 groupId' = EntityFieldWrapper GroupId
 
 {-@ measure groupName :: Group -> Text @-}
@@ -580,10 +414,10 @@ groupId' = EntityFieldWrapper GroupId
   , {\row field -> field == groupName (entityVal row)}
   , {\field row -> field == groupName (entityVal row)}
   , {\old -> groupNameCap old}
-  , {\x_0 x_1 x_2 -> ((IsInstructor x_2)) => (groupNameCap x_0)}
-  > Group Text
+  , {\x_0 x_1 x_2 -> ((IsClassInstructor x_0 x_2)) => (groupNameCap x_0)}
+  > (Entity User) Group Text
 @-}
-groupName' :: EntityFieldWrapper Group Text
+groupName' :: EntityFieldWrapper (Entity User) Group Text
 groupName' = EntityFieldWrapper GroupName
 
 {-@ measure groupEditorLink :: Group -> Text @-}
@@ -591,14 +425,14 @@ groupName' = EntityFieldWrapper GroupName
 {-@ measure groupEditorLinkCap :: Entity Group -> Bool @-}
 
 {-@ assume groupEditorLink' :: EntityFieldWrapper <
-    {\_ _ -> True}
+    {\x_0 x_1 -> (IsClassInstructor x_0 x_1 || IsGroupStudent x_0 x_1)}
   , {\row field -> field == groupEditorLink (entityVal row)}
   , {\field row -> field == groupEditorLink (entityVal row)}
   , {\old -> groupEditorLinkCap old}
-  , {\x_0 x_1 x_2 -> ((IsInstructor x_2)) => (groupEditorLinkCap x_0)}
-  > Group Text
+  , {\x_0 x_1 x_2 -> ((IsClassInstructor x_0 x_2)) => (groupEditorLinkCap x_0)}
+  > (Entity User) Group Text
 @-}
-groupEditorLink' :: EntityFieldWrapper Group Text
+groupEditorLink' :: EntityFieldWrapper (Entity User) Group Text
 groupEditorLink' = EntityFieldWrapper GroupEditorLink
 
 {-@ measure groupClass :: Group -> ClassId @-}
@@ -610,10 +444,10 @@ groupEditorLink' = EntityFieldWrapper GroupEditorLink
   , {\row field -> field == groupClass (entityVal row)}
   , {\field row -> field == groupClass (entityVal row)}
   , {\old -> groupClassCap old}
-  , {\old _ _ -> groupClassCap old}
-  > Group ClassId
+  , {\x_0 x_1 x_2 -> ((False)) => (groupClassCap x_0)}
+  > (Entity User) Group ClassId
 @-}
-groupClass' :: EntityFieldWrapper Group ClassId
+groupClass' :: EntityFieldWrapper (Entity User) Group ClassId
 groupClass' = EntityFieldWrapper GroupClass
 
 -- * Enroll
@@ -623,15 +457,16 @@ groupClass' = EntityFieldWrapper GroupClass
   -> x_2: GroupId
   -> BinahRecord <
        {\row -> enrollStudent (entityVal row) == x_0 && enrollClass (entityVal row) == x_1 && enrollGroup (entityVal row) == x_2}
-     , {\_ _ -> True}
-     , {\x_0 x_1 -> False}
-     > Enroll
+     , {\r viewer -> isInstructor (enrollClass (entityVal r)) (entityKey viewer)}
+     , {\x_0 x_1 -> (isClassInstructor (enrollClass (entityVal x_0)) (entityKey x_1) || isStudent (enrollClass (entityVal x_0)) (entityKey x_1) (enrollGroup (entityVal x_0)))}
+     > (Entity User) Enroll
 @-}
+mkEnroll :: UserId -> ClassId -> GroupId -> BinahRecord (Entity User) Enroll
 mkEnroll x_0 x_1 x_2 = BinahRecord (Enroll x_0 x_1 x_2)
 
 {-@ invariant {v: Entity Enroll | v == getJust (entityKey v)} @-}
 
-
+{-@ invariant {v: Entity Enroll | isStudent (enrollClass (entityVal v)) (enrollStudent (entityVal v)) (enrollGroup (entityVal v))} @-}
 
 {-@ assume enrollId' :: EntityFieldWrapper <
     {\row viewer -> True}
@@ -639,9 +474,9 @@ mkEnroll x_0 x_1 x_2 = BinahRecord (Enroll x_0 x_1 x_2)
   , {\field row  -> field == entityKey row}
   , {\_ -> False}
   , {\_ _ _ -> True}
-  > Enroll EnrollId
+  > (Entity User) Enroll EnrollId
 @-}
-enrollId' :: EntityFieldWrapper Enroll EnrollId
+enrollId' :: EntityFieldWrapper (Entity User) Enroll EnrollId
 enrollId' = EntityFieldWrapper EnrollId
 
 {-@ measure enrollStudent :: Enroll -> UserId @-}
@@ -649,14 +484,14 @@ enrollId' = EntityFieldWrapper EnrollId
 {-@ measure enrollStudentCap :: Entity Enroll -> Bool @-}
 
 {-@ assume enrollStudent' :: EntityFieldWrapper <
-    {\_ _ -> True}
+    {\x_0 x_1 -> (isClassInstructor (enrollClass (entityVal x_0)) (entityKey x_1) || isStudent (enrollClass (entityVal x_0)) (entityKey x_1) (enrollGroup (entityVal x_0)))}
   , {\row field -> field == enrollStudent (entityVal row)}
   , {\field row -> field == enrollStudent (entityVal row)}
   , {\old -> enrollStudentCap old}
-  , {\old _ _ -> enrollStudentCap old}
-  > Enroll UserId
+  , {\x_0 x_1 x_2 -> ((False)) => (enrollStudentCap x_0)}
+  > (Entity User) Enroll UserId
 @-}
-enrollStudent' :: EntityFieldWrapper Enroll UserId
+enrollStudent' :: EntityFieldWrapper (Entity User) Enroll UserId
 enrollStudent' = EntityFieldWrapper EnrollStudent
 
 {-@ measure enrollClass :: Enroll -> ClassId @-}
@@ -668,10 +503,10 @@ enrollStudent' = EntityFieldWrapper EnrollStudent
   , {\row field -> field == enrollClass (entityVal row)}
   , {\field row -> field == enrollClass (entityVal row)}
   , {\old -> enrollClassCap old}
-  , {\old _ _ -> enrollClassCap old}
-  > Enroll ClassId
+  , {\x_0 x_1 x_2 -> ((False)) => (enrollClassCap x_0)}
+  > (Entity User) Enroll ClassId
 @-}
-enrollClass' :: EntityFieldWrapper Enroll ClassId
+enrollClass' :: EntityFieldWrapper (Entity User) Enroll ClassId
 enrollClass' = EntityFieldWrapper EnrollClass
 
 {-@ measure enrollGroup :: Enroll -> GroupId @-}
@@ -679,14 +514,14 @@ enrollClass' = EntityFieldWrapper EnrollClass
 {-@ measure enrollGroupCap :: Entity Enroll -> Bool @-}
 
 {-@ assume enrollGroup' :: EntityFieldWrapper <
-    {\_ _ -> True}
+    {\x_0 x_1 -> (isClassInstructor (enrollClass (entityVal x_0)) (entityKey x_1) || isStudent (enrollClass (entityVal x_0)) (entityKey x_1) (enrollGroup (entityVal x_0)))}
   , {\row field -> field == enrollGroup (entityVal row)}
   , {\field row -> field == enrollGroup (entityVal row)}
   , {\old -> enrollGroupCap old}
   , {\old _ _ -> enrollGroupCap old}
-  > Enroll GroupId
+  > (Entity User) Enroll GroupId
 @-}
-enrollGroup' :: EntityFieldWrapper Enroll GroupId
+enrollGroup' :: EntityFieldWrapper (Entity User) Enroll GroupId
 enrollGroup' = EntityFieldWrapper EnrollGroup
 
 -- * ResetPassword
@@ -698,8 +533,9 @@ enrollGroup' = EntityFieldWrapper EnrollGroup
        {\row -> resetPasswordEmail (entityVal row) == x_0 && resetPasswordCode (entityVal row) == x_1 && resetPasswordValid (entityVal row) == x_2}
      , {\_ _ -> True}
      , {\x_0 x_1 -> False}
-     > ResetPassword
+     > (Entity User) ResetPassword
 @-}
+mkResetPassword :: Text -> Text -> Bool -> BinahRecord (Entity User) ResetPassword
 mkResetPassword x_0 x_1 x_2 = BinahRecord (ResetPassword x_0 x_1 x_2)
 
 {-@ invariant {v: Entity ResetPassword | v == getJust (entityKey v)} @-}
@@ -712,9 +548,9 @@ mkResetPassword x_0 x_1 x_2 = BinahRecord (ResetPassword x_0 x_1 x_2)
   , {\field row  -> field == entityKey row}
   , {\_ -> False}
   , {\_ _ _ -> True}
-  > ResetPassword ResetPasswordId
+  > (Entity User) ResetPassword ResetPasswordId
 @-}
-resetPasswordId' :: EntityFieldWrapper ResetPassword ResetPasswordId
+resetPasswordId' :: EntityFieldWrapper (Entity User) ResetPassword ResetPasswordId
 resetPasswordId' = EntityFieldWrapper ResetPasswordId
 
 {-@ measure resetPasswordEmail :: ResetPassword -> Text @-}
@@ -727,9 +563,9 @@ resetPasswordId' = EntityFieldWrapper ResetPasswordId
   , {\field row -> field == resetPasswordEmail (entityVal row)}
   , {\old -> resetPasswordEmailCap old}
   , {\old _ _ -> resetPasswordEmailCap old}
-  > ResetPassword Text
+  > (Entity User) ResetPassword Text
 @-}
-resetPasswordEmail' :: EntityFieldWrapper ResetPassword Text
+resetPasswordEmail' :: EntityFieldWrapper (Entity User) ResetPassword Text
 resetPasswordEmail' = EntityFieldWrapper ResetPasswordEmail
 
 {-@ measure resetPasswordCode :: ResetPassword -> Text @-}
@@ -742,9 +578,9 @@ resetPasswordEmail' = EntityFieldWrapper ResetPasswordEmail
   , {\field row -> field == resetPasswordCode (entityVal row)}
   , {\old -> resetPasswordCodeCap old}
   , {\old _ _ -> resetPasswordCodeCap old}
-  > ResetPassword Text
+  > (Entity User) ResetPassword Text
 @-}
-resetPasswordCode' :: EntityFieldWrapper ResetPassword Text
+resetPasswordCode' :: EntityFieldWrapper (Entity User) ResetPassword Text
 resetPasswordCode' = EntityFieldWrapper ResetPasswordCode
 
 {-@ measure resetPasswordValid :: ResetPassword -> Bool @-}
@@ -757,13 +593,7 @@ resetPasswordCode' = EntityFieldWrapper ResetPasswordCode
   , {\field row -> field == resetPasswordValid (entityVal row)}
   , {\old -> resetPasswordValidCap old}
   , {\old _ _ -> resetPasswordValidCap old}
-  > ResetPassword Bool
+  > (Entity User) ResetPassword Bool
 @-}
-resetPasswordValid' :: EntityFieldWrapper ResetPassword Bool
+resetPasswordValid' :: EntityFieldWrapper (Entity User) ResetPassword Bool
 resetPasswordValid' = EntityFieldWrapper ResetPasswordValid
-
---------------------------------------------------------------------------------
--- | Inline
---------------------------------------------------------------------------------
-
-

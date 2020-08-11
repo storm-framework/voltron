@@ -29,7 +29,7 @@ import           Model
 import           JSON
 import           Types
 
-import qualified Debug.Trace 
+import qualified Debug.Trace
 
 ----------------------------------------------------------------------------------------------------
 -- | User List
@@ -40,14 +40,14 @@ userList :: Controller ()
 userList = do
   _     <- requireAuthUser
   users <- selectList trueF
-  users <- mapMC extractUserData users
+  users <- mapT extractUserData users
   respondJSON status200 users
 
 extractUserNG :: Entity User -> Controller UserNG
 extractUserNG u = do
   firstName <- project userFirstName' u
   lastName  <- project userLastName' u
-  return     $ UserNG firstName lastName 
+  return     $ UserNG firstName lastName
 
 extractUserData :: Entity User -> Controller UserData
 extractUserData u = do
@@ -70,7 +70,7 @@ extractInstrClasses :: Entity User -> Controller [ClassData]
 extractInstrClasses u = do
   uId        <- project userId' u
   classes    <- selectList (classInstructor' ==. uId)
-  mapMC (extractInstrData u) classes 
+  mapT (extractInstrData u) classes
 
 extractInstrData :: Entity User -> Entity Class -> Controller ClassData
 extractInstrData u cls = do
@@ -78,14 +78,14 @@ extractInstrData u cls = do
   clsName   <- project className' cls
   clsLang   <- project classEditorLang' cls
   allGroups <- selectList (groupClass' ==. clsId)
-  allBufs   <- mapMC (extractBuffer clsName False) allGroups
+  allBufs   <- mapT (extractBuffer clsName False) allGroups
   return (Instructor clsName clsLang allBufs)
 
 extractStudentClasses :: Entity User -> Controller [ClassData]
-extractStudentClasses u = do 
+extractStudentClasses u = do
   uId       <- project userId' u
   uEnrolls  <- selectList (enrollStudent' ==. uId)
-  mapMC (enrollClassData u) uEnrolls
+  mapT (enrollClassData u) uEnrolls
 
 enrollClassData :: Entity User -> Entity Enroll -> Controller ClassData
 enrollClassData u enroll = do
@@ -100,15 +100,15 @@ enrollClassData u enroll = do
 
 extractBuffer :: Text -> Bool -> Entity Group -> Controller Buffer
 extractBuffer clsName isStudent group = do
-  bName <- project groupName' group 
+  bName <- project groupName' group
   bHash <- project groupEditorLink' group
   let bText = "-- Code for group: " <> bName
-  let bDiv  = "editor-" <> clsName <> "-" <> bName 
+  let bDiv  = "editor-" <> clsName <> "-" <> bName
   let bDiv' = if isStudent then bDiv <> "-" <> "student" else bDiv
   return $ Buffer bName bHash bText bDiv'
 
 
-traceShow :: (Show a) => String -> a -> a 
+traceShow :: (Show a) => String -> a -> a
 traceShow msg x = Debug.Trace.trace (msg <> ": " <> (show x)) x
 
 ----------------------------------------------------------------------------------------------------

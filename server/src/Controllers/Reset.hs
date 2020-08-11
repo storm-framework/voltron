@@ -60,20 +60,20 @@ import           Controllers.Class              ( genRandomText )
 import           Model
 import           JSON
 import           Crypto
-import           Types 
+import           Types
 
 -------------------------------------------------------------------------------
--- | Reset password : generate a random code and send to user's email 
+-- | Reset password : generate a random code and send to user's email
 -------------------------------------------------------------------------------
 {-@ ignore reset @-}
 reset :: Controller ()
 reset = do
   ResetInfo {..} <- decodeBody
-  user           <- selectFirstOr 
+  user           <- selectFirstOr
                       (errorResponse status401 (Just "Unknown email address"))
                       (userEmailAddress' ==. resetEmailAddress)
-  _    <- updateWhere 
-            (resetPasswordEmail' ==. resetEmailAddress) 
+  _    <- updateWhere
+            (resetPasswordEmail' ==. resetEmailAddress)
             (resetPasswordValid' `assign` False)
   code <- genRandomText
   insert (mkResetPassword resetEmailAddress code True)
@@ -81,15 +81,16 @@ reset = do
   respondJSON status200 $ "OK: Please check " <> resetEmailAddress
 
 sendResetMail :: Text -> Text -> Controller ()
-sendResetMail code userEmail = do 
-  smtpConfig <- configSMTP <$> getConfig
+sendResetMail code userEmail = do
+  SMTPConfig{..} <- configSMTP <$> getConfig
   let subject = "VOLTRON Password Reset Code"
-  let to      = mkPublicAddress (T.unpack userEmail)
-  let from    = mkPublicAddress (smtpUser smtpConfig) 
-  res        <- sendPlainTextMail smtpConfig to from subject (mkBody code)
+  let to      = publicAddress userEmail
+  let from    = publicAddress (T.pack smtpUser)
+  let mail    = simpleMail' to from subject (mkBody code)
+  res        <- sendMailWithLoginSTARTTLS smtpHost smtpUser smtpPass mail
   Log.log Log.INFO ("reset email: " ++ show res)
-  case res of 
-    Right _ -> return () 
+  case res of
+    Right _ -> return ()
     Left _  -> respondError status401 (Just "Error sending email!")
 
 mkBody :: Text -> LT.Text
@@ -108,16 +109,16 @@ resetPass = do
   -- 1. Check if the code is valid
   _ <- selectFirstOr
         (errorResponse status403 (Just "invalid reset code"))
-        ((resetPasswordCode'  ==. resetPassCode) &&: 
-         (resetPasswordEmail' ==. resetPassEmail) &&: 
+        ((resetPasswordCode'  ==. resetPassCode) &&:
+         (resetPasswordEmail' ==. resetPassEmail) &&:
          (resetPasswordValid' ==. True))
-  -- 2. Invalidate the code 
-  _  <- updateWhere 
-          (resetPasswordCode' ==. resetPassCode) 
+  -- 2. Invalidate the code
+  _  <- updateWhere
+          (resetPasswordCode' ==. resetPassCode)
           (resetPasswordValid' `assign` False)
   -- 3. Update the user's information
   EncryptedPass encrypted <- encryptPassTIO' (Pass (T.encodeUtf8 resetPassPassword))
-  _  <- updateWhere 
+  _  <- updateWhere
           (userEmailAddress' ==. resetPassEmail)
           (userPassword' `assign` encrypted)
-  respondJSON status200 ("OK: Login with new password" :: T.Text) 
+  respondJSON status200 ("OK: Login with new password" :: T.Text)

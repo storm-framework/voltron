@@ -16,6 +16,13 @@ packages:
   original:
     url: https://github.com/PLSysSec/frankie/archive/8894b528847a9f3bdef7ec47e905fc81081c2940.tar.gz
 - completed:
+    hackage: lens-4.19.2@sha256:f0570ca0e4624d9daa57256f00f514e87be155401583fa1665faba47376c63a7,16053
+    pantry-tree:
+      size: 8330
+      sha256: 97df1b96d825fb74400e75847e2a6ce2c37c9d1baeb71f5804a3a97694a4f881
+  original:
+    hackage: lens-4.19.2
+- completed:
     hackage: smtp-mail-0.3.0.0@sha256:2e6d9cb29d09a5a04d77a905eb1b570b94b5654e24d40630ea96aa374474c12f,1239
     pantry-tree:
       size: 450

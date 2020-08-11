@@ -49,12 +49,12 @@ import           Types
 -------------------------------------------------------------------------------
 setLanguage :: Controller ()
 setLanguage = do
-  instr <- requireAuthUser 
+  instr <- requireAuthUser
   ClassLangInfo {..} <- decodeBody
   cls <- selectFirstOr404 (className' ==. cliClass)
   -- TODO: check that `instr` is the instructor for className
-  _  <- updateWhere 
-          (className' ==. cliClass) 
+  _  <- updateWhere
+          (className' ==. cliClass)
           (classEditorLang' `assign` cliLanguage)
   respondJSON status200 ("OK: updated language for " <> cliClass <> " to " <> cliLanguage)
 
@@ -70,8 +70,8 @@ getRoster className = do
   -- TODO: check that `instr` is an instructor for className
   clsId   <- lookupClassId className
   enrolls <- selectList (enrollClass' ==. clsId)
-  roster  <- mapMC enrollEnrollStudent enrolls
-  respondJSON status200 roster 
+  roster  <- mapT enrollEnrollStudent enrolls
+  respondJSON status200 roster
 
 enrollEnrollStudent :: Entity Enroll -> Controller EnrollStudent
 enrollEnrollStudent enroll = do
@@ -85,7 +85,7 @@ enrollEnrollStudent enroll = do
     <*>    project userEmailAddress' user
     <*>    project groupName'        group
 
-  
+
 
 -------------------------------------------------------------------------------
 -- | Add a full roster of students to a class using an Roster -----------------
@@ -101,14 +101,14 @@ addRoster = do
   mapM_ addUser   crUsers
   mapM_ (addGroup  clsId) (rosterGroups r)
   mapM_ (addEnroll clsId) (rosterEnrolls r)
-  getRoster rosterClass 
+  getRoster rosterClass
   -- respondJSON status200 ("OK:addRoster" :: T.Text)
 
 createUser :: EnrollStudent -> Controller CreateUser
-createUser (EnrollStudent {..}) = do 
+createUser (EnrollStudent {..}) = do
   password <- genRandomText
   let crUser = mkCreateUser esEmail password esFirstName esLastName "" ""
-  return crUser 
+  return crUser
 
 {-@ genRandomText :: TaggedT<{\_ -> True}, {\_ -> False}> _ _@-}
 genRandomText :: Controller T.Text
@@ -120,12 +120,12 @@ rosterGroups :: Roster -> [CreateGroup]
 rosterGroups (Roster {..}) = [ g | (_, g) <- M.toList groupM ]
   where
     groupM = M.fromList [ (bufferId , group)
-                          | Buffer {..} <- rosterBuffers 
+                          | Buffer {..} <- rosterBuffers
                           , let group    = mkCreateGroup rosterClass bufferId bufferHash
                         ]
 
 rosterEnrolls :: Roster -> [CreateEnroll]
-rosterEnrolls (Roster {..}) = 
+rosterEnrolls (Roster {..}) =
   [ mkCreateEnroll esEmail rosterClass esGroup | EnrollStudent {..} <- rosterStudents ]
 
 -------------------------------------------------------------------------------
@@ -165,7 +165,7 @@ addGroup clsId r@(CreateGroup {..}) = do
   insertOrMsg msg $ mkGroup groupName groupEditorLink clsId
 
 -------------------------------------------------------------------------------
--- | Add an enroll, i.e. student to a group ----------------------------------- 
+-- | Add an enroll, i.e. student to a group -----------------------------------
 -------------------------------------------------------------------------------
 
 {-@ ignore addEnroll @-}
@@ -177,13 +177,13 @@ addEnroll clsId r@(CreateEnroll {..}) = do
   let msg = "addGroup: duplicate enroll" ++ show r
   insertOrMsg msg $ mkEnroll studentId clsId groupId
 
-lookupUserId :: (MonadTIO m) => T.Text -> TasCon m UserId 
+lookupUserId :: (MonadTIO m) => T.Text -> TasCon m UserId
 -- lookupUserId :: T.Text -> Controller UserId
 lookupUserId email = do
   r <- selectFirstOrCrash (userEmailAddress' ==. email)
   project userId' r
 
-lookupGroupId :: (MonadTIO m) => T.Text -> TasCon m GroupId 
+lookupGroupId :: (MonadTIO m) => T.Text -> TasCon m GroupId
 -- lookupGroupId :: T.Text -> Controller GroupId
 lookupGroupId name = do
   r <- selectFirstOrCrash (groupName' ==. name)
@@ -195,4 +195,3 @@ lookupClassId :: (MonadTIO m) => T.Text -> TasCon m ClassId
 lookupClassId name = do
   r <- selectFirstOrCrash (className' ==. name)
   project classId' r
-
