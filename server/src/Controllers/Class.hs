@@ -114,14 +114,17 @@ addRoster = do
   getRoster rosterClass
   -- respondJSON status200 ("OK:addRoster" :: T.Text)
 
-{-@ ignore addGroup @-}
+{-@ addGroup
+  :: {c: ClassId | isInstructor c (entityKey (currentUser 0))}
+  -> CreateGroup
+  -> TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
 addGroup :: ClassId -> CreateGroup -> Controller (Maybe GroupId)
 addGroup clsId r@(CreateGroup {..}) = do
   id <- insertMaybe (mkGroup groupName groupEditorLink clsId)
   whenT (isNothing id) (logT Log.WARNING ("addGroup: skipping duplicate group " ++ show r))
   return id
 
-{-@ ignore createUser @-}
+{-@ createUser :: _ -> TaggedT<{\_ -> True}, {\_ -> False}> _ _ _ @-}
 createUser :: EnrollStudent -> Controller CreateUser
 createUser (EnrollStudent {..}) = do
   password <- genRandomText
