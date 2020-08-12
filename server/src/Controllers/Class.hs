@@ -6,8 +6,8 @@
 
 module Controllers.Class
   ( addUser
-  , addClass
   , addGroup
+  , addClass
   , addEnroll
   , addRoster
   , getRoster
@@ -50,39 +50,46 @@ import           Frankie.Log
 -- | Update the language-mode used for a given class --------------------------
 -------------------------------------------------------------------------------
 
-{-@ ignore setLanguage @-}
+{-@ setLanguage :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
 setLanguage :: Controller ()
 setLanguage = do
-  instr <- requireAuthUser
+  instr   <- requireAuthUser
+  instrId <- project userId' instr
   ClassLangInfo {..} <- decodeBody
-  cls <- selectFirstOr404 (className' ==. cliClass)
-  -- TODO: check that `instr` is the instructor for className
-  _  <- updateWhere
-          (className' ==. cliClass)
-          (classEditorLang' `assign` cliLanguage)
+  cls   <- selectFirstOr (errorResponse status403 Nothing)
+                         (className' ==. cliClass &&: classInstructor' ==. instrId)
+  clsId <- project classId' cls
+  _     <- updateWhere (classId' ==. clsId)
+                       (classEditorLang' `assign` cliLanguage)
   respondJSON status200 ("OK: updated language for " <> cliClass <> " to " <> cliLanguage)
 
 -------------------------------------------------------------------------------
 -- | Respond with Current [EnrollStudent] for className -----------------------
 -------------------------------------------------------------------------------
 
-{-@ ignore getRoster @-}
+{-@ getRoster :: _ -> TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
 getRoster :: T.Text -> Controller ()
 getRoster className = do
   instr   <- requireAuthUser
-  -- TODO: check that `instr` is an instructor for className
-  clsId   <- lookupClassId className
+  instrId <- project userId' instr
+  cls     <- selectFirstOr (errorResponse status403 Nothing)
+                           (className' ==. className &&: classInstructor' ==. instrId)
+  clsId   <- project classId' cls
   enrolls <- selectList (enrollClass' ==. clsId)
   roster  <- mapT enrollEnrollStudent enrolls
   respondJSON status200 roster
 
-{-@ ignore enrollEnrollStudent @-}
+{-@ enrollEnrollStudent
+  :: {e:(Entity Enroll) | IsInstructorE e (currentUser 0)}
+  -> TaggedT<{\v -> v == currentUser 0}, {\v -> v == currentUser 0}> _ _ _
+@-}
 enrollEnrollStudent :: Entity Enroll -> Controller EnrollStudent
 enrollEnrollStudent enroll = do
   userId  <- project enrollStudent' enroll
-  user    <- selectFirstOr notFoundJSON (userId' ==. userId)
   groupId <- project enrollGroup' enroll
-  group   <- selectFirstOr notFoundJSON (groupId' ==. groupId)
+  clsId   <- project enrollClass' enroll
+  user    <- selectFirstOr notFoundJSON (userId' ==. userId)
+  group   <- selectFirstOr notFoundJSON (groupId' ==. groupId &&: groupClass' ==. clsId)
   EnrollStudent
     `fmap` project userFirstName'    user
     <*>    project userLastName'     user
@@ -93,33 +100,52 @@ enrollEnrollStudent enroll = do
 -- | Add a full roster of students to a class using an Roster -----------------
 -------------------------------------------------------------------------------
 
-{-@ ignore addRoster @-}
+{-@ addRoster :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
 addRoster :: Controller ()
 addRoster = do
   instr         <- requireAuthUser
+  instrId       <- project userId' instr
   r@Roster {..} <- decodeBody
-  crUsers       <- mapM createUser rosterStudents
+  crUsers       <- mapT createUser rosterStudents
 
-  clsId <- lookupClassId rosterClass
-  mapM_ addUser   crUsers
-  mapM_ (addGroup  clsId) (rosterGroups r)
-  mapM_ (addEnroll clsId) (rosterEnrolls r)
+  cls   <- selectFirstOr (errorResponse status403 Nothing)
+                         (className' ==. rosterClass &&: classInstructor' ==. instrId)
+  clsId <- project classId' cls
+  mapT addUser   crUsers
+  mapT (addGroup  clsId) (rosterGroups r)
+  mapT (addEnroll clsId) (rosterEnrolls r)
   getRoster rosterClass
   -- respondJSON status200 ("OK:addRoster" :: T.Text)
 
-{-@ ignore addGroup @-}
+{-@ addGroup
+  :: {c: ClassId | isInstructor c (entityKey (currentUser 0))}
+  -> CreateGroup
+  -> TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
 addGroup :: ClassId -> CreateGroup -> Controller (Maybe GroupId)
 addGroup clsId r@(CreateGroup {..}) = do
   id <- insertMaybe (mkGroup groupName groupEditorLink clsId)
   whenT (isNothing id) (logT Log.WARNING ("addGroup: skipping duplicate group " ++ show r))
   return id
 
-{-@ ignore createUser @-}
+{-@ createUser :: _ -> TaggedT<{\_ -> True}, {\_ -> False}> _ _ _ @-}
 createUser :: EnrollStudent -> Controller CreateUser
 createUser (EnrollStudent {..}) = do
   password <- genRandomText
   let crUser = mkCreateUser esEmail password esFirstName esLastName "" ""
   return crUser
+
+{-@ addEnroll
+  :: {c: ClassId | isInstructor c (entityKey (currentUser 0))}
+  -> CreateEnroll
+  -> TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
+addEnroll :: ClassId -> CreateEnroll -> Controller EnrollId
+addEnroll clsId r@(CreateEnroll {..}) = do
+  logT Log.INFO ("addEnroll: " ++ show r)
+  student   <- selectFirstOr notFoundJSON (userEmailAddress' ==. enrollStudent)
+  studentId <- project userId' student
+  group     <- selectFirstOr notFoundJSON (groupName' ==. enrollGroup)
+  groupId   <- project groupId' group
+  insert (mkEnroll studentId clsId groupId)
 
 {-@ genRandomText :: TaggedT<{\_ -> True}, {\_ -> False}> _ _ _ @-}
 genRandomText :: Controller T.Text
@@ -142,7 +168,8 @@ rosterEnrolls (Roster {..}) =
 -------------------------------------------------------------------------------
 -- | Add a user ---------------------------------------------------------------
 -------------------------------------------------------------------------------
-{-@ ignore addUser @-}
+
+{-@ addUser :: _ -> TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
 addUser :: (MonadTIO m) => CreateUser -> TasCon m (Maybe UserId)
 addUser r@(CreateUser {..}) = do
   logT Log.INFO ("addUser: " ++ show r)
@@ -155,7 +182,7 @@ addUser r@(CreateUser {..}) = do
 -- | Add a class --------------------------------------------------------------
 -------------------------------------------------------------------------------
 
-{-@ ignore addClass @-}
+{-@ addClass :: {c:_ | IsAdmin (currentUser 0)} -> TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
 addClass :: CreateClass -> Task (Maybe ClassId)
 addClass r@(CreateClass {..}) = do
   logT Log.INFO ("addClass: " ++ show r)
@@ -169,28 +196,3 @@ addClass r@(CreateClass {..}) = do
     Nothing -> do
       logT Log.ERROR ("addClass: cannot find user " ++ show crClassInstructor)
       return Nothing
-
--------------------------------------------------------------------------------
--- | Add an enroll, i.e. student to a group -----------------------------------
--------------------------------------------------------------------------------
-
-{-@ ignore addEnroll @-}
-addEnroll :: ClassId -> CreateEnroll -> Controller EnrollId
-addEnroll clsId r@(CreateEnroll {..}) = do
-  logT Log.INFO ("addEnroll: " ++ show r)
-  student   <- selectFirstOr notFoundJSON (userEmailAddress' ==. enrollStudent)
-  studentId <- project userId' student
-  groupId   <- lookupGroupId enrollGroup
-  insert (mkEnroll studentId clsId groupId)
-
-{-@ ignore lookupGroupId @-}
-lookupGroupId :: T.Text -> Controller GroupId
-lookupGroupId name = do
-  r <- selectFirstOr notFoundJSON (groupName' ==. name)
-  project groupId' r
-
-{-@ ignore lookupClassId @-}
-lookupClassId :: T.Text -> Controller ClassId
-lookupClassId name = do
-  r <- selectFirstOr notFoundJSON (className' ==. name)
-  project classId' r

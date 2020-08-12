@@ -146,7 +146,7 @@ ResetPassword
 
 {-@ predicate IsSelf USER VIEWER = VIEWER == USER @-}
 
-{-@ predicate IsAdmin A0 VIEWER = isAdmin (entityKey VIEWER) @-}
+{-@ predicate IsAdmin VIEWER = isAdmin (entityKey VIEWER) @-}
 
 --------------------------------------------------------------------------------
 -- | Records
@@ -300,7 +300,7 @@ userAdmin' = EntityFieldWrapper UserAdmin
   -> x_3: Text
   -> BinahRecord <
        {\row -> classInstitution (entityVal row) == x_0 && className (entityVal row) == x_1 && classInstructor (entityVal row) == x_2 && classEditorLang (entityVal row) == x_3}
-     , {\_ viewer -> isAdmin (entityKey viewer)}
+     , {\_ v -> IsAdmin v}
      , {\x_0 x_1 -> False}
      > (Entity User) Class
 @-}
@@ -331,7 +331,7 @@ classId' = EntityFieldWrapper ClassId
   , {\row field -> field == classInstitution (entityVal row)}
   , {\field row -> field == classInstitution (entityVal row)}
   , {\old -> classInstitutionCap old}
-  , {\old _ _ -> classInstitutionCap old}
+  , {\x_0 x_1 x_2 -> ((False)) => (classInstitutionCap x_0)}
   > (Entity User) Class Text
 @-}
 classInstitution' :: EntityFieldWrapper (Entity User) Class Text
@@ -346,7 +346,7 @@ classInstitution' = EntityFieldWrapper ClassInstitution
   , {\row field -> field == className (entityVal row)}
   , {\field row -> field == className (entityVal row)}
   , {\old -> classNameCap old}
-  , {\old _ _ -> classNameCap old}
+  , {\x_0 x_1 x_2 -> ((False)) => (classNameCap x_0)}
   > (Entity User) Class Text
 @-}
 className' :: EntityFieldWrapper (Entity User) Class Text
@@ -361,7 +361,7 @@ className' = EntityFieldWrapper ClassName
   , {\row field -> field == classInstructor (entityVal row)}
   , {\field row -> field == classInstructor (entityVal row)}
   , {\old -> classInstructorCap old}
-  , {\old _ _ -> classInstructorCap old}
+  , {\x_0 x_1 x_2 -> ((False)) => (classInstructorCap x_0)}
   > (Entity User) Class UserId
 @-}
 classInstructor' :: EntityFieldWrapper (Entity User) Class UserId
@@ -416,11 +416,11 @@ groupId' = EntityFieldWrapper GroupId
 {-@ measure groupNameCap :: Entity Group -> Bool @-}
 
 {-@ assume groupName' :: EntityFieldWrapper <
-    {\x_0 x_1 -> (IsInstructorG x_0 x_1 || IsInGroupG x_0 x_1)}
+    {\_ _ -> True}
   , {\row field -> field == groupName (entityVal row)}
   , {\field row -> field == groupName (entityVal row)}
   , {\old -> groupNameCap old}
-  , {\x_0 x_1 x_2 -> ((IsInstructorG x_0 x_2)) => (groupNameCap x_0)}
+  , {\x_0 x_1 x_2 -> ((False)) => (groupNameCap x_0)}
   > (Entity User) Group Text
 @-}
 groupName' :: EntityFieldWrapper (Entity User) Group Text
@@ -446,7 +446,7 @@ groupEditorLink' = EntityFieldWrapper GroupEditorLink
 {-@ measure groupClassCap :: Entity Group -> Bool @-}
 
 {-@ assume groupClass' :: EntityFieldWrapper <
-    {\x_0 x_1 -> (IsInstructorG x_0 x_1 || IsInGroupG x_0 x_1)}
+    {\_ _ -> True}
   , {\row field -> field == groupClass (entityVal row)}
   , {\field row -> field == groupClass (entityVal row)}
   , {\old -> groupClassCap old}
