@@ -132,7 +132,6 @@ rosterEnrolls (Roster {..}) =
 -- | Add a user ---------------------------------------------------------------
 -------------------------------------------------------------------------------
 {-@ ignore addUser @-}
--- addUser :: CreateUser -> Controller (Maybe UserId)
 addUser :: (MonadTIO m) => CreateUser -> TasCon m (Maybe UserId)
 addUser r@(CreateUser {..}) = do
   Log.log Log.INFO ("addUser: " ++ show r)
@@ -149,9 +148,15 @@ addUser r@(CreateUser {..}) = do
 addClass :: (MonadTIO m) => CreateClass -> TasCon m (Maybe ClassId)
 addClass r@(CreateClass {..}) = do
   Log.log Log.INFO ("addClass: " ++ show r)
-  instrId <- lookupUserId crClassInstructor
-  let msg = "addClass: duplicate class" ++ show r
-  insertOrMsg msg $ mkClass crClassInstitution crClassName instrId crClassLanguage
+  maybeInstr <- selectFirst (userEmailAddress' ==. crClassInstructor)
+  case maybeInstr of
+    Just instr -> do
+      instrId <- project userId' instr
+      let msg = "addClass: duplicate class " ++ show r
+      insertOrMsg msg $ mkClass crClassInstitution crClassName instrId crClassLanguage
+    Nothing -> do
+      logT Log.ERROR ("addClass: cannot find user " ++ show crClassInstructor)
+      return Nothing
 
 -------------------------------------------------------------------------------
 -- | Add a group from cmd-line ------------------------------------------------
@@ -172,26 +177,21 @@ addGroup clsId r@(CreateGroup {..}) = do
 addEnroll :: ClassId -> CreateEnroll -> Controller (Maybe EnrollId)
 addEnroll clsId r@(CreateEnroll {..}) = do
   Log.log Log.INFO ("addEnroll: " ++ show r)
-  studentId <- lookupUserId enrollStudent
+  student   <- selectFirstOr notFoundJSON (userEmailAddress' ==. enrollStudent)
+  studentId <- project userId' student
   groupId   <- lookupGroupId enrollGroup
   let msg = "addGroup: duplicate enroll" ++ show r
   insertOrMsg msg $ mkEnroll studentId clsId groupId
 
-lookupUserId :: (MonadTIO m) => T.Text -> TasCon m UserId
--- lookupUserId :: T.Text -> Controller UserId
-lookupUserId email = do
-  r <- selectFirstOrCrash (userEmailAddress' ==. email)
-  project userId' r
-
-lookupGroupId :: (MonadTIO m) => T.Text -> TasCon m GroupId
+lookupGroupId :: T.Text -> Controller GroupId
 -- lookupGroupId :: T.Text -> Controller GroupId
 lookupGroupId name = do
-  r <- selectFirstOrCrash (groupName' ==. name)
+  r <- selectFirstOr notFoundJSON (groupName' ==. name)
   project groupId' r
 
 
-lookupClassId :: (MonadTIO m) => T.Text -> TasCon m ClassId
+lookupClassId :: T.Text -> Controller ClassId
 -- lookupClassId :: T.Text -> Controller ClassId
 lookupClassId name = do
-  r <- selectFirstOrCrash (className' ==. name)
+  r <- selectFirstOr notFoundJSON (className' ==. name)
   project classId' r
