@@ -59,31 +59,37 @@ setLanguage = do
   cls   <- selectFirstOr (errorResponse status403 Nothing)
                          (className' ==. cliClass &&: classInstructor' ==. instrId)
   clsId <- project classId' cls
-  _  <- updateWhere (classId' ==. clsId)
-                    (classEditorLang' `assign` cliLanguage)
+  _     <- updateWhere (classId' ==. clsId)
+                       (classEditorLang' `assign` cliLanguage)
   respondJSON status200 ("OK: updated language for " <> cliClass <> " to " <> cliLanguage)
 
 -------------------------------------------------------------------------------
 -- | Respond with Current [EnrollStudent] for className -----------------------
 -------------------------------------------------------------------------------
 
-{-@ ignore getRoster @-}
+{-@ getRoster :: _ -> TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
 getRoster :: T.Text -> Controller ()
 getRoster className = do
   instr   <- requireAuthUser
-  -- TODO: check that `instr` is an instructor for className
-  clsId   <- lookupClassId className
+  instrId <- project userId' instr
+  cls     <- selectFirstOr (errorResponse status403 Nothing)
+                           (className' ==. className &&: classInstructor' ==. instrId)
+  clsId   <- project classId' cls
   enrolls <- selectList (enrollClass' ==. clsId)
   roster  <- mapT enrollEnrollStudent enrolls
   respondJSON status200 roster
 
-{-@ ignore enrollEnrollStudent @-}
+{-@ enrollEnrollStudent
+  :: {e:(Entity Enroll) | IsInstructorE e (currentUser 0)}
+  -> TaggedT<{\v -> v == currentUser 0}, {\v -> v == currentUser 0}> _ _ _
+@-}
 enrollEnrollStudent :: Entity Enroll -> Controller EnrollStudent
 enrollEnrollStudent enroll = do
   userId  <- project enrollStudent' enroll
-  user    <- selectFirstOr notFoundJSON (userId' ==. userId)
   groupId <- project enrollGroup' enroll
-  group   <- selectFirstOr notFoundJSON (groupId' ==. groupId)
+  clsId   <- project enrollClass' enroll
+  user    <- selectFirstOr notFoundJSON (userId' ==. userId)
+  group   <- selectFirstOr notFoundJSON (groupId' ==. groupId &&: groupClass' ==. clsId)
   EnrollStudent
     `fmap` project userFirstName'    user
     <*>    project userLastName'     user
