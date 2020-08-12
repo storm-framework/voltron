@@ -2,24 +2,31 @@ import Data.ByteString (ByteString)
 import Data.Text       (Text)
 
 ------------------------------------------------------------------------------------------
-predicate isInstructor :: ClassId -> UserId -> Bool
-predicate isStudent    :: ClassId -> UserId -> GroupId -> Bool
-predicate isAdmin      :: UserId -> Bool
+predicate isInstructor   :: ClassId -> UserId  -> Bool
+predicate isInGroup      :: ClassId -> GroupId -> UserId -> Bool
+predicate isAdmin        :: UserId  -> Bool
+predicate isEnrolled     :: ClassId -> UserId -> Bool
 ------------------------------------------------------------------------------------------
-policy IsClassInstructor = \r viewer ->
-  isInstructor (groupClass r) (entityKey viewer)
+policy IsInstructorG = \group viewer ->
+  isInstructor (groupClass group) (entityKey viewer)
 
-policy IsGroupStudent = \r viewer ->
-  isStudent (groupClass r) (entityKey viewer) (entityKey r)
+policy IsInstructorE = \enroll viewer ->
+  isInstructor (enrollClass enroll) (entityKey viewer)
+
+policy IsInstructorC = \class viewer ->
+  isInstructor (entityKey class) (entityKey viewer)
+
+policy IsInGroupG = \group viewer ->
+  isInGroup (groupClass group) (entityKey group) (entityKey viewer)
+
+policy IsInGroupE = \enroll viewer ->
+  isInGroup (enrollClass enroll) (enrollGroup enroll) (entityKey viewer)
 
 policy IsSelf = \user viewer ->
   viewer == user
 
 policy IsAdmin = \_ viewer ->
   isAdmin (entityKey viewer)
-
-policy IsClassInstructorClass = \r _ viewer ->
-  isInstructor (entityKey r) (entityKey viewer)
 
 ------------------------------------------------------------------------------------------
 
@@ -34,10 +41,9 @@ User
 
   UniqueEmailAddress emailAddress
   assert { admin => isAdmin entityKey }
-  insert {\new viewer -> IsInstructor viewer }
   read   [ password ] @IsSelf
-  update [ password, level, emailAddress ] {\_ _ _ -> False}
-  update [ firstName, lastName ] {\old _ viewer -> IsSelf old viewer}
+  update [ password, level, emailAddress ] { \_ _ _ -> False }
+  update [ firstName, lastName ] { \old _ viewer -> IsSelf old viewer }
 
 Class
   institution Text
@@ -48,7 +54,7 @@ Class
   UniqueInstClass institution name
   assert { isInstructor entityKey instructor }
   insert @IsAdmin
-  update [ editorLang ] @IsClassInstructorClass
+  update [ editorLang ] { \c _ v -> IsInstructorC c v }
 
 Group
   name       Text
@@ -57,10 +63,10 @@ Group
 
   UniqueGroupClass name class
 
-  insert @IsClassInstructor
-  read   [ editorLink ]       { \r v -> IsClassInstructor r v || IsGroupStudent r v  }
-  update [ name, editorLink ] {\r _ viewer -> IsClassInstructor r viewer}
-  update [ class ]            {\_ _ _ -> False }
+  insert @IsInstructorG
+  read   [ editorLink, name, class ] { \g v -> IsInstructorG g v || IsInGroupG g v }
+  update [ name, editorLink ] { \g _ v -> IsInstructorG g v }
+  update [ class ]            { \_ _ _ -> False  }
 
 Enroll
   student    UserId
@@ -69,12 +75,10 @@ Enroll
 
   UniqueEnroll student class
 
-  assert { isStudent class student group }
-  insert { \r viewer -> isInstructor (enrollClass r) (entityKey viewer)}
+  assert { isInGroup class group student }
+  insert @IsInstructorE
+  read   [ student, group, class ]  { \e v -> IsInstructorE e v || IsInGroupE e v }
   update [ student, class ]  { \_ _ _ -> False }
-  read   [ student, group ]  { \r viewer -> isClassInstructor (enrollClass r) (entityKey viewer) ||
-                                    isStudent (enrollClass r) (entityKey viewer) (enrollGroup r)
-                             }
 
 ResetPassword
   email Text
