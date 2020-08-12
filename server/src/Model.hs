@@ -416,11 +416,11 @@ groupId' = EntityFieldWrapper GroupId
 {-@ measure groupNameCap :: Entity Group -> Bool @-}
 
 {-@ assume groupName' :: EntityFieldWrapper <
-    {\x_0 x_1 -> (IsInstructorG x_0 x_1 || IsInGroupG x_0 x_1)}
+    {\_ _ -> True}
   , {\row field -> field == groupName (entityVal row)}
   , {\field row -> field == groupName (entityVal row)}
   , {\old -> groupNameCap old}
-  , {\x_0 x_1 x_2 -> ((IsInstructorG x_0 x_2)) => (groupNameCap x_0)}
+  , {\x_0 x_1 x_2 -> ((False)) => (groupNameCap x_0)}
   > (Entity User) Group Text
 @-}
 groupName' :: EntityFieldWrapper (Entity User) Group Text
@@ -446,7 +446,7 @@ groupEditorLink' = EntityFieldWrapper GroupEditorLink
 {-@ measure groupClassCap :: Entity Group -> Bool @-}
 
 {-@ assume groupClass' :: EntityFieldWrapper <
-    {\x_0 x_1 -> (IsInstructorG x_0 x_1 || IsInGroupG x_0 x_1)}
+    {\_ _ -> True}
   , {\row field -> field == groupClass (entityVal row)}
   , {\field row -> field == groupClass (entityVal row)}
   , {\old -> groupClassCap old}

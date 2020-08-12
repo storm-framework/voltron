@@ -6,8 +6,8 @@
 
 module Controllers.Class
   ( addUser
-  , addClass
   , addGroup
+  , addClass
   , addEnroll
   , addRoster
   , getRoster
@@ -128,6 +128,20 @@ createUser (EnrollStudent {..}) = do
   let crUser = mkCreateUser esEmail password esFirstName esLastName "" ""
   return crUser
 
+{-@ addEnroll
+  :: {c: ClassId | isInstructor c (entityKey (currentUser 0))}
+  -> CreateEnroll
+  -> TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
+addEnroll :: ClassId -> CreateEnroll -> Controller EnrollId
+addEnroll clsId r@(CreateEnroll {..}) = do
+  logT Log.INFO ("addEnroll: " ++ show r)
+  student   <- selectFirstOr notFoundJSON (userEmailAddress' ==. enrollStudent)
+  studentId <- project userId' student
+  group     <- selectFirstOr notFoundJSON (groupName' ==. enrollGroup)
+  groupId   <- project groupId' group
+  insert (mkEnroll studentId clsId groupId)
+
+
 {-@ genRandomText :: TaggedT<{\_ -> True}, {\_ -> False}> _ _ _ @-}
 genRandomText :: Controller T.Text
 genRandomText = do
@@ -180,21 +194,6 @@ addClass r@(CreateClass {..}) = do
 -------------------------------------------------------------------------------
 -- | Add an enroll, i.e. student to a group -----------------------------------
 -------------------------------------------------------------------------------
-
-{-@ ignore addEnroll @-}
-addEnroll :: ClassId -> CreateEnroll -> Controller EnrollId
-addEnroll clsId r@(CreateEnroll {..}) = do
-  logT Log.INFO ("addEnroll: " ++ show r)
-  student   <- selectFirstOr notFoundJSON (userEmailAddress' ==. enrollStudent)
-  studentId <- project userId' student
-  groupId   <- lookupGroupId enrollGroup
-  insert (mkEnroll studentId clsId groupId)
-
-{-@ ignore lookupGroupId @-}
-lookupGroupId :: T.Text -> Controller GroupId
-lookupGroupId name = do
-  r <- selectFirstOr notFoundJSON (groupName' ==. name)
-  project groupId' r
 
 {-@ ignore lookupClassId @-}
 lookupClassId :: T.Text -> Controller ClassId

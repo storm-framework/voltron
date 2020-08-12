@@ -65,9 +65,11 @@ Group
   UniqueGroupClass name class
 
   insert @IsInstructorG
-  read   [ editorLink, name, class ] { \g v -> IsInstructorG g v || IsInGroupG g v }
-  update [ name, editorLink ] { \g _ v -> IsInstructorG g v }
-  update [ class ]            { \_ _ _ -> False  }
+
+  read   [ editorLink ] { \g v -> IsInstructorG g v || IsInGroupG g v }
+
+  update [ name, class ] { \g _ v -> False }
+  update [ editorLink ]  { \g _ v -> IsInstructorG g v }
 
 Enroll
   student    UserId
