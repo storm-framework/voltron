@@ -331,7 +331,7 @@ classId' = EntityFieldWrapper ClassId
   , {\row field -> field == classInstitution (entityVal row)}
   , {\field row -> field == classInstitution (entityVal row)}
   , {\old -> classInstitutionCap old}
-  , {\old _ _ -> classInstitutionCap old}
+  , {\x_0 x_1 x_2 -> ((False)) => (classInstitutionCap x_0)}
   > (Entity User) Class Text
 @-}
 classInstitution' :: EntityFieldWrapper (Entity User) Class Text
@@ -346,7 +346,7 @@ classInstitution' = EntityFieldWrapper ClassInstitution
   , {\row field -> field == className (entityVal row)}
   , {\field row -> field == className (entityVal row)}
   , {\old -> classNameCap old}
-  , {\old _ _ -> classNameCap old}
+  , {\x_0 x_1 x_2 -> ((False)) => (classNameCap x_0)}
   > (Entity User) Class Text
 @-}
 className' :: EntityFieldWrapper (Entity User) Class Text
@@ -361,7 +361,7 @@ className' = EntityFieldWrapper ClassName
   , {\row field -> field == classInstructor (entityVal row)}
   , {\field row -> field == classInstructor (entityVal row)}
   , {\old -> classInstructorCap old}
-  , {\old _ _ -> classInstructorCap old}
+  , {\x_0 x_1 x_2 -> ((False)) => (classInstructorCap x_0)}
   > (Entity User) Class UserId
 @-}
 classInstructor' :: EntityFieldWrapper (Entity User) Class UserId

@@ -50,16 +50,17 @@ import           Frankie.Log
 -- | Update the language-mode used for a given class --------------------------
 -------------------------------------------------------------------------------
 
-{-@ ignore setLanguage @-}
+{-@ setLanguage :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
 setLanguage :: Controller ()
 setLanguage = do
-  instr <- requireAuthUser
+  instr   <- requireAuthUser
+  instrId <- project userId' instr
   ClassLangInfo {..} <- decodeBody
-  cls <- selectFirstOr404 (className' ==. cliClass)
-  -- TODO: check that `instr` is the instructor for className
-  _  <- updateWhere
-          (className' ==. cliClass)
-          (classEditorLang' `assign` cliLanguage)
+  cls   <- selectFirstOr (errorResponse status403 Nothing)
+                         (className' ==. cliClass &&: classInstructor' ==. instrId)
+  clsId <- project classId' cls
+  _  <- updateWhere (classId' ==. clsId)
+                    (classEditorLang' `assign` cliLanguage)
   respondJSON status200 ("OK: updated language for " <> cliClass <> " to " <> cliLanguage)
 
 -------------------------------------------------------------------------------

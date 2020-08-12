@@ -54,6 +54,7 @@ Class
   UniqueInstClass institution name
   assert { isInstructor entityKey instructor }
   insert @IsAdmin
+  update [ institution, name, instructor ] { \_ _ _ -> False }
   update [ editorLang ] { \c _ v -> IsInstructorC c v }
 
 Group
