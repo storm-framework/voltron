@@ -36,6 +36,7 @@ import           Binah.Helpers
 import           Binah.Infrastructure
 import           Binah.Templates
 import           Binah.Frankie
+import           Binah.SMTP
 import qualified Frankie.Log                   as Log
 import           Controllers
 import           Model
@@ -43,10 +44,13 @@ import           JSON
 import           Crypto
 import           Crypto.Random                  ( getRandomBytes )
 import           Types
+import           Frankie.Log
 
 -------------------------------------------------------------------------------
 -- | Update the language-mode used for a given class --------------------------
 -------------------------------------------------------------------------------
+
+{-@ ignore setLanguage @-}
 setLanguage :: Controller ()
 setLanguage = do
   instr <- requireAuthUser
@@ -58,12 +62,11 @@ setLanguage = do
           (classEditorLang' `assign` cliLanguage)
   respondJSON status200 ("OK: updated language for " <> cliClass <> " to " <> cliLanguage)
 
-
-
 -------------------------------------------------------------------------------
 -- | Respond with Current [EnrollStudent] for className -----------------------
 -------------------------------------------------------------------------------
 
+{-@ ignore getRoster @-}
 getRoster :: T.Text -> Controller ()
 getRoster className = do
   instr   <- requireAuthUser
@@ -73,6 +76,7 @@ getRoster className = do
   roster  <- mapT enrollEnrollStudent enrolls
   respondJSON status200 roster
 
+{-@ ignore enrollEnrollStudent @-}
 enrollEnrollStudent :: Entity Enroll -> Controller EnrollStudent
 enrollEnrollStudent enroll = do
   userId  <- project enrollStudent' enroll
@@ -85,12 +89,11 @@ enrollEnrollStudent enroll = do
     <*>    project userEmailAddress' user
     <*>    project groupName'        group
 
-
-
 -------------------------------------------------------------------------------
 -- | Add a full roster of students to a class using an Roster -----------------
 -------------------------------------------------------------------------------
 
+{-@ ignore addRoster @-}
 addRoster :: Controller ()
 addRoster = do
   instr         <- requireAuthUser
@@ -104,13 +107,21 @@ addRoster = do
   getRoster rosterClass
   -- respondJSON status200 ("OK:addRoster" :: T.Text)
 
+{-@ ignore addGroup @-}
+addGroup :: ClassId -> CreateGroup -> Controller (Maybe GroupId)
+addGroup clsId r@(CreateGroup {..}) = do
+  id <- insertMaybe (mkGroup groupName groupEditorLink clsId)
+  whenT (isNothing id) (logT Log.WARNING ("addGroup: skipping duplicate group " ++ show r))
+  return id
+
+{-@ ignore createUser @-}
 createUser :: EnrollStudent -> Controller CreateUser
 createUser (EnrollStudent {..}) = do
   password <- genRandomText
   let crUser = mkCreateUser esEmail password esFirstName esLastName "" ""
   return crUser
 
-{-@ genRandomText :: TaggedT<{\_ -> True}, {\_ -> False}> _ _@-}
+{-@ genRandomText :: TaggedT<{\_ -> True}, {\_ -> False}> _ _ _ @-}
 genRandomText :: Controller T.Text
 genRandomText = do
   bytes <- liftTIO (getRandomBytes 24)
@@ -134,64 +145,52 @@ rosterEnrolls (Roster {..}) =
 {-@ ignore addUser @-}
 addUser :: (MonadTIO m) => CreateUser -> TasCon m (Maybe UserId)
 addUser r@(CreateUser {..}) = do
-  Log.log Log.INFO ("addUser: " ++ show r)
+  logT Log.INFO ("addUser: " ++ show r)
   EncryptedPass encrypted <- encryptPassTIO' (Pass (T.encodeUtf8 crUserPassword))
-  let msg = "addUser: duplicate email " ++ T.unpack crUserEmail
-  insertOrMsg msg $ mkUser crUserEmail encrypted crUserFirst crUserLast "" "" False
+  maybeId <- insertMaybe (mkUser crUserEmail encrypted crUserFirst crUserLast "" "" False)
+  whenT (isNothing maybeId) (logT Log.WARNING ("addUser: skipping duplicate user " ++ show r))
+  return maybeId
 
 -------------------------------------------------------------------------------
 -- | Add a class --------------------------------------------------------------
 -------------------------------------------------------------------------------
 
 {-@ ignore addClass @-}
--- addClass :: CreateClass -> Controller (Maybe ClassId)
-addClass :: (MonadTIO m) => CreateClass -> TasCon m (Maybe ClassId)
+addClass :: CreateClass -> Task (Maybe ClassId)
 addClass r@(CreateClass {..}) = do
-  Log.log Log.INFO ("addClass: " ++ show r)
+  logT Log.INFO ("addClass: " ++ show r)
   maybeInstr <- selectFirst (userEmailAddress' ==. crClassInstructor)
   case maybeInstr of
     Just instr -> do
       instrId <- project userId' instr
-      let msg = "addClass: duplicate class " ++ show r
-      insertOrMsg msg $ mkClass crClassInstitution crClassName instrId crClassLanguage
+      id      <- insertMaybe (mkClass crClassInstitution crClassName instrId crClassLanguage)
+      whenT (isNothing id) (logT Log.WARNING ("addClass: skipping duplicate class " ++ show r))
+      return id
     Nothing -> do
       logT Log.ERROR ("addClass: cannot find user " ++ show crClassInstructor)
       return Nothing
-
--------------------------------------------------------------------------------
--- | Add a group from cmd-line ------------------------------------------------
--------------------------------------------------------------------------------
-
-{-@ ignore addGroup @-}
-addGroup :: ClassId -> CreateGroup -> Controller (Maybe GroupId)
-addGroup clsId r@(CreateGroup {..}) = do
-  Log.log Log.INFO ("addGroup: " ++ show r)
-  let msg = "addGroup: duplicate group " ++ show r
-  insertOrMsg msg $ mkGroup groupName groupEditorLink clsId
 
 -------------------------------------------------------------------------------
 -- | Add an enroll, i.e. student to a group -----------------------------------
 -------------------------------------------------------------------------------
 
 {-@ ignore addEnroll @-}
-addEnroll :: ClassId -> CreateEnroll -> Controller (Maybe EnrollId)
+addEnroll :: ClassId -> CreateEnroll -> Controller EnrollId
 addEnroll clsId r@(CreateEnroll {..}) = do
-  Log.log Log.INFO ("addEnroll: " ++ show r)
+  logT Log.INFO ("addEnroll: " ++ show r)
   student   <- selectFirstOr notFoundJSON (userEmailAddress' ==. enrollStudent)
   studentId <- project userId' student
   groupId   <- lookupGroupId enrollGroup
-  let msg = "addGroup: duplicate enroll" ++ show r
-  insertOrMsg msg $ mkEnroll studentId clsId groupId
+  insert (mkEnroll studentId clsId groupId)
 
+{-@ ignore lookupGroupId @-}
 lookupGroupId :: T.Text -> Controller GroupId
--- lookupGroupId :: T.Text -> Controller GroupId
 lookupGroupId name = do
   r <- selectFirstOr notFoundJSON (groupName' ==. name)
   project groupId' r
 
-
+{-@ ignore lookupClassId @-}
 lookupClassId :: T.Text -> Controller ClassId
--- lookupClassId :: T.Text -> Controller ClassId
 lookupClassId name = do
   r <- selectFirstOr notFoundJSON (className' ==. name)
   project classId' r

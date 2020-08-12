@@ -14,34 +14,34 @@ import           System.Console.CmdArgs
 import           System.Environment
 import           Server
 import           Config
-import qualified Auth                           
-import qualified Controllers.Class as Class 
+import qualified Auth
+import qualified Controllers.Class as Class
 import           Types
 
 main :: IO ()
 main = do
-  args <- cmdArgs voltronModes 
+  args <- cmdArgs voltronModes
   case args of
 
     Server {..} -> do
       runServer $ ServerOpts port (fromString host) static pool db
 
     AddClass {..} -> do
-      let thing = mkCreateClass institution className instructor language 
-      rId <- runTask' db $ Class.addClass thing 
+      let thing = mkCreateClass institution className instructor language
+      rId <- runTask' db $ Class.addClass thing
       putStrLn ("Add Class: " ++ show rId)
 
     AddUser {..} -> do
       let thing = mkCreateUser email password firstName lastName "" ""
-      rId <- runTask' db $ Class.addUser thing 
+      rId <- runTask' db $ Class.addUser thing
       putStrLn ("Add User: " ++ show rId)
 
     -- AddGroup {..} -> do
     --   let thing = CreateGroup className groupName editorLink
-    --   rId <- runTask' db $ Enroller.addGroup thing 
+    --   rId <- runTask' db $ Enroller.addGroup thing
     --   putStrLn ("Add Group: " ++ show rId)
 
     -- AddEnroll {..} -> do
-    --   let thing = CreateEnroll student className groupName 
-    --   rId <- runTask' db $ Enroller.addEnroll thing 
+    --   let thing = CreateEnroll student className groupName
+    --   rId <- runTask' db $ Enroller.addEnroll thing
     --   putStrLn ("Add Group: " ++ show rId)

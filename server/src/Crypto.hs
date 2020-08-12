@@ -17,6 +17,7 @@ import           Control.Monad                  ( replicateM )
 import           Controllers
 import           Binah.Infrastructure
 import           Binah.Filters
+import           Binah.SMTP
 import           Model
 
 instance MonadRandom TIO where
@@ -26,12 +27,12 @@ instance MonadTime TIO where
   currentTime = TIO currentTime
 
 {-@ ignore genRandomCodes @-}
-{-@ genRandomCodes :: _ -> TaggedT<{\_ -> True}, {\_ -> False}> _ _ @-}
+{-@ genRandomCodes :: _ -> TaggedT<{\_ -> True}, {\_ -> False}> _ _ _ @-}
 genRandomCodes :: Int -> Controller [Text]
 genRandomCodes n = replicateM n genRandomCode
 
 {-@ ignore genRandomCode @-}
-{-@ genRandomCode :: TaggedT<{\_ -> True}, {\_ -> False}> _ _@-}
+{-@ genRandomCode :: TaggedT<{\_ -> True}, {\_ -> False}> _ _ _ @-}
 genRandomCode :: Controller Text
 genRandomCode = do
   bytes <- liftTIO (getRandomBytes 24)
@@ -42,4 +43,4 @@ genRandomCode = do
 ----------------------------------------------------------------------------------------------------
 
 encryptPassTIO' :: MonadTIO m => Pass -> m EncryptedPass
-encryptPassTIO' = liftTIO . TIO . encryptPassIO'
+encryptPassTIO' pass = liftTIO (TIO (encryptPassIO' pass))
