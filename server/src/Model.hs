@@ -146,7 +146,7 @@ ResetPassword
 
 {-@ predicate IsSelf USER VIEWER = VIEWER == USER @-}
 
-{-@ predicate IsAdmin A0 VIEWER = isAdmin (entityKey VIEWER) @-}
+{-@ predicate IsAdmin VIEWER = isAdmin (entityKey VIEWER) @-}
 
 --------------------------------------------------------------------------------
 -- | Records
@@ -300,7 +300,7 @@ userAdmin' = EntityFieldWrapper UserAdmin
   -> x_3: Text
   -> BinahRecord <
        {\row -> classInstitution (entityVal row) == x_0 && className (entityVal row) == x_1 && classInstructor (entityVal row) == x_2 && classEditorLang (entityVal row) == x_3}
-     , {\_ viewer -> isAdmin (entityKey viewer)}
+     , {\_ v -> IsAdmin v}
      , {\x_0 x_1 -> False}
      > (Entity User) Class
 @-}

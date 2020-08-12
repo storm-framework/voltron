@@ -25,7 +25,7 @@ policy IsInGroupE = \enroll viewer ->
 policy IsSelf = \user viewer ->
   viewer == user
 
-policy IsAdmin = \_ viewer ->
+policy IsAdmin = \viewer ->
   isAdmin (entityKey viewer)
 
 ------------------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ Class
 
   UniqueInstClass institution name
   assert { isInstructor entityKey instructor }
-  insert @IsAdmin
+  insert { \_ v -> IsAdmin v }
   update [ institution, name, instructor ] { \_ _ _ -> False }
   update [ editorLang ] { \c _ v -> IsInstructorC c v }
 

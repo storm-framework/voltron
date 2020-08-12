@@ -100,17 +100,20 @@ enrollEnrollStudent enroll = do
 -- | Add a full roster of students to a class using an Roster -----------------
 -------------------------------------------------------------------------------
 
-{-@ ignore addRoster @-}
+{-@ addRoster :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
 addRoster :: Controller ()
 addRoster = do
   instr         <- requireAuthUser
+  instrId       <- project userId' instr
   r@Roster {..} <- decodeBody
-  crUsers       <- mapM createUser rosterStudents
+  crUsers       <- mapT createUser rosterStudents
 
-  clsId <- lookupClassId rosterClass
-  mapM_ addUser   crUsers
-  mapM_ (addGroup  clsId) (rosterGroups r)
-  mapM_ (addEnroll clsId) (rosterEnrolls r)
+  cls   <- selectFirstOr (errorResponse status403 Nothing)
+                         (className' ==. rosterClass &&: classInstructor' ==. instrId)
+  clsId <- project classId' cls
+  mapT addUser   crUsers
+  mapT (addGroup  clsId) (rosterGroups r)
+  mapT (addEnroll clsId) (rosterEnrolls r)
   getRoster rosterClass
   -- respondJSON status200 ("OK:addRoster" :: T.Text)
 
@@ -144,7 +147,6 @@ addEnroll clsId r@(CreateEnroll {..}) = do
   groupId   <- project groupId' group
   insert (mkEnroll studentId clsId groupId)
 
-
 {-@ genRandomText :: TaggedT<{\_ -> True}, {\_ -> False}> _ _ _ @-}
 genRandomText :: Controller T.Text
 genRandomText = do
@@ -166,7 +168,8 @@ rosterEnrolls (Roster {..}) =
 -------------------------------------------------------------------------------
 -- | Add a user ---------------------------------------------------------------
 -------------------------------------------------------------------------------
-{-@ ignore addUser @-}
+
+{-@ addUser :: _ -> TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
 addUser :: (MonadTIO m) => CreateUser -> TasCon m (Maybe UserId)
 addUser r@(CreateUser {..}) = do
   logT Log.INFO ("addUser: " ++ show r)
@@ -179,7 +182,7 @@ addUser r@(CreateUser {..}) = do
 -- | Add a class --------------------------------------------------------------
 -------------------------------------------------------------------------------
 
-{-@ ignore addClass @-}
+{-@ addClass :: {c:_ | IsAdmin (currentUser 0)} -> TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
 addClass :: CreateClass -> Task (Maybe ClassId)
 addClass r@(CreateClass {..}) = do
   logT Log.INFO ("addClass: " ++ show r)
@@ -193,13 +196,3 @@ addClass r@(CreateClass {..}) = do
     Nothing -> do
       logT Log.ERROR ("addClass: cannot find user " ++ show crClassInstructor)
       return Nothing
-
--------------------------------------------------------------------------------
--- | Add an enroll, i.e. student to a group -----------------------------------
--------------------------------------------------------------------------------
-
-{-@ ignore lookupClassId @-}
-lookupClassId :: T.Text -> Controller ClassId
-lookupClassId name = do
-  r <- selectFirstOr notFoundJSON (className' ==. name)
-  project classId' r
