@@ -130,6 +130,8 @@ ResetPassword
 
 {-@ measure isEnrolled :: ClassId -> UserId -> Bool @-}
 
+{-@ measure validCode :: Text -> Bool @-}
+
 --------------------------------------------------------------------------------
 -- | Policies
 --------------------------------------------------------------------------------
@@ -211,7 +213,7 @@ userEmailAddress' = EntityFieldWrapper UserEmailAddress
   , {\row field -> field == userPassword (entityVal row)}
   , {\field row -> field == userPassword (entityVal row)}
   , {\old -> userPasswordCap old}
-  , {\x_0 x_1 x_2 -> ((False)) => (userPasswordCap x_0)}
+  , {\x_0 x_1 x_2 -> ((validCode (userEmailAddress (entityVal x_0)))) => (userPasswordCap x_0)}
   > (Entity User) User ByteString
 @-}
 userPassword' :: EntityFieldWrapper (Entity User) User ByteString
@@ -546,7 +548,7 @@ mkResetPassword x_0 x_1 x_2 = BinahRecord (ResetPassword x_0 x_1 x_2)
 
 {-@ invariant {v: Entity ResetPassword | v == getJust (entityKey v)} @-}
 
-
+{-@ invariant {v: Entity ResetPassword | (resetPasswordValid (entityVal v)) => validCode (resetPasswordEmail (entityVal v))} @-}
 
 {-@ assume resetPasswordId' :: EntityFieldWrapper <
     {\row viewer -> True}

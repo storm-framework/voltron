@@ -65,7 +65,7 @@ import           Types
 -------------------------------------------------------------------------------
 -- | Reset password : generate a random code and send to user's email
 -------------------------------------------------------------------------------
-{-@ ignore reset @-}
+{-@ reset :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
 reset :: Controller ()
 reset = do
   ResetInfo {..} <- decodeBody
@@ -80,6 +80,7 @@ reset = do
   sendResetMail code resetEmailAddress
   respondJSON status200 $ "OK: Please check " <> resetEmailAddress
 
+{-@ sendResetMail :: _ -> _ -> TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
 sendResetMail :: Text -> Text -> Controller ()
 sendResetMail code userEmail = do
   SMTPConfig{..} <- configSMTP <$> getConfig
@@ -88,7 +89,7 @@ sendResetMail code userEmail = do
   let from    = publicAddress (T.pack smtpUser)
   let mail    = simpleMail' to from subject (mkBody code)
   res        <- sendMailWithLoginSTARTTLS smtpHost smtpUser smtpPass mail
-  Log.log Log.INFO ("reset email: " ++ show res)
+  logT Log.INFO ("reset email: " ++ show res)
   case res of
     Right _ -> return ()
     Left _  -> respondError status401 (Just "Error sending email!")
@@ -102,7 +103,7 @@ mkBody code =
 -------------------------------------------------------------------------------
 -- | `resetPass` actually resets the password using a previously mailed code
 -------------------------------------------------------------------------------
-{-@ ignore resetPass @-}
+{-@ resetPass :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
 resetPass :: Controller ()
 resetPass = do
   ResetPassInfo {..} <- decodeBody
