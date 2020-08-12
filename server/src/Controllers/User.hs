@@ -21,8 +21,8 @@ import           Binah.Insert
 import           Binah.Filters
 import           Binah.Helpers
 import           Binah.Infrastructure
-import           Binah.Templates
 import           Binah.Frankie
+import           Binah.SMTP
 
 import           Controllers
 import           Model
@@ -35,45 +35,48 @@ import qualified Debug.Trace
 -- | User List
 ----------------------------------------------------------------------------------------------------
 
-{-@ userList :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ @-}
-userList :: Controller ()
-userList = do
-  _     <- requireAuthUser
-  users <- selectList trueF
-  users <- mapT extractUserData users
-  respondJSON status200 users
+-- {-@ userList :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
+-- userList :: Controller ()
+-- userList = do
+--   _     <- requireAuthUser
+--   users <- selectList trueF
+--   users <- mapT extractUserData users
+--   respondJSON status200 users
 
+{-@ extractUserNG :: _ -> TaggedT<{\_ -> True}, {\_ -> False}> _ _ _ @-}
 extractUserNG :: Entity User -> Controller UserNG
 extractUserNG u = do
   firstName <- project userFirstName' u
   lastName  <- project userLastName' u
   return     $ UserNG firstName lastName
 
+{-@ extractUserData :: u:_ -> TaggedT<{\v -> u == v}, {\_ -> False}> _ _ _ @-}
 extractUserData :: Entity User -> Controller UserData
 extractUserData u = do
   emailAddress <- project userEmailAddress' u
-  firstName    <- project userFirstName' u
-  lastName     <- project userLastName' u
+  uNG          <- extractUserNG u
   theme        <- project userTheme' u
   keyBinds     <- project userKeyBinds' u
-  let uNG       = UserNG firstName lastName
   classes      <- extractUserClasses u
   return $ UserData uNG theme keyBinds classes
 
+{-@ extractUserClasses :: u:_ -> TaggedT<{\v -> u == v}, {\_ -> False}> _ _ _ @-}
 extractUserClasses :: Entity User -> Controller [ClassData]
 extractUserClasses u = do
   instrClasses   <- extractInstrClasses u
   studentClasses <- extractStudentClasses u
   return (instrClasses ++ studentClasses)
 
+{-@ extractInstrClasses :: u:_ -> TaggedT<{\v -> u == v}, {\_ -> False}> _ _ _ @-}
 extractInstrClasses :: Entity User -> Controller [ClassData]
 extractInstrClasses u = do
   uId        <- project userId' u
   classes    <- selectList (classInstructor' ==. uId)
-  mapT (extractInstrData u) classes
+  mapT extractInstrData classes
 
-extractInstrData :: Entity User -> Entity Class -> Controller ClassData
-extractInstrData u cls = do
+{-@ extractInstrData :: c: _ -> TaggedT<{\v -> IsInstructorC c v}, {\_ -> False}> _ _ _ @-}
+extractInstrData :: Entity Class -> Controller ClassData
+extractInstrData cls = do
   clsId     <- project classId' cls
   clsName   <- project className' cls
   clsLang   <- project classEditorLang' cls
@@ -81,23 +84,34 @@ extractInstrData u cls = do
   allBufs   <- mapT (extractBuffer clsName False) allGroups
   return (Instructor clsName clsLang allBufs)
 
+{-@ extractStudentClasses :: u:_ -> TaggedT<{\v -> u == v}, {\_ -> False}> _ _ _ @-}
 extractStudentClasses :: Entity User -> Controller [ClassData]
 extractStudentClasses u = do
   uId       <- project userId' u
   uEnrolls  <- selectList (enrollStudent' ==. uId)
-  mapT (enrollClassData u) uEnrolls
+  mapMaybeT enrollClassData uEnrolls
 
-enrollClassData :: Entity User -> Entity Enroll -> Controller ClassData
-enrollClassData u enroll = do
+{-@ enrollClassData :: e:_ -> TaggedT<{\v -> IsInGroupE e v}, {\_ -> False}> _ _ _ @-}
+enrollClassData :: Entity Enroll -> Controller (Maybe ClassData)
+enrollClassData enroll = do
   grpId   <- project enrollGroup' enroll
-  grp     <- selectFirstOr notFoundJSON (groupId' ==. grpId)
-  clsId   <- project groupClass' grp
-  cls     <- selectFirstOr notFoundJSON (classId' ==. clsId)
-  clsName <- project className' cls
-  lang    <- project classEditorLang' cls
-  grpBuf  <- extractBuffer clsName True grp
-  return (Student clsName lang grpBuf)
+  clsId   <- project enrollClass' enroll
+  grp     <- selectFirst (groupId' ==. grpId &&: groupClass' ==. clsId)
+  cls     <- selectFirst (classId' ==. clsId)
+  case (grp, cls) of
+    (Just grp, Just cls) -> do
+      clsName <- project className' cls
+      lang    <- project classEditorLang' cls
+      grpBuf  <- extractBuffer clsName True grp
+      return $ Just (Student clsName lang grpBuf)
+    _ -> return Nothing
 
+{-@ extractBuffer
+  :: Text
+  -> Bool
+  -> g: (Entity Group)
+  -> TaggedT<{\v -> IsInstructorG g v || IsInGroupG g v}, {\_ -> False}> _ _ _
+@-}
 extractBuffer :: Text -> Bool -> Entity Group -> Controller Buffer
 extractBuffer clsName isStudent group = do
   bName <- project groupName' group
@@ -115,7 +129,7 @@ traceShow msg x = Debug.Trace.trace (msg <> ": " <> (show x)) x
 -- | User Get
 ----------------------------------------------------------------------------------------------------
 
-{-@ userGet :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ @-}
+{-@ userGet :: _ -> TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
 userGet :: Int64 -> Controller ()
 userGet _uid = do
   -- let userId = toSqlKey uid
@@ -128,7 +142,7 @@ userGet _uid = do
 -- | User Update
 ----------------------------------------------------------------------------------------------------
 
-{-@ userUpdateMe :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ @-}
+{-@ userUpdateMe :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
 userUpdateMe :: Controller ()
 userUpdateMe = do
   user            <- requireAuthUser

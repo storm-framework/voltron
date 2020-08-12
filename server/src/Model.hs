@@ -124,23 +124,29 @@ ResetPassword
 
 {-@ measure isInstructor :: ClassId -> UserId -> Bool @-}
 
-{-@ measure isStudent :: ClassId -> UserId -> GroupId -> Bool @-}
+{-@ measure isInGroup :: ClassId -> GroupId -> UserId -> Bool @-}
 
 {-@ measure isAdmin :: UserId -> Bool @-}
+
+{-@ measure isEnrolled :: ClassId -> UserId -> Bool @-}
 
 --------------------------------------------------------------------------------
 -- | Policies
 --------------------------------------------------------------------------------
 
-{-@ predicate IsClassInstructor R VIEWER = isInstructor (groupClass (entityVal R)) (entityKey VIEWER) @-}
+{-@ predicate IsInstructorG GROUP VIEWER = isInstructor (groupClass (entityVal GROUP)) (entityKey VIEWER) @-}
 
-{-@ predicate IsGroupStudent R VIEWER = isStudent (groupClass (entityVal R)) (entityKey VIEWER) (entityKey R) @-}
+{-@ predicate IsInstructorE ENROLL VIEWER = isInstructor (enrollClass (entityVal ENROLL)) (entityKey VIEWER) @-}
+
+{-@ predicate IsInstructorC CLASS VIEWER = isInstructor (entityKey CLASS) (entityKey VIEWER) @-}
+
+{-@ predicate IsInGroupG GROUP VIEWER = isInGroup (groupClass (entityVal GROUP)) (entityKey GROUP) (entityKey VIEWER) @-}
+
+{-@ predicate IsInGroupE ENROLL VIEWER = isInGroup (enrollClass (entityVal ENROLL)) (enrollGroup (entityVal ENROLL)) (entityKey VIEWER) @-}
 
 {-@ predicate IsSelf USER VIEWER = VIEWER == USER @-}
 
-{-@ predicate IsAdmin _ VIEWER = isAdmin (entityKey VIEWER) @-}
-
-{-@ predicate IsClassInstructorClass R _ VIEWER = isInstructor (entityKey R) (entityKey VIEWER) @-}
+{-@ predicate IsAdmin A0 VIEWER = isAdmin (entityKey VIEWER) @-}
 
 --------------------------------------------------------------------------------
 -- | Records
@@ -159,7 +165,7 @@ ResetPassword
   -> x_6: Bool
   -> BinahRecord <
        {\row -> userEmailAddress (entityVal row) == x_0 && userPassword (entityVal row) == x_1 && userFirstName (entityVal row) == x_2 && userLastName (entityVal row) == x_3 && userTheme (entityVal row) == x_4 && userKeyBinds (entityVal row) == x_5 && userAdmin (entityVal row) == x_6}
-     , {\new viewer -> IsInstructor viewer}
+     , {\_ _ -> True}
      , {\x_0 x_1 -> (x_1 == x_0)}
      > (Entity User) User
 @-}
@@ -370,7 +376,7 @@ classInstructor' = EntityFieldWrapper ClassInstructor
   , {\row field -> field == classEditorLang (entityVal row)}
   , {\field row -> field == classEditorLang (entityVal row)}
   , {\old -> classEditorLangCap old}
-  , {\x_0 x_1 x_2 -> ((isInstructor (entityKey x_0) (entityKey x_2))) => (classEditorLangCap x_0)}
+  , {\x_0 x_1 x_2 -> ((IsInstructorC x_0 x_2)) => (classEditorLangCap x_0)}
   > (Entity User) Class Text
 @-}
 classEditorLang' :: EntityFieldWrapper (Entity User) Class Text
@@ -383,8 +389,8 @@ classEditorLang' = EntityFieldWrapper ClassEditorLang
   -> x_2: ClassId
   -> BinahRecord <
        {\row -> groupName (entityVal row) == x_0 && groupEditorLink (entityVal row) == x_1 && groupClass (entityVal row) == x_2}
-     , {\r viewer -> isInstructor (groupClass (entityVal r)) (entityKey viewer)}
-     , {\x_0 x_1 -> (IsClassInstructor x_0 x_1 || IsGroupStudent x_0 x_1)}
+     , {\group viewer -> isInstructor (groupClass (entityVal group)) (entityKey viewer)}
+     , {\x_0 x_1 -> (IsInstructorG x_0 x_1 || IsInGroupG x_0 x_1)}
      > (Entity User) Group
 @-}
 mkGroup :: Text -> Text -> ClassId -> BinahRecord (Entity User) Group
@@ -410,11 +416,11 @@ groupId' = EntityFieldWrapper GroupId
 {-@ measure groupNameCap :: Entity Group -> Bool @-}
 
 {-@ assume groupName' :: EntityFieldWrapper <
-    {\_ _ -> True}
+    {\x_0 x_1 -> (IsInstructorG x_0 x_1 || IsInGroupG x_0 x_1)}
   , {\row field -> field == groupName (entityVal row)}
   , {\field row -> field == groupName (entityVal row)}
   , {\old -> groupNameCap old}
-  , {\x_0 x_1 x_2 -> ((IsClassInstructor x_0 x_2)) => (groupNameCap x_0)}
+  , {\x_0 x_1 x_2 -> ((IsInstructorG x_0 x_2)) => (groupNameCap x_0)}
   > (Entity User) Group Text
 @-}
 groupName' :: EntityFieldWrapper (Entity User) Group Text
@@ -425,11 +431,11 @@ groupName' = EntityFieldWrapper GroupName
 {-@ measure groupEditorLinkCap :: Entity Group -> Bool @-}
 
 {-@ assume groupEditorLink' :: EntityFieldWrapper <
-    {\x_0 x_1 -> (IsClassInstructor x_0 x_1 || IsGroupStudent x_0 x_1)}
+    {\x_0 x_1 -> (IsInstructorG x_0 x_1 || IsInGroupG x_0 x_1)}
   , {\row field -> field == groupEditorLink (entityVal row)}
   , {\field row -> field == groupEditorLink (entityVal row)}
   , {\old -> groupEditorLinkCap old}
-  , {\x_0 x_1 x_2 -> ((IsClassInstructor x_0 x_2)) => (groupEditorLinkCap x_0)}
+  , {\x_0 x_1 x_2 -> ((IsInstructorG x_0 x_2)) => (groupEditorLinkCap x_0)}
   > (Entity User) Group Text
 @-}
 groupEditorLink' :: EntityFieldWrapper (Entity User) Group Text
@@ -440,7 +446,7 @@ groupEditorLink' = EntityFieldWrapper GroupEditorLink
 {-@ measure groupClassCap :: Entity Group -> Bool @-}
 
 {-@ assume groupClass' :: EntityFieldWrapper <
-    {\_ _ -> True}
+    {\x_0 x_1 -> (IsInstructorG x_0 x_1 || IsInGroupG x_0 x_1)}
   , {\row field -> field == groupClass (entityVal row)}
   , {\field row -> field == groupClass (entityVal row)}
   , {\old -> groupClassCap old}
@@ -457,8 +463,8 @@ groupClass' = EntityFieldWrapper GroupClass
   -> x_2: GroupId
   -> BinahRecord <
        {\row -> enrollStudent (entityVal row) == x_0 && enrollClass (entityVal row) == x_1 && enrollGroup (entityVal row) == x_2}
-     , {\r viewer -> isInstructor (enrollClass (entityVal r)) (entityKey viewer)}
-     , {\x_0 x_1 -> (isClassInstructor (enrollClass (entityVal x_0)) (entityKey x_1) || isStudent (enrollClass (entityVal x_0)) (entityKey x_1) (enrollGroup (entityVal x_0)))}
+     , {\enroll viewer -> isInstructor (enrollClass (entityVal enroll)) (entityKey viewer)}
+     , {\x_0 x_1 -> (IsInstructorE x_0 x_1 || IsInGroupE x_0 x_1)}
      > (Entity User) Enroll
 @-}
 mkEnroll :: UserId -> ClassId -> GroupId -> BinahRecord (Entity User) Enroll
@@ -466,7 +472,7 @@ mkEnroll x_0 x_1 x_2 = BinahRecord (Enroll x_0 x_1 x_2)
 
 {-@ invariant {v: Entity Enroll | v == getJust (entityKey v)} @-}
 
-{-@ invariant {v: Entity Enroll | isStudent (enrollClass (entityVal v)) (enrollStudent (entityVal v)) (enrollGroup (entityVal v))} @-}
+{-@ invariant {v: Entity Enroll | isInGroup (enrollClass (entityVal v)) (enrollGroup (entityVal v)) (enrollStudent (entityVal v))} @-}
 
 {-@ assume enrollId' :: EntityFieldWrapper <
     {\row viewer -> True}
@@ -484,7 +490,7 @@ enrollId' = EntityFieldWrapper EnrollId
 {-@ measure enrollStudentCap :: Entity Enroll -> Bool @-}
 
 {-@ assume enrollStudent' :: EntityFieldWrapper <
-    {\x_0 x_1 -> (isClassInstructor (enrollClass (entityVal x_0)) (entityKey x_1) || isStudent (enrollClass (entityVal x_0)) (entityKey x_1) (enrollGroup (entityVal x_0)))}
+    {\x_0 x_1 -> (IsInstructorE x_0 x_1 || IsInGroupE x_0 x_1)}
   , {\row field -> field == enrollStudent (entityVal row)}
   , {\field row -> field == enrollStudent (entityVal row)}
   , {\old -> enrollStudentCap old}
@@ -499,7 +505,7 @@ enrollStudent' = EntityFieldWrapper EnrollStudent
 {-@ measure enrollClassCap :: Entity Enroll -> Bool @-}
 
 {-@ assume enrollClass' :: EntityFieldWrapper <
-    {\_ _ -> True}
+    {\x_0 x_1 -> (IsInstructorE x_0 x_1 || IsInGroupE x_0 x_1)}
   , {\row field -> field == enrollClass (entityVal row)}
   , {\field row -> field == enrollClass (entityVal row)}
   , {\old -> enrollClassCap old}
@@ -514,7 +520,7 @@ enrollClass' = EntityFieldWrapper EnrollClass
 {-@ measure enrollGroupCap :: Entity Enroll -> Bool @-}
 
 {-@ assume enrollGroup' :: EntityFieldWrapper <
-    {\x_0 x_1 -> (isClassInstructor (enrollClass (entityVal x_0)) (entityKey x_1) || isStudent (enrollClass (entityVal x_0)) (entityKey x_1) (enrollGroup (entityVal x_0)))}
+    {\x_0 x_1 -> (IsInstructorE x_0 x_1 || IsInGroupE x_0 x_1)}
   , {\row field -> field == enrollGroup (entityVal row)}
   , {\field row -> field == enrollGroup (entityVal row)}
   , {\old -> enrollGroupCap old}
