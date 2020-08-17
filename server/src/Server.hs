@@ -25,6 +25,7 @@ import           Database.Persist.Sqlite        ( SqlBackend
                                                 , runMigration
                                                 , createSqlitePool
                                                 )
+import           Crypto.JWT                    as JWT
 import           System.FilePath               as P
 import           System.Directory
 import           System.Environment
@@ -45,8 +46,6 @@ import           Control.Monad.Trans.Control    ( MonadBaseControl(..)
 import           Control.Monad.Trans.Class      ( lift )
 import           Control.Monad.Logger          ( runNoLoggingT )
 import qualified Control.Concurrent.MVar       as MVar
-import           Control.Lens.Lens              ( (&) )
-import           Control.Lens.Operators         ( (^.) )
 import qualified Text.Mustache.Types           as Mustache
 import           Text.Read                      ( readMaybe )
 import           Data.Typeable
@@ -114,8 +113,8 @@ readConfig :: IO Config
 readConfig = Config authMethod
                 <$> MVar.newMVar mempty
                 <*> readSMTPConfig
+                <*> readSecretKey
              -- <*> readAWSConfig
-             -- <*> readSecretKey
 
 readSMTPConfig :: IO SMTPConfig
 readSMTPConfig = do
@@ -123,6 +122,11 @@ readSMTPConfig = do
     user <- fromMaybe ""          <$> lookupEnv "VOLTRON_SMTP_USER"
     pass <- fromMaybe ""          <$> lookupEnv "VOLTRON_SMTP_PASS"
     return $ SMTPConfig host user pass
+
+readSecretKey :: IO JWT.JWK
+readSecretKey = do
+    secret <- fromMaybe "sb8NHmF@_-nsf*ymt!wJ3.KXmTDPsNoy" <$> lookupEnv "VOLTRON_SECRET_KEY"
+    return $ JWT.fromOctets . T.encodeUtf8 . T.pack $ secret
 
 {-@ ignore initDB @-}
 initDB :: T.Text -> IO ()

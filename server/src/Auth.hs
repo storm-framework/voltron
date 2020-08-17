@@ -60,7 +60,7 @@ import           Controllers.Class              ( genRandomText )
 import           Model
 import           JSON
 import           Crypto
-import           Types 
+import           Types
 
 
 --------------------------------------------------------------------------------
@@ -103,9 +103,10 @@ authMethod = AuthMethod
 {-@ ignore checkIfAuth @-}
 checkIfAuth :: Controller (Maybe (Entity User))
 checkIfAuth = do
+  key        <- configSecretKey <$> getConfig
   authHeader <- requestHeader hAuthorization
   let token = authHeader >>= ByteString.stripPrefix "Bearer " <&> L.fromStrict
-  claims <- liftTIO $ mapM doVerify token
+  claims <- liftTIO $ mapM (doVerify key) token
   case claims of
     Just (Right claims) -> do
       let sub    = claims ^. claimSub ^? _Just . string
@@ -122,8 +123,9 @@ checkIfAuth = do
 {-@ ignore genJwt @-}
 genJwt :: UserId -> Controller L.ByteString
 genJwt userId = do
+  key    <- configSecretKey `fmap` getConfigT
   claims <- liftTIO $ mkClaims userId
-  jwt    <- liftTIO $ doJwtSign claims
+  jwt    <- liftTIO $ doJwtSign key claims
   case jwt of
     Right jwt                         -> return (encodeCompact jwt)
     Left  (JWSError                e) -> respondError status500 (Just (show e))
@@ -137,20 +139,13 @@ mkClaims userId = do
   return $ emptyClaimsSet & (claimSub ?~ uid ^. re string) & (claimIat ?~ NumericDate t)
   where uid = T.pack (show (fromSqlKey userId))
 
-doJwtSign :: ClaimsSet -> TIO (Either JWTError SignedJWT)
-doJwtSign claims = runExceptT $ do
+doJwtSign :: JWK -> ClaimsSet -> TIO (Either JWTError SignedJWT)
+doJwtSign key claims = runExceptT $ do
   alg <- bestJWSAlg key
   signClaims key (newJWSHeader ((), alg)) claims
 
-doVerify :: L.ByteString -> TIO (Either JWTError ClaimsSet)
-doVerify s = runExceptT $ do
+doVerify :: JWK -> L.ByteString -> TIO (Either JWTError ClaimsSet)
+doVerify key s = runExceptT $ do
   let audCheck = const True
   s' <- decodeCompact s
   verifyClaims (defaultJWTValidationSettings audCheck) key s'
-
--- TODO: Read this from env
-key :: JWK
-key = fromOctets raw
- where
-  raw :: ByteString
-  raw = "\xe5L\xb7\xf6\x03|\xb6\n\x10\xd8\xb8\x96\xe2\xc4W@#W\xb4>\th*iiW\x12\x80z\x04i="

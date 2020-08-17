@@ -38,6 +38,7 @@ data Config = Config
   { configAuthMethod    :: !(AuthMethod (Entity User) Controller)
   , configTemplateCache :: !(MVar.MVar Mustache.TemplateCache)
   , configSMTP          :: SMTPConfig
+  , configSecretKey     :: JWT.JWK
   }
 
 data SMTPConfig = SMTPConfig
