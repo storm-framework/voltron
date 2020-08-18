@@ -8,6 +8,7 @@
 module Auth where
 
 import           Data.Aeson
+import           Data.Maybe
 import           Control.Monad.Trans.Class      ( lift )
 import           Control.Monad.Time             ( MonadTime(..) )
 import           Control.Monad.Except           ( runExceptT )
@@ -30,6 +31,7 @@ import qualified Data.Text                     as T
 import qualified Data.Text.Lazy                as LT
 import qualified Data.Text.Encoding            as T
 import qualified Data.Text.Lazy.Encoding       as L
+import           Data.Time.Clock                ( secondsToDiffTime )
 import           Data.ByteString                ( ByteString )
 import qualified Data.ByteString               as ByteString
 import qualified Data.ByteString.Base64.URL    as B64Url
@@ -42,6 +44,7 @@ import           GHC.Generics
 import           Text.Read                      ( readMaybe )
 import           Text.Printf                    ( printf )
 import           Frankie.Config
+import           Frankie.Cookie
 import qualified Frankie.Log                   as Log
 import           Binah.Core
 import           Binah.Actions
@@ -75,7 +78,11 @@ signIn = do
    userId                         <- project userId' user
    token                          <- genJwt userId
    userNG                         <- extractUserNG user
-   respondJSON status200 $ LoginResponse (unpackLazy8 token) userNG
+   respondTagged $ setSessionCookie token (jsonResponse status200 userNG)
+
+{-@ signOut :: TaggedT<{\_ -> False}, {\_ -> True}> _ () @-}
+signOut :: Controller ()
+signOut = respondTagged $ expireSessionCookie (emptyResponse status201)
 
 {-@ ignore authUser @-}
 authUser :: Text -> Text -> Controller (Entity User)
@@ -88,6 +95,18 @@ authUser emailAddress password = do
     else respondError status401 (Just "Incorrect credentials")
 
 
+setSessionCookie :: L.ByteString -> Response -> Response
+setSessionCookie token = setCookie
+  (defaultSetCookie { setCookieName   = "session"
+                    , setCookieValue  = L.toStrict token
+                    , setCookieMaxAge = Just $ secondsToDiffTime 604800 -- 1 week
+                    }
+  )
+
+expireSessionCookie :: Response -> Response
+expireSessionCookie =
+  setCookie (defaultSetCookie { setCookieName = "session", setCookieMaxAge = Just 0 })
+
 -------------------------------------------------------------------------------
 -- | Auth method
 -------------------------------------------------------------------------------
@@ -97,16 +116,15 @@ authMethod = AuthMethod
   { authMethodTry     = checkIfAuth
   , authMethodRequire = checkIfAuth >>= \case
                           Just user -> pure user
-                          Nothing   -> respondError status401 Nothing
+                          Nothing   -> respondTagged $ expireSessionCookie (emptyResponse status401)
   }
 
 {-@ ignore checkIfAuth @-}
 checkIfAuth :: Controller (Maybe (Entity User))
 checkIfAuth = do
-  key        <- configSecretKey <$> getConfig
-  authHeader <- requestHeader hAuthorization
-  let token = authHeader >>= ByteString.stripPrefix "Bearer " <&> L.fromStrict
-  claims <- liftTIO $ mapM (doVerify key) token
+  key    <- configSecretKey <$> getConfig
+  token  <- listToMaybe <$> getCookie "session"
+  claims <- liftTIO $ mapM (doVerify key . L.fromStrict) token
   case claims of
     Just (Right claims) -> do
       let sub    = claims ^. claimSub ^? _Just . string

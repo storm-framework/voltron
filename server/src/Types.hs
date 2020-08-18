@@ -3,6 +3,7 @@
 
 module Types where
 
+import           Data.Int                       ( Int64 )
 import           Data.Aeson
 import           Data.Text                      ( Text(..), strip)
 import           GHC.Generics
@@ -58,15 +59,6 @@ data UserData = UserData
 instance ToJSON UserData where
   toEncoding = genericToEncoding (stripPrefix "user")
 
-data LoginResponse = LoginResponse
-  { respAccessToken :: String
-  , respUser        :: UserNG
-  }
-  deriving Generic
-
-instance ToJSON LoginResponse where
-  toEncoding = genericToEncoding (stripPrefix "resp")
-
 data CreateUser = CreateUser
   { crUserEmail    :: Text
   , crUserPassword :: Text
@@ -115,7 +107,7 @@ instance FromJSON CreateGroup where
 
 data CreateEnroll = CreateEnroll
   { enrollStudent :: Text       -- ^ email of the student
-  , enrollClass   :: Text       -- ^ name  of the class 
+  , enrollClass   :: Text       -- ^ name  of the class
   , enrollGroup   :: Text       -- ^ name  of the group
   }
   deriving (Show, Generic)
@@ -127,7 +119,7 @@ mkCreateEnroll email klass group = CreateEnroll (strip email) (strip klass) (str
 instance FromJSON CreateEnroll where
   parseJSON = genericParseJSON defaultOptions
 
-data EnrollStudent = EnrollStudent 
+data EnrollStudent = EnrollStudent
   { esFirstName :: Text
   , esLastName  :: Text
   , esEmail     :: Text
@@ -143,9 +135,9 @@ instance ToJSON EnrollStudent where
 
 -- | An Set-Class-Language datatype that mirrors the client side version -----------------------
 
-data ClassLangInfo = ClassLangInfo 
+data ClassLangInfo = ClassLangInfo
  { cliClass    :: Text
- , cliLanguage :: Text 
+ , cliLanguage :: Text
  }
  deriving Generic
 
@@ -155,10 +147,10 @@ instance FromJSON ClassLangInfo where
 
 -- | An `Roster` datatype that mirrors the client side version -----------------------
 
-data Roster = Roster 
-  { rosterClass    :: Text 
-  , rosterBuffers  :: [Buffer] 
-  , rosterStudents :: [EnrollStudent] 
+data Roster = Roster
+  { rosterClass    :: Text
+  , rosterBuffers  :: [Buffer]
+  , rosterStudents :: [EnrollStudent]
   }
   deriving Generic
 
@@ -167,7 +159,7 @@ instance FromJSON Roster where
 
 -- | Payload for a login/sign-in request ---------------------------------------------
 
-data AuthInfo = AuthInfo 
+data AuthInfo = AuthInfo
   { authInfoEmailAddress :: Text
   , authInfoPassword :: Text
   }
@@ -178,17 +170,17 @@ instance FromJSON AuthInfo where
 
 -- | Payload for a reset-password request ---------------------------------------------
 
-data ResetInfo = ResetInfo 
+data ResetInfo = ResetInfo
   { resetEmailAddress :: Text }
   deriving Generic
 
 instance FromJSON ResetInfo where
   parseJSON = genericParseJSON (stripPrefix "reset")
 
-data ResetPassInfo = ResetPassInfo 
-  { resetPassEmail    :: Text 
+data ResetPassInfo = ResetPassInfo
+  { resetPassEmail    :: Text
   , resetPassPassword :: Text
-  , resetPassCode     :: Text 
+  , resetPassCode     :: Text
   }
   deriving Generic
 

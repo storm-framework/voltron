@@ -1,12 +1,4 @@
-import {
-  UserData,
-  User,
-  Buffer,
-  AuthInfo,
-  LoginResponse,
-  Roster
-} from "@/types";
-import router from "@/router";
+import { AuthInfo, Buffer, Roster, User, UserData } from "@/types";
 
 function delay(ms = 1000) {
   if (process.env.NODE_ENV === "development") {
@@ -136,24 +128,8 @@ const USERS: { [id: string]: UserData } = {
 };
 
 class ApiService {
-  constructor(private accessToken: string | null) {}
-
-  get sessionAccessToken(): string | null {
-    return this.accessToken;
-  }
-
   getUserData(name: string): UserData {
     return USERS[name];
-  }
-
-  getLoginResponse(name: string): LoginResponse {
-    const userData = this.getUserData(name);
-    this.accessToken = name;
-    return { accessToken: name, user: MOCKUSERS[name] };
-  }
-
-  isSignedIn() {
-    return this.accessToken !== null;
   }
 
   async user(token: string): Promise<UserData> {
@@ -161,41 +137,34 @@ class ApiService {
     return this.getUserData(token);
   }
 
-  async signIn(info: AuthInfo): Promise<LoginResponse> {
+  async signIn(info: AuthInfo): Promise<User> {
     await delay();
     if (
       info.emailAddress == "rjhala@eng.ucsd.edu" &&
       info.password == "rjhala"
     ) {
-      return this.getLoginResponse("rjhala");
+      return MOCKUSERS["rjhala"];
     }
     if (
       info.emailAddress == "nlehmann@eng.ucsd.edu" &&
       info.password == "nico"
     ) {
-      return this.getLoginResponse("nico");
+      return MOCKUSERS["nico"];
     }
     if (
       info.emailAddress == "wkunkel@eng.ucsd.edu" &&
       info.password == "rose"
     ) {
-      return this.getLoginResponse("rose");
+      return MOCKUSERS["rose"];
     }
     if (info.emailAddress == "nadia@eng.ucsd.edu" && info.password == "nadia") {
-      return this.getLoginResponse("nadia");
+      return MOCKUSERS["nadia"];
     }
     return Promise.reject("Bad username and/or password!");
   }
 
   signOut() {
-    this.accessToken = null;
     return Promise.resolve();
-  }
-
-  async unauthorized() {
-    console.log("unauthorized");
-    await this.signOut();
-    router.replace({ name: "Login" });
   }
 
   async enroll(info: Roster) {
@@ -204,4 +173,4 @@ class ApiService {
   }
 }
 
-export default new ApiService(null);
+export default new ApiService();

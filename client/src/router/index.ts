@@ -1,13 +1,12 @@
 import Vue from "vue";
-import VueRouter, { Route, RouteConfig } from "vue-router";
-import Home from "../views/Home.vue";
-import Settings from "../views/Settings.vue";
-import Contact from "../views/Contact.vue";
-import About from "../views/About.vue";
-import SignIn from "../views/SignIn.vue";
-import Reset from "../views/Reset.vue";
-import ApiService from "@/services/api";
+import VueRouter, { RouteConfig } from "vue-router";
 import store from "../store";
+import About from "../views/About.vue";
+import Contact from "../views/Contact.vue";
+import Home from "../views/Home.vue";
+import Reset from "../views/Reset.vue";
+import Settings from "../views/Settings.vue";
+import SignIn from "../views/SignIn.vue";
 
 Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
@@ -31,7 +30,7 @@ const routes: Array<RouteConfig> = [
   {
     path: "/settings",
     name: "Settings",
-    component: Settings 
+    component: Settings
   },
   {
     path: "/contact",
@@ -54,21 +53,15 @@ const routes: Array<RouteConfig> = [
 const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
-  routes 
+  routes
 });
 
-function redirectLogin(to: Route, from: Route) {
-  const redirect =
-    from.name != "Login" && to.name != "Login" && !ApiService.isSignedIn();
-  console.log("redirectLogin says", redirect);
-  return redirect;
-}
-
 router.beforeEach((to, from, next) => {
-  if (redirectLogin(to, from)) {
-    next({ name: "Login" });
+  if (to.name !== "Login") {
+    store.dispatch("syncSessionUserData")
+      .then(() => next())
+      .catch(() => next({name: "Login"}));
   } else {
-    store.dispatch("syncSessionUserData");
     next();
   }
 });

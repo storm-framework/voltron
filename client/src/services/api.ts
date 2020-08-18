@@ -1,14 +1,10 @@
-import { ClassLangInfo, EnrollStudent, Roster, LoginResponse, UserData, AuthInfo, ResetInfo, ResetPassInfo } from "@/types";
-
-import Mock from "./api.mock";
+import { AuthInfo, ClassLangInfo, EnrollStudent, ResetInfo, ResetPassInfo, Roster, User, UserData } from "@/types";
 import Server from "./api.server";
 
+
 interface ApiService {
-  sessionAccessToken: string | null;
-  signIn(info: AuthInfo): Promise<LoginResponse>;
-  isSignedIn(): boolean;
-  user(token: string): Promise<UserData>;
-  unauthorized(): Promise<void>;
+  signIn(info: AuthInfo): Promise<User>;
+  userMe(): Promise<UserData>;
   signOut(): Promise<void>;
   enroll(students: Roster): Promise<EnrollStudent[]>;
   roster(className: string): Promise<EnrollStudent[]>;

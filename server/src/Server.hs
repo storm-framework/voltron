@@ -88,9 +88,10 @@ runServer ServerOpts {..} = runNoLoggingT $ do
             initWithT $ initFromPool cfg pool
         dispatch $ do
             post "/api/signin"         signIn
+            post "/api/signout"        signOut
             post "/api/reset"          reset
             post "/api/resetpass"      resetPass
-            get  "/api/user/:id"       userGet
+            get  "/api/user/me"        userGetMe
             post "/api/enroll"         addRoster
             post "/api/setlanguage"    setLanguage
             get  "/api/roster/:class"  getRoster

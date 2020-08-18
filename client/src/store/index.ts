@@ -1,27 +1,23 @@
-import Vue from "vue";
-import Vuex from "vuex";
+import ApiService from "@/services/api";
 import {
-  ClassView,
-  LoginResponse,
-  UserData,
   AuthInfo,
+  Buffer,
+  ClassView,
   Instructor,
   Student,
-  Buffer,
-  Roster
+  UserData
 } from "@/types";
-import ApiService from "@/services/api";
+import Vue from "vue";
+import Vuex from "vuex";
 
 Vue.use(Vuex);
 
 type State = {
   userData: UserData | null;
-  accessToken: string | null;
   currentClass: number;
 };
 
 const initState: State = {
-  accessToken: ApiService.sessionAccessToken,
   userData: null,
   currentClass: 0
 };
@@ -30,10 +26,6 @@ export default new Vuex.Store({
   state: initState,
 
   mutations: {
-    initUser(state, payload: LoginResponse) {
-      console.log("mutation-initUser", payload);
-      state.accessToken = payload.accessToken;
-    },
     setCurrentClass(state, payload: number) {
       console.log("mutation-updateCurrentClass", payload);
       state.currentClass = payload;
@@ -45,49 +37,15 @@ export default new Vuex.Store({
     signOut(state) {
       console.log("sign-out");
       state.userData = null;
-      state.accessToken = null;
       state.currentClass = 0;
     }
   },
 
   actions: {
     signOut: ({ commit }) => ApiService.signOut().then(() => commit("signOut")),
-    signIn({ dispatch, commit }, auth: AuthInfo) {
-      ApiService.signIn(auth)
-        .then(res => {
-          console.log("ApiService.signIn", res);
-          commit("initUser", res);
-          dispatch("syncUser", res.accessToken);
-        })
-        .catch(error => {
-          console.log("action-signin-catch", error);
-          ApiService.unauthorized();
-        });
-
-      return dispatch("syncSessionUserData").then(() =>
-        console.log("Done syncSessonUserData")
-      );
-    },
-
-    syncSessionUserData: ({ dispatch, state }) => {
-      console.log("syncSessionUserData", state.accessToken);
-      if (state.accessToken !== null) {
-        return dispatch("syncUser", state.accessToken);
-      } else {
-        return Promise.resolve();
-      }
-    },
-
-    syncUser: ({ commit }, token: string) =>
-      ApiService.user(token)
-        .then(payload => commit("setUserData", payload))
-        .catch(error => {
-          if (error?.response?.status == 401) {
-            ApiService.unauthorized();
-          }
-          throw error;
-        }),
-    
+    signIn: (_, auth: AuthInfo) => ApiService.signIn(auth),
+    syncSessionUserData: ({ commit }) =>
+      ApiService.userMe().then(payload => commit("setUserData", payload))
   },
 
   getters: {
@@ -161,7 +119,9 @@ export default new Vuex.Store({
       if (cur) {
         switch (cur.tag) {
           case "Instructor": {
-            return cur.allBuffers.sort((b1: Buffer, b2: Buffer) => b1.id - b2.id);
+            return cur.allBuffers.sort(
+              (b1: Buffer, b2: Buffer) => b1.id - b2.id
+            );
           }
         }
       }

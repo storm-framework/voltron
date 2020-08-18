@@ -5,16 +5,16 @@
 
 packages:
 - completed:
-    size: 17908
-    url: https://github.com/PLSysSec/frankie/archive/8894b528847a9f3bdef7ec47e905fc81081c2940.tar.gz
+    size: 18539
+    url: https://github.com/PLSysSec/frankie/archive/b9ee2c0f7667025d0d0ac3a43ded43d1d1d63c28.tar.gz
     name: frankie
     version: 0.0.0.1
-    sha256: 79e202bd6bf8316aa402be2554ac5f5712724a199e721438d0b764c61e6913c2
+    sha256: f83bdc83c0adc4ee3accde25ae3f38f1ae332753a45ca9f0f7f26f5f17b0f55d
     pantry-tree:
-      size: 1017
-      sha256: 8bb2c1ca960e6ccc2861abd25ee984c842651ece475302f49dd6899431bdb5fe
+      size: 1079
+      sha256: cbdda0fb1f9b56d3e356cbee1bec9014e9fa0682d59d65075fae507c17341a59
   original:
-    url: https://github.com/PLSysSec/frankie/archive/8894b528847a9f3bdef7ec47e905fc81081c2940.tar.gz
+    url: https://github.com/PLSysSec/frankie/archive/b9ee2c0f7667025d0d0ac3a43ded43d1d1d63c28.tar.gz
 - completed:
     hackage: lens-4.19.2@sha256:f0570ca0e4624d9daa57256f00f514e87be155401583fa1665faba47376c63a7,16053
     pantry-tree:

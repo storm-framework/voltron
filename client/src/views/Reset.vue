@@ -188,7 +188,7 @@ export default class Reset extends Vue {
   }
 
   doLogin() {
-    return ApiService.unauthorized();
+    this.$router.push({ name: "Login" });
   }
 
   doDebug() {

@@ -5,7 +5,7 @@ export interface Buffer {
   div:  string;
 }
 
-export interface Student { 
+export interface Student {
   tag: "Student";
   class: string;
   language: string;
@@ -17,7 +17,7 @@ export interface Instructor {
   class: string;
   language: string;
   allBuffers: Array<Buffer>;
-} 
+}
 
 export interface UserData {
   user: User;
@@ -32,7 +32,7 @@ export interface ResetInfo {
   emailAddress: string;
 }
 
-export interface ResetPassInfo { 
+export interface ResetPassInfo {
   email: string;
   password: string;
   code: string;
@@ -51,11 +51,6 @@ export interface ClassLangInfo {
 export interface User {
   firstName: string;
   lastName: string;
-}
-
-export interface LoginResponse {
-  accessToken: string;
-  user: User;
 }
 
 export interface ClassView<T> {
