@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2fb35b04a7dce6bd9099c3c517f98cbbf094f4fb93155dc5a7fe268774f30e64
+-- hash: f68fcf9d91dd383179d01974805e2efdde7d981709d06e8ad05f73958c3bc8f5
 
 name:           server
 version:        0.1.0.0
@@ -31,20 +31,22 @@ library
       Binah.Actions
       Binah.Concurrent
       Binah.Core
+      Binah.Crypto
       Binah.Filters
       Binah.Frankie
       Binah.Helpers
       Binah.Infrastructure
       Binah.Insert
+      Binah.Random
       Binah.SMTP
       Binah.Templates
+      Binah.Time
       Binah.Updates
       Config
       Controllers
       Controllers.Class
       Controllers.Reset
       Controllers.User
-      Crypto
       JSON
       Model
       Server
@@ -54,7 +56,8 @@ library
   hs-source-dirs:
       src
   build-depends:
-      aeson
+      MonadRandom
+    , aeson
     , amazonka
     , amazonka-core
     , amazonka-s3
@@ -68,8 +71,8 @@ library
     , exceptions
     , filepath
     , frankie
-    , jose
     , lens
+    , memory
     , mime-mail
     , mime-types
     , monad-control
@@ -102,7 +105,8 @@ executable voltron
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aeson
+      MonadRandom
+    , aeson
     , amazonka
     , amazonka-core
     , amazonka-s3
@@ -116,8 +120,8 @@ executable voltron
     , exceptions
     , filepath
     , frankie
-    , jose
     , lens
+    , memory
     , mime-mail
     , mime-types
     , monad-control
@@ -152,7 +156,8 @@ test-suite server-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aeson
+      MonadRandom
+    , aeson
     , amazonka
     , amazonka-core
     , amazonka-s3
@@ -166,8 +171,8 @@ test-suite server-test
     , exceptions
     , filepath
     , frankie
-    , jose
     , lens
+    , memory
     , mime-mail
     , mime-types
     , monad-control

@@ -23,8 +23,6 @@ import           Control.Lens.Lens              ( (&) )
 import           Control.Lens.Internal.ByteString
                                                 ( unpackLazy8 )
 import           Frankie.Auth
-import           Crypto.JWT
-import           Crypto.JOSE.Types              ( Base64Octets(..) )
 import           Data.Text                      ( Text(..) )
 import qualified Data.Text                     as T
 import qualified Data.Text.Lazy                as LT
@@ -53,13 +51,13 @@ import           Binah.Infrastructure
 import           Binah.Templates
 import           Binah.Frankie
 import           Binah.SMTP
+import           Binah.Crypto
 
 import           Controllers
 import           Controllers.User               ( extractUserData, extractUserNG )
 import           Controllers.Class              ( genRandomText )
 import           Model
 import           JSON
-import           Crypto
 import           Types
 
 -------------------------------------------------------------------------------

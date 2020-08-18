@@ -9,40 +9,27 @@ module Auth where
 
 import           Data.Aeson
 import           Data.Maybe
-import           Control.Monad.Trans.Class      ( lift )
+import qualified Crypto.Hash                   as Crypto
+import qualified Crypto.MAC.HMAC               as Crypto
 import           Control.Monad.Time             ( MonadTime(..) )
-import           Control.Monad.Except           ( runExceptT )
-import           Control.Monad                  ( replicateM )
-import           Control.Lens.Operators         ( (?~)
-                                                , (^.)
-                                                , (^?)
-                                                , (<&>)
-                                                )
-import           Control.Lens.Combinators
-                                         hiding ( assign )
-import           Control.Lens.Lens              ( (&) )
-import           Control.Lens.Internal.ByteString
-                                                ( unpackLazy8 )
 import           Frankie.Auth
-import           Crypto.JWT
-import           Crypto.JOSE.Types              ( Base64Octets(..) )
+import           Database.Persist.Sql           ( fromSqlKey )
 import           Data.Text                      ( Text(..) )
 import qualified Data.Text                     as T
 import qualified Data.Text.Lazy                as LT
 import qualified Data.Text.Encoding            as T
 import qualified Data.Text.Lazy.Encoding       as L
-import           Data.Time.Clock                ( secondsToDiffTime )
+import           Data.Time.Clock                ( UTCTime
+                                                , secondsToDiffTime
+                                                )
+import qualified Data.ByteArray                as BA
 import           Data.ByteString                ( ByteString )
 import qualified Data.ByteString               as ByteString
+import qualified Data.ByteString.Char8         as Char8
 import qualified Data.ByteString.Base64.URL    as B64Url
 import qualified Data.ByteString.Lazy          as L
 import           Data.Int                       ( Int64 )
-import           Database.Persist.Sql           ( toSqlKey
-                                                , fromSqlKey
-                                                )
 import           GHC.Generics
-import           Text.Read                      ( readMaybe )
-import           Text.Printf                    ( printf )
 import           Frankie.Config
 import           Frankie.Cookie
 import qualified Frankie.Log                   as Log
@@ -56,13 +43,13 @@ import           Binah.Infrastructure
 import           Binah.Templates
 import           Binah.Frankie
 import           Binah.SMTP
+import           Binah.Crypto
+import           Binah.Time
 
 import           Controllers
 import           Controllers.User               ( extractUserData, extractUserNG )
-import           Controllers.Class              ( genRandomText )
 import           Model
 import           JSON
-import           Crypto
 import           Types
 
 
@@ -76,7 +63,7 @@ signIn = do
    AuthInfo emailAddress password <- decodeBody
    user                           <- authUser emailAddress password
    userId                         <- project userId' user
-   token                          <- genJwt userId
+   token                          <- genToken userId
    userNG                         <- extractUserNG user
    respondTagged $ setSessionCookie token (jsonResponse status200 userNG)
 
@@ -95,10 +82,10 @@ authUser emailAddress password = do
     else respondError status401 (Just "Incorrect credentials")
 
 
-setSessionCookie :: L.ByteString -> Response -> Response
+setSessionCookie :: SessionToken -> Response -> Response
 setSessionCookie token = setCookie
   (defaultSetCookie { setCookieName   = "session"
-                    , setCookieValue  = L.toStrict token
+                    , setCookieValue  = L.toStrict (encode token)
                     , setCookieMaxAge = Just $ secondsToDiffTime 604800 -- 1 week
                     }
   )
@@ -122,48 +109,48 @@ authMethod = AuthMethod
 {-@ ignore checkIfAuth @-}
 checkIfAuth :: Controller (Maybe (Entity User))
 checkIfAuth = do
-  key    <- configSecretKey <$> getConfig
-  token  <- listToMaybe <$> getCookie "session"
-  claims <- liftTIO $ mapM (doVerify key . L.fromStrict) token
-  case claims of
-    Just (Right claims) -> do
-      let sub    = claims ^. claimSub ^? _Just . string
-      let userId = sub <&> T.unpack >>= readMaybe <&> toSqlKey
-      case userId of
-        Nothing     -> return Nothing
-        Just userId -> selectFirst (userId' ==. userId)
+  cookie  <- listToMaybe <$> getCookie "session"
+  case cookie >>= decode . L.fromStrict of
+    Just t@SessionToken{..} -> do
+      valid <- verifyToken t
+      if valid then selectFirst (userId' ==. stUserId) else return Nothing
     _ -> return Nothing
 
 -------------------------------------------------------------------------------
--- | JWT
+-- | Session Tokens
 -------------------------------------------------------------------------------
 
-{-@ ignore genJwt @-}
-genJwt :: UserId -> Controller L.ByteString
-genJwt userId = do
-  key    <- configSecretKey `fmap` getConfigT
-  claims <- liftTIO $ mkClaims userId
-  jwt    <- liftTIO $ doJwtSign key claims
-  case jwt of
-    Right jwt                         -> return (encodeCompact jwt)
-    Left  (JWSError                e) -> respondError status500 (Just (show e))
-    Left  (JWTClaimsSetDecodeError s) -> respondError status400 (Just s)
-    Left  JWTExpired                  -> respondError status401 (Just "expired token")
-    Left  _                           -> respondError status401 Nothing
+data SessionToken = SessionToken
+  { stUserId :: UserId
+  , stTime   :: UTCTime
+  , stHash   :: Text
+  }
+  deriving Generic
 
-mkClaims :: UserId -> TIO ClaimsSet
-mkClaims userId = do
-  t <- currentTime
-  return $ emptyClaimsSet & (claimSub ?~ uid ^. re string) & (claimIat ?~ NumericDate t)
-  where uid = T.pack (show (fromSqlKey userId))
+instance ToJSON SessionToken where
+  toEncoding = genericToEncoding (stripPrefix "st")
 
-doJwtSign :: JWK -> ClaimsSet -> TIO (Either JWTError SignedJWT)
-doJwtSign key claims = runExceptT $ do
-  alg <- bestJWSAlg key
-  signClaims key (newJWSHeader ((), alg)) claims
+instance FromJSON SessionToken where
+  parseJSON = genericParseJSON (stripPrefix "st")
 
-doVerify :: JWK -> L.ByteString -> TIO (Either JWTError ClaimsSet)
-doVerify key s = runExceptT $ do
-  let audCheck = const True
-  s' <- decodeCompact s
-  verifyClaims (defaultJWTValidationSettings audCheck) key s'
+genToken :: UserId -> Controller SessionToken
+genToken userId = do
+  key  <- configSecretKey `fmap` getConfigT
+  time <- currentTime
+  return (SessionToken userId time (doHmac key userId time))
+
+verifyToken :: SessionToken -> Controller Bool
+verifyToken SessionToken{..} = do
+  key <- configSecretKey `fmap` getConfigT
+  return (doHmac key stUserId stTime == stHash)
+
+doHmac :: ByteString -> UserId -> UTCTime -> Text
+doHmac key userId time = T.decodeUtf8 . B64Url.encode . ByteString.pack $ h
+  where
+    t   = show time
+    u   = show (fromSqlKey userId)
+    msg = Char8.pack (t ++ ":" ++ u)
+    h   = BA.unpack (hs256 key msg)
+
+hs256 :: ByteString -> ByteString -> Crypto.HMAC Crypto.SHA256
+hs256 = Crypto.hmac
