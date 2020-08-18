@@ -43,7 +43,7 @@ packages:
 #
 extra-deps:
 - github: PLSysSec/frankie
-  commit: 8894b528847a9f3bdef7ec47e905fc81081c2940
+  commit: b9ee2c0f7667025d0d0ac3a43ded43d1d1d63c28
 - lens-4.19.2
 - smtp-mail-0.3.0.0
 - amazonka-1.6.1@sha256:f58b63e83876f93aa03c54e54b3eb8ba9358af93819d41f4a5a8f8b7d8b8399c,3544

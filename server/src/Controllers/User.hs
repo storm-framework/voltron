@@ -7,11 +7,7 @@
 module Controllers.User where
 
 import           Data.Text                      ( Text, pack )
-import           Data.Int                       ( Int64 )
 import           Data.Maybe
-import           Database.Persist.Sql           ( fromSqlKey
-                                                , toSqlKey
-                                                )
 import           GHC.Generics
 
 import           Binah.Core
@@ -129,10 +125,9 @@ traceShow msg x = Debug.Trace.trace (msg <> ": " <> (show x)) x
 -- | User Get
 ----------------------------------------------------------------------------------------------------
 
-{-@ userGet :: _ -> TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
-userGet :: Int64 -> Controller ()
-userGet _uid = do
-  -- let userId = toSqlKey uid
+{-@ userGet :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
+userGetMe :: Controller ()
+userGetMe = do
   user     <- requireAuthUser
   -- user     <- selectFirstOr notFoundJSON (userId' ==. userId)
   userData <- extractUserData user
