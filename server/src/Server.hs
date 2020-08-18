@@ -25,10 +25,10 @@ import           Database.Persist.Sqlite        ( SqlBackend
                                                 , runMigration
                                                 , createSqlitePool
                                                 )
-import           Crypto.JWT                    as JWT
 import           System.FilePath               as P
 import           System.Directory
 import           System.Environment
+import qualified Data.ByteString               as BS
 import qualified Data.ByteString.Lazy          as LBS
 import           Network.Mime
 import           Frankie.Config
@@ -124,10 +124,10 @@ readSMTPConfig = do
     pass <- fromMaybe ""          <$> lookupEnv "VOLTRON_SMTP_PASS"
     return $ SMTPConfig host user pass
 
-readSecretKey :: IO JWT.JWK
+readSecretKey :: IO BS.ByteString
 readSecretKey = do
     secret <- fromMaybe "sb8NHmF@_-nsf*ymt!wJ3.KXmTDPsNoy" <$> lookupEnv "VOLTRON_SECRET_KEY"
-    return $ JWT.fromOctets . T.encodeUtf8 . T.pack $ secret
+    return $ T.encodeUtf8 . T.pack $ secret
 
 {-@ ignore initDB @-}
 initDB :: T.Text -> IO ()

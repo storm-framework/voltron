@@ -31,14 +31,13 @@ import           Binah.SMTP                    as SMTP
 import qualified Network.AWS                   as AWS
 import qualified Network.AWS.S3                as S3
 import           Network.Socket                 ( PortNumber, HostName )
-import           Crypto.JWT                    as JWT
 import           Model
 
 data Config = Config
   { configAuthMethod    :: !(AuthMethod (Entity User) Controller)
   , configTemplateCache :: !(MVar.MVar Mustache.TemplateCache)
   , configSMTP          :: SMTPConfig
-  , configSecretKey     :: JWT.JWK
+  , configSecretKey     :: ByteString
   }
 
 data SMTPConfig = SMTPConfig

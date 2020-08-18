@@ -16,9 +16,11 @@ module Controllers.Class
   )
 where
 
+import           Control.Monad.Random
 import qualified Data.HashMap.Strict           as M
 import qualified Data.Text                     as T
 import qualified Data.Text.Encoding            as T
+import qualified Data.ByteString               as BS
 import qualified Data.ByteString.Base64.URL    as B64Url
 import           Data.Int                       ( Int64 )
 import           Data.Maybe
@@ -37,12 +39,13 @@ import           Binah.Infrastructure
 import           Binah.Templates
 import           Binah.Frankie
 import           Binah.SMTP
+import           Binah.Random
+import           Binah.Crypto
+
 import qualified Frankie.Log                   as Log
 import           Controllers
 import           Model
 import           JSON
-import           Crypto
-import           Crypto.Random                  ( getRandomBytes )
 import           Types
 import           Frankie.Log
 
@@ -150,8 +153,8 @@ addEnroll clsId r@(CreateEnroll {..}) = do
 {-@ genRandomText :: TaggedT<{\_ -> True}, {\_ -> False}> _ _ _ @-}
 genRandomText :: Controller T.Text
 genRandomText = do
-  bytes <- liftTIO (getRandomBytes 24)
-  return $ T.decodeUtf8 $ B64Url.encode bytes
+  bytes <- liftTIO getRandoms
+  return $ T.decodeUtf8 $ B64Url.encode $ BS.pack (take 24 bytes)
 
 rosterGroups :: Roster -> [CreateGroup]
 rosterGroups (Roster {..}) = [ g | (_, g) <- M.toList groupM ]
