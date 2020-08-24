@@ -8,37 +8,13 @@
 module Controllers.Reset (reset, resetPass) where
 
 import           Data.Aeson
-import           Control.Monad.Trans.Class      ( lift )
 import           Control.Monad.Time             ( MonadTime(..) )
-import           Control.Monad.Except           ( runExceptT )
-import           Control.Monad                  ( replicateM )
-import           Control.Lens.Operators         ( (?~)
-                                                , (^.)
-                                                , (^?)
-                                                , (<&>)
-                                                )
-import           Control.Lens.Combinators
-                                         hiding ( assign )
-import           Control.Lens.Lens              ( (&) )
-import           Control.Lens.Internal.ByteString
-                                                ( unpackLazy8 )
 import           Frankie.Auth
 import           Data.Text                      ( Text(..) )
 import qualified Data.Text                     as T
 import qualified Data.Text.Lazy                as LT
 import qualified Data.Text.Encoding            as T
-import qualified Data.Text.Lazy.Encoding       as L
-import           Data.ByteString                ( ByteString )
-import qualified Data.ByteString               as ByteString
-import qualified Data.ByteString.Base64.URL    as B64Url
-import qualified Data.ByteString.Lazy          as L
-import           Data.Int                       ( Int64 )
-import           Database.Persist.Sql           ( toSqlKey
-                                                , fromSqlKey
-                                                )
 import           GHC.Generics
-import           Text.Read                      ( readMaybe )
-import           Text.Printf                    ( printf )
 import           Frankie.Config
 import qualified Frankie.Log                   as Log
 import           Binah.Core
@@ -52,9 +28,9 @@ import           Binah.Templates
 import           Binah.Frankie
 import           Binah.SMTP
 import           Binah.Crypto
+import           Binah.JSON
 
 import           Controllers
-import           Controllers.User               ( extractUserData, extractUserNG )
 import           Controllers.Class              ( genRandomText )
 import           Model
 import           JSON

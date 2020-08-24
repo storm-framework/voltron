@@ -7,7 +7,6 @@
 module Controllers.User where
 
 import           Data.Text                      ( Text, pack )
-import           Data.Maybe
 import           GHC.Generics
 
 import           Binah.Core
@@ -19,6 +18,7 @@ import           Binah.Helpers
 import           Binah.Infrastructure
 import           Binah.Frankie
 import           Binah.SMTP
+import           Binah.JSON
 
 import           Controllers
 import           Model
@@ -30,14 +30,6 @@ import qualified Debug.Trace
 ----------------------------------------------------------------------------------------------------
 -- | User List
 ----------------------------------------------------------------------------------------------------
-
--- {-@ userList :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
--- userList :: Controller ()
--- userList = do
---   _     <- requireAuthUser
---   users <- selectList trueF
---   users <- mapT extractUserData users
---   respondJSON status200 users
 
 {-@ extractUserNG :: _ -> TaggedT<{\_ -> True}, {\_ -> False}> _ _ _ @-}
 extractUserNG :: Entity User -> Controller UserNG
@@ -125,7 +117,7 @@ traceShow msg x = Debug.Trace.trace (msg <> ": " <> (show x)) x
 -- | User Get
 ----------------------------------------------------------------------------------------------------
 
-{-@ userGet :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
+{-@ userGetMe :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ _ @-}
 userGetMe :: Controller ()
 userGetMe = do
   user     <- requireAuthUser

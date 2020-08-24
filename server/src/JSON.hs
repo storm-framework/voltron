@@ -10,15 +10,7 @@ where
 
 import           Data.Aeson
 import qualified Data.Aeson                    as A
-import           Data.Aeson.Types               ( Parser )
 import           Data.Char
-import           GHC.Generics                   ( Generic
-                                                , Rep
-                                                )
-import           Type.Reflection                ( Typeable
-                                                , typeRep
-                                                )
-import           Control.Monad                  ( (>=>) )
 
 stripPrefix :: String -> A.Options
 stripPrefix prefix =

@@ -15,20 +15,16 @@ import           Control.Monad.Time             ( MonadTime(..) )
 import           Frankie.Auth
 import           Database.Persist.Sql           ( fromSqlKey )
 import           Data.Text                      ( Text(..) )
-import qualified Data.Text                     as T
-import qualified Data.Text.Lazy                as LT
 import qualified Data.Text.Encoding            as T
 import qualified Data.Text.Lazy.Encoding       as L
 import           Data.Time.Clock                ( UTCTime
                                                 , secondsToDiffTime
                                                 )
 import qualified Data.ByteArray                as BA
-import           Data.ByteString                ( ByteString )
-import qualified Data.ByteString               as ByteString
+import qualified Data.ByteString               as BS
 import qualified Data.ByteString.Char8         as Char8
 import qualified Data.ByteString.Base64.URL    as B64Url
 import qualified Data.ByteString.Lazy          as L
-import           Data.Int                       ( Int64 )
 import           GHC.Generics
 import           Frankie.Config
 import           Frankie.Cookie
@@ -45,13 +41,13 @@ import           Binah.Frankie
 import           Binah.SMTP
 import           Binah.Crypto
 import           Binah.Time
+import           Binah.JSON
 
 import           Controllers
-import           Controllers.User               ( extractUserData, extractUserNG )
+import           Controllers.User               ( extractUserNG )
 import           Model
 import           JSON
 import           Types
-
 
 --------------------------------------------------------------------------------
 -- | SignIn
@@ -144,13 +140,13 @@ verifyToken SessionToken{..} = do
   key <- configSecretKey `fmap` getConfigT
   return (doHmac key stUserId stTime == stHash)
 
-doHmac :: ByteString -> UserId -> UTCTime -> Text
-doHmac key userId time = T.decodeUtf8 . B64Url.encode . ByteString.pack $ h
+doHmac :: BS.ByteString -> UserId -> UTCTime -> Text
+doHmac key userId time = T.decodeUtf8 . B64Url.encode . BS.pack $ h
   where
     t   = show time
     u   = show (fromSqlKey userId)
     msg = Char8.pack (t ++ ":" ++ u)
     h   = BA.unpack (hs256 key msg)
 
-hs256 :: ByteString -> ByteString -> Crypto.HMAC Crypto.SHA256
+hs256 :: BS.ByteString -> BS.ByteString -> Crypto.HMAC Crypto.SHA256
 hs256 = Crypto.hmac

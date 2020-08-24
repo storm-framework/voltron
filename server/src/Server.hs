@@ -56,7 +56,7 @@ import           Binah.Infrastructure
 import           Binah.Insert
 import           Binah.Actions
 import           Binah.Filters
-import qualified Binah.SMTP as SMTP
+import           Binah.JSON
 import           Controllers
 import           Controllers.User
 import           Controllers.Class
@@ -101,7 +101,7 @@ runServer ServerOpts {..} = runNoLoggingT $ do
                 Nothing   -> fallback $ do
                     req <- request
                     let path = joinPath (map T.unpack (reqPathInfo req))
-                    respondJSON status404 ("Route not found: " ++ path)
+                    respondError status404 (Just ("Route not found: " ++ path))
 
 
 runTask' :: T.Text -> Task a -> IO a
@@ -115,7 +115,6 @@ readConfig = Config authMethod
                 <$> MVar.newMVar mempty
                 <*> readSMTPConfig
                 <*> readSecretKey
-             -- <*> readAWSConfig
 
 readSMTPConfig :: IO SMTPConfig
 readSMTPConfig = do

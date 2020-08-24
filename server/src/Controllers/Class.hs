@@ -22,11 +22,7 @@ import qualified Data.Text                     as T
 import qualified Data.Text.Encoding            as T
 import qualified Data.ByteString               as BS
 import qualified Data.ByteString.Base64.URL    as B64Url
-import           Data.Int                       ( Int64 )
 import           Data.Maybe
-import           Database.Persist.Sql           ( fromSqlKey
-                                                , toSqlKey
-                                                )
 import           GHC.Generics
 
 import           Binah.Core
@@ -41,6 +37,7 @@ import           Binah.Frankie
 import           Binah.SMTP
 import           Binah.Random
 import           Binah.Crypto
+import           Binah.JSON
 
 import qualified Frankie.Log                   as Log
 import           Controllers
