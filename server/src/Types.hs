@@ -86,7 +86,8 @@ data CreateClass = CreateClass
 
 
 mkCreateClass :: Text -> Text -> Text -> Text -> CreateClass
-mkCreateClass inst name instr lang = CreateClass (strip inst) (strip name) (strip instr) (strip lang)
+mkCreateClass inst name instr lang =
+  CreateClass (strip inst) (strip name) (strip instr) (strip lang)
 
 instance FromJSON CreateClass where
   parseJSON = genericParseJSON defaultOptions
