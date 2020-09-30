@@ -2,4 +2,4 @@
 
 ./build.sh 
 cd ../dist
-./voltron server --static=static/
+./voltron server --port=3001 --static=static/
