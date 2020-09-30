@@ -4,16 +4,26 @@ declare const firebase: any;
 declare const ace: any;
 declare const Firepad: any;
 
-// Initialize Firebase.
-// TODO: replace with your Firebase project configuration
+// const config = {
+//   apiKey: "<API_KEY>",
+//   authDomain: "firepad-tests.firebaseapp.com",
+//   databaseURL: "https://firepad-tests.firebaseio.com"
+// };
+
 const config = {
-  apiKey: "<API_KEY>",
-  authDomain: "firepad-tests.firebaseapp.com",
-  databaseURL: "https://firepad-tests.firebaseio.com"
+  apiKey: "AIzaSyDx8QA_-_3rATL6317aTfsS1IgFXc4kWGA",
+  authDomain: "voltron-8ba6b.firebaseapp.com",
+  databaseURL: "https://voltron-8ba6b.firebaseio.com",
+  projectId: "voltron-8ba6b",
+  storageBucket: "voltron-8ba6b.appspot.com",
+  messagingSenderId: "552791196931",
+  appId: "1:552791196931:web:969dc8a5e5af2ef7279536",
+  measurementId: "G-83EFPEZ118"
 };
 
 const initApp = firebase.initializeApp(config);
 const initializedBuffers: Set<any> = new Set();
+const intAnalytics = firebase.analytics();
 
 // function isInit(buf: Buffer): boolean {
 //   const done = initializedBuffers[buf.id];
