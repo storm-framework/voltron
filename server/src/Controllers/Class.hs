@@ -195,7 +195,7 @@ welcomeBody r = T.unlines
   , "Click the link to reset your password, using the email address: " <> crUserEmail r
   , "Then log in using your new password."
   , ""
-  , "We hope you enjoy using the Voltron!"
+  , "We hope you enjoy using Voltron!"
   , ""
   , "- voltron.sys"
   ]

@@ -62,3 +62,9 @@ $ cd client
 $ yarn install
 $ yarn serve
 ```
+
+## Firebase
+
+Here's the link to get access to the firebase stuff
+
+https://console.firebase.google.com/project/voltron-8ba6b/database/voltron-8ba6b/data
