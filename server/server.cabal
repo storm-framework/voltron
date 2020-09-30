@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.2.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: dad3258bcecec62542de77a1e985811610ac9fb16edb2f384aed3288ed0070fd
+-- hash: efe800989959116306e855ec0338c72f3b992354510f40bd2fe3300807cce58a
 
 name:           server
 version:        0.1.0.0
@@ -59,9 +59,6 @@ library
   build-depends:
       MonadRandom
     , aeson
-    , amazonka
-    , amazonka-core
-    , amazonka-s3
     , base >=4.7 && <5
     , base64-bytestring
     , bytestring
@@ -72,7 +69,6 @@ library
     , exceptions
     , filepath
     , frankie
-    , lens
     , memory
     , mime-mail
     , mime-types
@@ -108,9 +104,6 @@ executable voltron
   build-depends:
       MonadRandom
     , aeson
-    , amazonka
-    , amazonka-core
-    , amazonka-s3
     , base >=4.7 && <5
     , base64-bytestring
     , bytestring
@@ -121,7 +114,6 @@ executable voltron
     , exceptions
     , filepath
     , frankie
-    , lens
     , memory
     , mime-mail
     , mime-types
@@ -159,9 +151,6 @@ test-suite server-test
   build-depends:
       MonadRandom
     , aeson
-    , amazonka
-    , amazonka-core
-    , amazonka-s3
     , base >=4.7 && <5
     , base64-bytestring
     , bytestring
@@ -172,7 +161,6 @@ test-suite server-test
     , exceptions
     , filepath
     , frankie
-    , lens
     , memory
     , mime-mail
     , mime-types

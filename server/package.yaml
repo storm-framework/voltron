@@ -40,7 +40,6 @@ dependencies:
   - warp
   - monad-time
   - resource-pool
-  - lens
   - exceptions
   - transformers-base
   - monad-control
@@ -54,9 +53,6 @@ dependencies:
   - time
   - network
   - scrypt
-  - amazonka
-  - amazonka-s3
-  - amazonka-core
   - memory
   - MonadRandom
 
