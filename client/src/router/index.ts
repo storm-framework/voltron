@@ -12,57 +12,57 @@ Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
   {
     path: "/home",
-    redirect: _to => {
+    redirect: (_to) => {
       const classId = store.getters.currentClassId;
       return { name: "Home", params: { classId } };
-    }
+    },
   },
   {
     path: "/home/:classId",
     name: "Home",
-    component: Home
+    component: Home,
   },
   {
     path: "/login",
     name: "Login",
-    component: SignIn
+    component: SignIn,
   },
   {
     path: "/settings",
     name: "Settings",
-    component: Settings
+    component: Settings,
   },
   {
     path: "/contact",
     name: "Contact",
-    component: Contact
+    component: Contact,
   },
   {
     path: "/about",
     name: "About",
-    component: About
+    component: About,
   },
   {
     path: "/reset",
     name: "Reset",
-    component: Reset
-  }
+    component: Reset,
+  },
 ];
-
 
 const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
-  routes
+  routes,
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.name !== "Login") {
-    store.dispatch("syncSessionUserData")
-      .then(() => next())
-      .catch(() => next({name: "Login"}));
-  } else {
+  if (to.name === "Login" || to.name === "Reset") {
     next();
+  } else {
+    store
+      .dispatch("syncSessionUserData")
+      .then(() => next())
+      .catch(() => next({ name: "Login" }));
   }
 });
 

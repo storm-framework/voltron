@@ -8,15 +8,13 @@ import           Frankie                        ( HostPreference
                                                 , Port
                                                 )
 import qualified Data.Text                     as T
-import           Data.Maybe
 import           GHC.Exts                       ( fromString )
-import           System.Console.CmdArgs
-import           System.Environment
-import           Server
+import System.Console.CmdArgs ( cmdArgs )
+import Server ( runServer, runTask', ServerOpts(ServerOpts) )
 import           Config
 import qualified Auth
 import qualified Controllers.Class as Class
-import           Types
+import Types ( mkCreateClass, mkCreateUser )
 
 main :: IO ()
 main = do

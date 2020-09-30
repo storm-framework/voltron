@@ -7,33 +7,25 @@
 
 module Controllers.Reset (reset, resetPass) where
 
-import           Data.Aeson
 import           Control.Monad.Time             ( MonadTime(..) )
-import           Frankie.Auth
 import           Data.Text                      ( Text(..) )
 import qualified Data.Text                     as T
 import qualified Data.Text.Lazy                as LT
 import qualified Data.Text.Encoding            as T
-import           GHC.Generics
-import           Frankie.Config
+import           Frankie.Config ( MonadConfig(getConfig) )
 import qualified Frankie.Log                   as Log
-import           Binah.Core
-import           Binah.Actions
 import           Binah.Updates
 import           Binah.Insert
 import           Binah.Filters
 import           Binah.Helpers
-import           Binah.Infrastructure
-import           Binah.Templates
 import           Binah.Frankie
-import           Binah.SMTP
-import           Binah.Crypto
+import           Binah.SMTP ( publicAddress, sendMailWithLoginSTARTTLS, simpleMail' )
+import Binah.Crypto
+    ( encryptPassTIO', EncryptedPass(EncryptedPass), Pass(Pass) )
 import           Binah.JSON
-
 import           Controllers
-import           Controllers.Class              ( genRandomText )
+import           Controllers.Class              ( sendMail, genRandomText )
 import           Model
-import           JSON
 import           Types
 
 -------------------------------------------------------------------------------
@@ -51,28 +43,38 @@ reset = do
             (resetPasswordValid' `assign` False)
   code <- genRandomText
   insert (mkResetPassword resetEmailAddress code True)
-  sendResetMail code resetEmailAddress
-  respondJSON status200 $ "OK: Please check " <> resetEmailAddress
-
-{-@ sendResetMail :: _ -> _ -> TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
-sendResetMail :: Text -> Text -> Controller ()
-sendResetMail code userEmail = do
-  SMTPConfig{..} <- configSMTP <$> getConfig
-  let subject = "VOLTRON Password Reset Code"
-  let to      = publicAddress userEmail
-  let from    = publicAddress (T.pack smtpUser)
-  let mail    = simpleMail' to from subject (mkBody code)
-  res        <- sendMailWithLoginSTARTTLS smtpHost smtpUser smtpPass mail
-  logT Log.INFO ("reset email: " ++ show res)
+  res <- sendMail resetSubject (resetBody code) resetEmailAddress
   case res of
-    Right _ -> return ()
+    Right _ -> respondJSON status200  ("OK: Please check " <> resetEmailAddress)
     Left _  -> respondError status401 (Just "Error sending email!")
 
-mkBody :: Text -> LT.Text
-mkBody code =
-  LT.fromStrict
-    $  "Please use the following code to reset your VOLTRON password: "
-    <> code
+-- {-@ sendResetMail :: _ -> _ -> TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
+-- sendResetMail :: Text -> Text -> Controller ()
+-- sendResetMail code userEmail = do
+--   SMTPConfig{..} <- configSMTP <$> getConfig
+--   let subject = "VOLTRON Password Reset Code"
+--   let to      = publicAddress userEmail
+--   let from    = publicAddress (T.pack smtpUser)
+--   let mail    = simpleMail' to from subject (mkBody code)
+--   res        <- sendMailWithLoginSTARTTLS smtpHost smtpUser smtpPass mail
+--   logT Log.INFO ("reset email: " ++ show res)
+--   case res of
+--     Right _ -> return ()
+--     Left _  -> respondError status401 (Just "Error sending email!")
+
+-- mkBody :: Text -> LT.Text
+-- mkBody code =
+--   LT.fromStrict
+--     $  "Please use the following code to reset your VOLTRON password: "
+--     <> code
+
+resetSubject :: Text
+resetSubject = "VOLTRON Password Reset Code"
+
+resetBody :: Text -> Text
+resetBody code = "Please use the following code to reset your VOLTRON password: " <> code
+
+
 
 -------------------------------------------------------------------------------
 -- | `resetPass` actually resets the password using a previously mailed code

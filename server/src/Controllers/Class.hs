@@ -1,6 +1,7 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 {-@ LIQUID "--no-pattern-inline" @-}
 
@@ -13,18 +14,19 @@ module Controllers.Class
   , getRoster
   , setLanguage
   , genRandomText
+  , sendMail
   )
 where
 
-import           Control.Monad.Random
+import Control.Monad.Random ( MonadRandom(getRandoms) )
 import qualified Data.HashMap.Strict           as M
 import qualified Data.Text                     as T
 import qualified Data.Text.Encoding            as T
 import qualified Data.ByteString               as BS
 import qualified Data.ByteString.Base64.URL    as B64Url
-import           Data.Maybe
-import           GHC.Generics
+import qualified Data.Maybe                    as Mb
 
+import           Frankie.Config ( MonadConfig(getConfig) )
 import           Binah.Core
 import           Binah.Actions
 import           Binah.Updates
@@ -32,19 +34,17 @@ import           Binah.Insert
 import           Binah.Filters
 import           Binah.Helpers
 import           Binah.Infrastructure
-import           Binah.Templates
 import           Binah.Frankie
-import           Binah.SMTP
-import           Binah.Random
+import           Binah.SMTP ( publicAddress, sendMailWithLoginSTARTTLS, simpleMail' )
+import           Binah.Random ()
 import           Binah.Crypto
 import           Binah.JSON
 
 import qualified Frankie.Log                   as Log
 import           Controllers
 import           Model
-import           JSON
 import           Types
-import           Frankie.Log
+import qualified Data.Text.Lazy as LT
 
 -------------------------------------------------------------------------------
 -- | Update the language-mode used for a given class --------------------------
@@ -79,10 +79,8 @@ getRoster className = do
   roster  <- mapT enrollEnrollStudent enrolls
   respondJSON status200 roster
 
-{-@ enrollEnrollStudent
-  :: {e:(Entity Enroll) | IsInstructorE e (currentUser 0)}
-  -> TaggedT<{\v -> v == currentUser 0}, {\v -> v == currentUser 0}> _ _ _
-@-}
+{-@ enrollEnrollStudent :: {e:(Entity Enroll) | IsInstructorE e (currentUser 0)} ->
+  TaggedT<{\v -> v == currentUser 0}, {\v -> v == currentUser 0}> _ _ _ @-}
 enrollEnrollStudent :: Entity Enroll -> Controller EnrollStudent
 enrollEnrollStudent enroll = do
   userId  <- project enrollStudent' enroll
@@ -117,14 +115,12 @@ addRoster = do
   getRoster rosterClass
   -- respondJSON status200 ("OK:addRoster" :: T.Text)
 
-{-@ addGroup
-  :: {c: ClassId | isInstructor c (entityKey (currentUser 0))}
-  -> CreateGroup
+{-@ addGroup :: {c: ClassId | isInstructor c (entityKey (currentUser 0))} -> CreateGroup
   -> TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
 addGroup :: ClassId -> CreateGroup -> Controller (Maybe GroupId)
 addGroup clsId r@(CreateGroup {..}) = do
   id <- insertMaybe (mkGroup groupName groupEditorLink clsId)
-  whenT (isNothing id) (logT Log.WARNING ("addGroup: skipping duplicate group " ++ show r))
+  whenT (Mb.isNothing id) (logT Log.WARNING ("addGroup: skipping duplicate group " ++ show r))
   return id
 
 {-@ createUser :: _ -> TaggedT<{\_ -> True}, {\_ -> False}> _ _ _ @-}
@@ -134,9 +130,7 @@ createUser (EnrollStudent {..}) = do
   let crUser = mkCreateUser esEmail password esFirstName esLastName "" ""
   return crUser
 
-{-@ addEnroll
-  :: {c: ClassId | isInstructor c (entityKey (currentUser 0))}
-  -> CreateEnroll
+{-@ addEnroll :: {c: ClassId | isInstructor c (entityKey (currentUser 0))} -> CreateEnroll
   -> TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
 addEnroll :: ClassId -> CreateEnroll -> Controller EnrollId
 addEnroll clsId r@(CreateEnroll {..}) = do
@@ -175,8 +169,55 @@ addUser r@(CreateUser {..}) = do
   logT Log.INFO ("addUser: " ++ show r)
   EncryptedPass encrypted <- encryptPassTIO' (Pass (T.encodeUtf8 crUserPassword))
   maybeId <- insertMaybe (mkUser crUserEmail encrypted crUserFirst crUserLast "" "" False)
-  whenT (isNothing maybeId) (logT Log.WARNING ("addUser: skipping duplicate user " ++ show r))
+  if Mb.isNothing maybeId
+    then logT Log.WARNING ("addUser: skipping duplicate user " ++ show r)
+    else sendWelcomeMail r
   return maybeId
+
+sendWelcomeMail :: (MonadTIO m) => CreateUser -> TasCon m ()
+sendWelcomeMail r@(CreateUser {..}) = do
+  res <- sendMail welcomeSubject (welcomeBody r) crUserEmail 
+  case res of
+    Left err -> logT Log.ERROR ("sendWelcomeMail: " <> T.unpack err)
+    Right _  -> return ()
+
+
+welcomeSubject :: T.Text
+welcomeSubject = "Welcome to VOLTRON!"
+
+welcomeBody :: CreateUser -> T.Text
+welcomeBody r = T.unlines 
+  [ "Dear " <> crUserFirst r <> " " <> crUserLast r <> "," 
+  , ""
+  , "Welcome to the collaborative code-editing app Voltron!"
+  , ""
+  , "To begin using, please visit:" <> voltronURL
+  , "Click the link to reset your password, using the email address: " <> crUserEmail r
+  , "Then log in using your new password."
+  , ""
+  , "We hope you enjoy using the Voltron!"
+  , ""
+  , "- voltron.sys"
+  ]
+
+voltronURL :: T.Text
+voltronURL = "https://voltron.programming.systems"
+
+-------------------------------------------------------------------------------
+-- | Generic function for sending email
+-------------------------------------------------------------------------------
+{-@ sendMail :: _ -> _ -> _ -> TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
+sendMail :: (MonadTIO m) => T.Text -> T.Text -> T.Text -> TasCon m (Either T.Text ())
+sendMail subject body userEmail = do
+  SMTPConfig{..} <- configSMTP <$> getConfig
+  let to      = publicAddress userEmail
+  let from    = publicAddress (T.pack smtpUser)
+  let mail    = simpleMail' to from subject (LT.fromStrict body) 
+  res        <- sendMailWithLoginSTARTTLS smtpHost smtpUser smtpPass mail
+  logT Log.INFO ("send email: " ++ show res)
+  case res of
+    Right _ -> return (Right ())
+    Left _  -> return (Left "Error sending email!")
 
 -------------------------------------------------------------------------------
 -- | Add a class --------------------------------------------------------------
@@ -191,7 +232,7 @@ addClass r@(CreateClass {..}) = do
     Just instr -> do
       instrId <- project userId' instr
       id      <- insertMaybe (mkClass crClassInstitution crClassName instrId crClassLanguage)
-      whenT (isNothing id) (logT Log.WARNING ("addClass: skipping duplicate class " ++ show r))
+      whenT (Mb.isNothing id) (logT Log.WARNING ("addClass: skipping duplicate class " ++ show r))
       return id
     Nothing -> do
       logT Log.ERROR ("addClass: cannot find user " ++ show crClassInstructor)
