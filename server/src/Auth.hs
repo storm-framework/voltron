@@ -63,7 +63,7 @@ signIn = do
    userNG                         <- extractUserNG user
    respondTagged $ setSessionCookie token (jsonResponse status200 userNG)
 
-{-@ signOut :: TaggedT<{\_ -> False}, {\_ -> True}> _ () @-}
+{-@ signOut :: TaggedT<{\_ -> False}, {\_ -> True}> _ _ () @-}
 signOut :: Controller ()
 signOut = respondTagged $ expireSessionCookie (emptyResponse status201)
 
@@ -129,12 +129,14 @@ instance ToJSON SessionToken where
 instance FromJSON SessionToken where
   parseJSON = genericParseJSON (stripPrefix "st")
 
+{-@ genToken :: _ -> TaggedT<{\_ -> True}, {\_ -> False}> _ _ _ @-}
 genToken :: UserId -> Controller SessionToken
 genToken userId = do
   key  <- configSecretKey `fmap` getConfigT
   time <- currentTime
   return (SessionToken userId time (doHmac key userId time))
 
+{-@ verifyToken :: _ -> TaggedT<{\_ -> True}, {\_ -> False}> _ _ _ @-}
 verifyToken :: SessionToken -> Controller Bool
 verifyToken SessionToken{..} = do
   key <- configSecretKey `fmap` getConfigT

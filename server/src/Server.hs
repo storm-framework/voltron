@@ -75,7 +75,6 @@ data ServerOpts = ServerOpts
   , optsDBPath :: T.Text
   }
 
-{-@ ignore runServer @-}
 runServer :: ServerOpts -> IO ()
 runServer ServerOpts {..} = runNoLoggingT $ do
     liftIO $ initDB optsDBPath
@@ -128,14 +127,12 @@ readSecretKey = do
     secret <- fromMaybe "sb8NHmF@_-nsf*ymt!wJ3.KXmTDPsNoy" <$> lookupEnv "VOLTRON_SECRET_KEY"
     return $ T.encodeUtf8 . T.pack $ secret
 
-{-@ ignore initDB @-}
 initDB :: T.Text -> IO ()
 initDB dbpath = runSqlite dbpath $ do
     runMigration migrateAll
 
 -- Static files
 
-{-@ ignore sendFromDirectory @-}
 sendFromDirectory :: FilePath -> FilePath -> Controller ()
 sendFromDirectory dir fallback = do
     req <- request
@@ -143,7 +140,6 @@ sendFromDirectory dir fallback = do
     exists <- liftTIO . TIO $ doesFileExist path
     if exists then sendFile path else sendFile (dir </> fallback)
 
-{-@ ignore sendFile @-}
 sendFile :: FilePath -> Controller ()
 sendFile path = do
     let mime = defaultMimeLookup (T.pack path)
