@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: efe800989959116306e855ec0338c72f3b992354510f40bd2fe3300807cce58a
+-- hash: 64da46e14edf0e18b6888f0decf2f8e65ec28db1d35b5190369323aab635f963
 
 name:           server
 version:        0.1.0.0
@@ -28,21 +28,6 @@ source-repository head
 library
   exposed-modules:
       Auth
-      Binah.Actions
-      Binah.Concurrent
-      Binah.Core
-      Binah.Crypto
-      Binah.Filters
-      Binah.Frankie
-      Binah.Helpers
-      Binah.Infrastructure
-      Binah.Insert
-      Binah.JSON
-      Binah.Random
-      Binah.SMTP
-      Binah.Templates
-      Binah.Time
-      Binah.Updates
       Config
       Controllers
       Controllers.Class
@@ -61,6 +46,7 @@ library
     , aeson
     , base >=4.7 && <5
     , base64-bytestring
+    , binah
     , bytestring
     , cmdargs
     , cryptonite
@@ -106,6 +92,7 @@ executable voltron
     , aeson
     , base >=4.7 && <5
     , base64-bytestring
+    , binah
     , bytestring
     , cmdargs
     , cryptonite
@@ -153,6 +140,7 @@ test-suite server-test
     , aeson
     , base >=4.7 && <5
     , base64-bytestring
+    , binah
     , bytestring
     , cmdargs
     , cryptonite

@@ -26,6 +26,7 @@ dependencies:
   - bytestring
   - either
   - frankie
+  - binah
   - mtl
   - mustache
   - cryptonite

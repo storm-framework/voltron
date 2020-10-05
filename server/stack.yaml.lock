@@ -5,6 +5,13 @@
 
 packages:
 - completed:
+    hackage: smtp-mail-0.3.0.0@sha256:2e6d9cb29d09a5a04d77a905eb1b570b94b5654e24d40630ea96aa374474c12f,1239
+    pantry-tree:
+      size: 450
+      sha256: 4d319cb6c22b35ca043a83210cd09bfbf99eec3dca4945cd53ed5b7c96f7daca
+  original:
+    hackage: smtp-mail-0.3.0.0
+- completed:
     size: 18539
     url: https://github.com/PLSysSec/frankie/archive/b9ee2c0f7667025d0d0ac3a43ded43d1d1d63c28.tar.gz
     name: frankie
@@ -16,40 +23,16 @@ packages:
   original:
     url: https://github.com/PLSysSec/frankie/archive/b9ee2c0f7667025d0d0ac3a43ded43d1d1d63c28.tar.gz
 - completed:
-    hackage: lens-4.19.2@sha256:f0570ca0e4624d9daa57256f00f514e87be155401583fa1665faba47376c63a7,16053
+    size: 12518
+    url: https://github.com/binah-framework/binah/archive/bbb1d98cef564f578ccec6317a9ccdc925dfcbdd.tar.gz
+    name: binah
+    version: 0.1.0.0
+    sha256: 5882c0c55e28d83a62e467dd3c11cd5ccc9e283e25a16ea9885f1a5c7c1deb73
     pantry-tree:
-      size: 8330
-      sha256: 97df1b96d825fb74400e75847e2a6ce2c37c9d1baeb71f5804a3a97694a4f881
+      size: 1261
+      sha256: d6adb504719f73ebc5f532ad41d2646dd843d6fcea4058936c679453586a6bea
   original:
-    hackage: lens-4.19.2
-- completed:
-    hackage: smtp-mail-0.3.0.0@sha256:2e6d9cb29d09a5a04d77a905eb1b570b94b5654e24d40630ea96aa374474c12f,1239
-    pantry-tree:
-      size: 450
-      sha256: 4d319cb6c22b35ca043a83210cd09bfbf99eec3dca4945cd53ed5b7c96f7daca
-  original:
-    hackage: smtp-mail-0.3.0.0
-- completed:
-    hackage: amazonka-1.6.1@sha256:f58b63e83876f93aa03c54e54b3eb8ba9358af93819d41f4a5a8f8b7d8b8399c,3544
-    pantry-tree:
-      size: 992
-      sha256: d792656a70ee42df262a599bc6608bda069e33092d665c3438a6eeeaf7db4fb2
-  original:
-    hackage: amazonka-1.6.1@sha256:f58b63e83876f93aa03c54e54b3eb8ba9358af93819d41f4a5a8f8b7d8b8399c,3544
-- completed:
-    hackage: amazonka-core-1.6.1@sha256:9bc59ce403c6eeba3b3eaf3f10e5f0b6a33b6edbbf8f6de0dd6f4c67b86fa698,5135
-    pantry-tree:
-      size: 3438
-      sha256: c13e643176308771491ec0e06390e269047bb1b28be4535992842f7426a95eb4
-  original:
-    hackage: amazonka-core-1.6.1@sha256:9bc59ce403c6eeba3b3eaf3f10e5f0b6a33b6edbbf8f6de0dd6f4c67b86fa698,5135
-- completed:
-    hackage: amazonka-s3-1.6.1@sha256:9d07240fca59ad5197fb614ce3051e701e4951e6d4625a2dab4a9c17a1900194,6317
-    pantry-tree:
-      size: 18385
-      sha256: 5cab233d241615764d9fd6927bc397f02887154450a9932c38c2e17ea86d79bc
-  original:
-    hackage: amazonka-s3-1.6.1@sha256:9d07240fca59ad5197fb614ce3051e701e4951e6d4625a2dab4a9c17a1900194,6317
+    url: https://github.com/binah-framework/binah/archive/bbb1d98cef564f578ccec6317a9ccdc925dfcbdd.tar.gz
 snapshots:
 - completed:
     size: 491163
