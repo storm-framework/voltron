@@ -4,15 +4,15 @@
 
 module Main where
 
-import           Frankie                        ( HostPreference
-                                                , Port
-                                                )
-import qualified Data.Text                     as T
+-- import           Frankie                        ( HostPreference
+--                                                 , Port
+--                                                 )
+-- import qualified Data.Text                     as T
 import           GHC.Exts                       ( fromString )
 import System.Console.CmdArgs ( cmdArgs )
 import Server ( runServer, runTask', ServerOpts(ServerOpts) )
 import           Config
-import qualified Auth
+-- import qualified Auth
 import qualified Controllers.Class as Class
 import Types ( mkCreateClass, mkCreateUser )
 

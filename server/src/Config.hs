@@ -14,8 +14,8 @@ import           Data.Maybe
 import           GHC.Exts                       ( fromString )
 import           System.Console.CmdArgs
 import           System.Environment
-import           Server
-import qualified Auth                      
+-- import           Server
+-- import qualified Auth                      
 
 voltronModes :: Voltron
 voltronModes = modes 
@@ -50,20 +50,6 @@ data Voltron
     }
     deriving (Data, Typeable, Show)
 
-  -- for bootstrapping / debugging
-
-  --  AddGroup 
-  --   { className  :: T.Text
-  --   , groupName  :: T.Text
-  --   , editorLink :: T.Text  -- firepad hash
-  --   , db         :: T.Text
-  --   }
-  --  AddEnroll
-  --   { student    :: T.Text  -- email
-  --   , className  :: T.Text 
-  --   , groupName  :: T.Text 
-  --   , db         :: T.Text 
-  --   }
 
 modeServer :: Voltron
 modeServer = Server
@@ -112,31 +98,6 @@ modeAddUser = AddUser
                   &= help "Database path (default db.sqlite)"
   }
 
--- modeAddGroup :: Voltron
--- modeAddGroup = AddGroup
---   { className  = ""  
---                  &= typ "STRING"   
---                  &= help "The (unique) string identifier for a group"
---   , groupName  = "0" 
---                  &= typ  "STRING" 
---                  &= help "The (unique) string identifier for a group"
---   , editorLink = "-123" 
---                  &= typ "STRING"
---                  &= help "The hash identifier for the firepad editor buffer"
---   , db       = "db.sqlite" 
---                  &= typ "PATH" 
---                  &= help "Database path (default db.sqlite)"
---   }
 
 
 
-
--- modeAddEnroll :: Voltron
--- modeAddEnroll = AddEnroll
---   { student    = "" &= typ "EMAIL"
---   , className  = "" &= typ "STRING"
---   , groupName  = "" &= typ "STRING"
---   , db         = "db.sqlite" 
---                   &= typ "PATH" 
---                   &= help "Database path (default db.sqlite)"
---   }

@@ -55,13 +55,6 @@ packages:
   original:
     hackage: liquid-fixpoint-0.8.10.1
 - completed:
-    hackage: liquidhaskell-0.8.10.1@sha256:4d71d01c8d7b42ffd6b7a6a926dd0b2893105a8d91f1576394a490c28031e92d,15674
-    pantry-tree:
-      size: 69381
-      sha256: e2f25ebf7b83c10cf432a1fe33bd40fdb0ed361931416a2f93da80bd32f12032
-  original:
-    hackage: liquidhaskell-0.8.10.1
-- completed:
     hackage: liquid-base-4.14.0.0@sha256:52ac0bda5d8cce9be744dc7af0622b355d59ef02401f0c25ddd6e866010cb60c,9066
     pantry-tree:
       size: 14924
@@ -75,6 +68,17 @@ packages:
       sha256: b8b0bde3cc45e2e7f3517f24aa8a96e224bfb5cab08df4259cf2a597d9748104
   original:
     hackage: liquid-ghc-prim-0.6.1
+- completed:
+    size: 13475805
+    url: https://github.com/ucsd-progsys/liquidhaskell/archive/1cab7e3758c7f1793a19eea2579a5e856348b459.tar.gz
+    name: liquidhaskell
+    version: 0.8.10.1
+    sha256: 9549c3ed38e401aa82594953cee79e174a218b6d8d4fc20d5b64d3a3a622e99f
+    pantry-tree:
+      size: 265940
+      sha256: b3fcadb5400454162ce4163997d0ce203de48f3c80bfbf09163266f4f0fd38ff
+  original:
+    url: https://github.com/ucsd-progsys/liquidhaskell/archive/1cab7e3758c7f1793a19eea2579a5e856348b459.tar.gz
 snapshots:
 - completed:
     size: 503181
