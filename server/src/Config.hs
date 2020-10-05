@@ -22,8 +22,6 @@ voltronModes = modes
   [ modeServer    &= auto
   , modeAddClass  &= explicit &= name "add-class"
   , modeAddUser   &= explicit &= name "add-user"
-  -- , modeAddGroup  &= explicit &= name "add-group"
-  -- , modeAddEnroll &= explicit &= name "add-enroll"
   ]
 
 data Voltron
