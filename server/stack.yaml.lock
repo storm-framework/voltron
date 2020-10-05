@@ -23,19 +23,61 @@ packages:
   original:
     url: https://github.com/PLSysSec/frankie/archive/b9ee2c0f7667025d0d0ac3a43ded43d1d1d63c28.tar.gz
 - completed:
-    size: 12518
-    url: https://github.com/binah-framework/binah/archive/bbb1d98cef564f578ccec6317a9ccdc925dfcbdd.tar.gz
+    size: 12786
+    url: https://github.com/binah-framework/binah/archive/d24fbaa0ceb4c11f48bb0d8e9b89ac72c57ee194.tar.gz
     name: binah
     version: 0.1.0.0
-    sha256: 5882c0c55e28d83a62e467dd3c11cd5ccc9e283e25a16ea9885f1a5c7c1deb73
+    sha256: bb136aeaa32da0526243a63c02789d4939ded704c69e8fe9f3c42df181263691
     pantry-tree:
-      size: 1261
-      sha256: d6adb504719f73ebc5f532ad41d2646dd843d6fcea4058936c679453586a6bea
+      size: 1262
+      sha256: 3cbe74b5986be7a1beb29c95459e2ae86f65f3b024e4a41927b7e0d8ac6b0687
   original:
-    url: https://github.com/binah-framework/binah/archive/bbb1d98cef564f578ccec6317a9ccdc925dfcbdd.tar.gz
+    url: https://github.com/binah-framework/binah/archive/d24fbaa0ceb4c11f48bb0d8e9b89ac72c57ee194.tar.gz
+- completed:
+    hackage: text-format-0.3.2@sha256:2a3fc17cf87120fcfdbca62a0da59759755549285841cdc1483081c35fb3d115,1814
+    pantry-tree:
+      size: 1029
+      sha256: 2db26ddb77184186e0d5b2b020bdfbeb044c168024767b1fa3691682ca618896
+  original:
+    hackage: text-format-0.3.2
+- completed:
+    hackage: Diff-0.3.4@sha256:5ab20a407f9e65d13b642c3cd414906a40280343a31b388f6ed69b9228fe42c1,1127
+    pantry-tree:
+      size: 416
+      sha256: 48d1b942ff99293d69a8ca4ea60f372093e5aeea73f63d11829ceca01d63c7fd
+  original:
+    hackage: Diff-0.3.4
+- completed:
+    hackage: liquid-fixpoint-0.8.10.1@sha256:7b40e5d29b72504014fc289bb4807330996c63b37fc33b40a906664c1ea074b1,7291
+    pantry-tree:
+      size: 14011
+      sha256: 6bde6d15104bc05dfcede4eb85469adc333844660ca7f8404eeebe6a6d401065
+  original:
+    hackage: liquid-fixpoint-0.8.10.1
+- completed:
+    hackage: liquidhaskell-0.8.10.1@sha256:4d71d01c8d7b42ffd6b7a6a926dd0b2893105a8d91f1576394a490c28031e92d,15674
+    pantry-tree:
+      size: 69381
+      sha256: e2f25ebf7b83c10cf432a1fe33bd40fdb0ed361931416a2f93da80bd32f12032
+  original:
+    hackage: liquidhaskell-0.8.10.1
+- completed:
+    hackage: liquid-base-4.14.0.0@sha256:52ac0bda5d8cce9be744dc7af0622b355d59ef02401f0c25ddd6e866010cb60c,9066
+    pantry-tree:
+      size: 14924
+      sha256: a59067ba8d45e77fa2ffe530bc5e31becaf104ae824881d33c69d7efc43d968f
+  original:
+    hackage: liquid-base-4.14.0.0
+- completed:
+    hackage: liquid-ghc-prim-0.6.1@sha256:83ef2d8fb705f31f269ce2b3e05af4333fb77c7083d3a56c25032dffd6dfd7b7,1766
+    pantry-tree:
+      size: 858
+      sha256: b8b0bde3cc45e2e7f3517f24aa8a96e224bfb5cab08df4259cf2a597d9748104
+  original:
+    hackage: liquid-ghc-prim-0.6.1
 snapshots:
 - completed:
-    size: 491163
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/15/4.yaml
-    sha256: bc60043a06b58902b533baa80fb566c0ec495c41e428bc0f8c1e8c15b2a4c468
-  original: lts-15.4
+    size: 503181
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2020/6/25.yaml
+    sha256: 96e98363790e62f4498da632069a03101cf588b3b47925e707f080cff4b6cfbb
+  original: nightly-2020-06-25

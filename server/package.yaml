@@ -1,10 +1,10 @@
 name: server
 version: 0.1.0.0
-github: "nilehmann/server"
+github: "binah-framework/voltron"
 license: BSD3
-author: "Nico Lehmann"
-maintainer: "nlehmann@eng.ucsd.edu"
-copyright: "2020 Nico Lehmann"
+author: "Ranjit Jhala and Nico Lehmann"
+maintainer: "rjhala@eng.ucsd.edu"
+copyright: "2020 Ranjit Jhala"
 
 extra-source-files:
   - README.md
@@ -17,11 +17,11 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description: Please see the README on GitHub at <https://github.com/nilehmann/server#readme>
+description: Please see the README on GitHub at <https://github.com/binah-framework/voltron>
 
 dependencies:
   - aeson
-  - base >= 4.7 && < 5
+    # - base >= 4.7 && < 5
   - base64-bytestring
   - bytestring
   - either
@@ -56,9 +56,13 @@ dependencies:
   - scrypt
   - memory
   - MonadRandom
+  - liquid-base
+  - liquidhaskell >= 0.8.10
+
 
 library:
   source-dirs: src
+  # ghc-options: -fplugin=LiquidHaskell
 
 executables:
   voltron:
