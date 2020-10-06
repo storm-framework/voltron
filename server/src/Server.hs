@@ -6,6 +6,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE InstanceSigs #-}
 
+{-@ LIQUID "--compile-spec" @-}
+
 module Server
     ( runServer
     , runTask'
@@ -57,6 +59,10 @@ import           Binah.Insert
 import           Binah.Actions
 import           Binah.Filters
 import           Binah.JSON
+
+import           Binah.SMTP             -- TODO: DUMMY RECURSIVE IMPORTS for LH 
+import           Binah.Updates          -- TODO: DUMMY RECURSIVE IMPORTS for LH 
+
 import           Controllers
 import           Controllers.User
 import           Controllers.Class
@@ -170,3 +176,6 @@ instance MonadBaseControl IO (ControllerT TIO) where
     type StM (ControllerT TIO) a = ControllerStatus a
     liftBaseWith f = ControllerT $ \r -> TIO $ fmap Working (f (runTIO . flip runController r))
     restoreM st = ControllerT $ \_ -> return st
+
+
+

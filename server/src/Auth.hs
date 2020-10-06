@@ -4,6 +4,7 @@
 {-# LANGUAGE LambdaCase #-}
 
 {-@ LIQUID "--no-pattern-inline" @-}
+{-@ LIQUID "--compile-spec" @-}
 
 module Auth where
 

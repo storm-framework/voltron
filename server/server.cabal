@@ -4,16 +4,16 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: efe800989959116306e855ec0338c72f3b992354510f40bd2fe3300807cce58a
+-- hash: b99645a3ba0b65f1878396d37a1f5fa63d8c8c7dc8f99f727e03b2e3976d2102
 
 name:           server
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/nilehmann/server#readme>
-homepage:       https://github.com/nilehmann/server#readme
-bug-reports:    https://github.com/nilehmann/server/issues
-author:         Nico Lehmann
-maintainer:     nlehmann@eng.ucsd.edu
-copyright:      2020 Nico Lehmann
+description:    Please see the README on GitHub at <https://github.com/binah-framework/voltron>
+homepage:       https://github.com/binah-framework/voltron#readme
+bug-reports:    https://github.com/binah-framework/voltron/issues
+author:         Ranjit Jhala and Nico Lehmann
+maintainer:     rjhala@eng.ucsd.edu
+copyright:      2020 Ranjit Jhala
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -23,26 +23,11 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/nilehmann/server
+  location: https://github.com/binah-framework/voltron
 
 library
   exposed-modules:
       Auth
-      Binah.Actions
-      Binah.Concurrent
-      Binah.Core
-      Binah.Crypto
-      Binah.Filters
-      Binah.Frankie
-      Binah.Helpers
-      Binah.Infrastructure
-      Binah.Insert
-      Binah.JSON
-      Binah.Random
-      Binah.SMTP
-      Binah.Templates
-      Binah.Time
-      Binah.Updates
       Config
       Controllers
       Controllers.Class
@@ -56,21 +41,21 @@ library
       Paths_server
   hs-source-dirs:
       src
+  ghc-options: -fplugin=LiquidHaskell
   build-depends:
       MonadRandom
     , aeson
-    , base >=4.7 && <5
     , base64-bytestring
+    , binah
     , bytestring
     , cmdargs
     , cryptonite
     , directory
-    , either
-    , exceptions
     , filepath
     , frankie
+    , liquid-base
+    , liquidhaskell >=0.8.10
     , memory
-    , mime-mail
     , mime-types
     , monad-control
     , monad-logger
@@ -83,15 +68,11 @@ library
     , persistent-template
     , resource-pool
     , scrypt
-    , smtp-mail
     , text
     , time
     , transformers
     , transformers-base
     , unordered-containers
-    , wai
-    , wai-extra
-    , warp
   default-language: Haskell2010
 
 executable voltron
@@ -104,18 +85,17 @@ executable voltron
   build-depends:
       MonadRandom
     , aeson
-    , base >=4.7 && <5
     , base64-bytestring
+    , binah
     , bytestring
     , cmdargs
     , cryptonite
     , directory
-    , either
-    , exceptions
     , filepath
     , frankie
+    , liquid-base
+    , liquidhaskell >=0.8.10
     , memory
-    , mime-mail
     , mime-types
     , monad-control
     , monad-logger
@@ -129,15 +109,11 @@ executable voltron
     , resource-pool
     , scrypt
     , server
-    , smtp-mail
     , text
     , time
     , transformers
     , transformers-base
     , unordered-containers
-    , wai
-    , wai-extra
-    , warp
   default-language: Haskell2010
 
 test-suite server-test
@@ -151,18 +127,17 @@ test-suite server-test
   build-depends:
       MonadRandom
     , aeson
-    , base >=4.7 && <5
     , base64-bytestring
+    , binah
     , bytestring
     , cmdargs
     , cryptonite
     , directory
-    , either
-    , exceptions
     , filepath
     , frankie
+    , liquid-base
+    , liquidhaskell >=0.8.10
     , memory
-    , mime-mail
     , mime-types
     , monad-control
     , monad-logger
@@ -176,13 +151,9 @@ test-suite server-test
     , resource-pool
     , scrypt
     , server
-    , smtp-mail
     , text
     , time
     , transformers
     , transformers-base
     , unordered-containers
-    , wai
-    , wai-extra
-    , warp
   default-language: Haskell2010

@@ -80,7 +80,7 @@ getRoster className = do
   respondJSON status200 roster
 
 {-@ enrollEnrollStudent :: {e:(Entity Enroll) | IsInstructorE e (currentUser 0)} ->
-  TaggedT<{\v -> v == currentUser 0}, {\v -> v == currentUser 0}> _ _ _ @-}
+      TaggedT<{\v -> v == currentUser 0}, {\v -> v == currentUser 0}> _ _ _ @-}
 enrollEnrollStudent :: Entity Enroll -> Controller EnrollStudent
 enrollEnrollStudent enroll = do
   userId  <- project enrollStudent' enroll
@@ -115,8 +115,8 @@ addRoster = do
   getRoster rosterClass
   -- respondJSON status200 ("OK:addRoster" :: T.Text)
 
-{-@ addGroup :: {c: ClassId | isInstructor c (entityKey (currentUser 0))} -> CreateGroup
-  -> TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
+{-@ addGroup :: {c: ClassId | isInstructor c (entityKey (currentUser 0))} -> CreateGroup -> 
+      TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
 addGroup :: ClassId -> CreateGroup -> Controller (Maybe GroupId)
 addGroup clsId r@(CreateGroup {..}) = do
   id <- insertMaybe (mkGroup groupName groupEditorLink clsId)
@@ -130,8 +130,8 @@ createUser (EnrollStudent {..}) = do
   let crUser = mkCreateUser esEmail password esFirstName esLastName "" ""
   return crUser
 
-{-@ addEnroll :: {c: ClassId | isInstructor c (entityKey (currentUser 0))} -> CreateEnroll
-  -> TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
+{-@ addEnroll :: {c: ClassId | isInstructor c (entityKey (currentUser 0))} -> CreateEnroll -> 
+                 TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
 addEnroll :: ClassId -> CreateEnroll -> Controller EnrollId
 addEnroll clsId r@(CreateEnroll {..}) = do
   logT Log.INFO ("addEnroll: " ++ show r)
@@ -195,7 +195,7 @@ welcomeBody r = T.unlines
   , "Click the link to reset your password, using the email address: " <> crUserEmail r
   , "Then log in using your new password."
   , ""
-  , "We hope you enjoy using the Voltron!"
+  , "We hope you enjoy using Voltron!"
   , ""
   , "- voltron.sys"
   ]
