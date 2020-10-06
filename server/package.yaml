@@ -24,7 +24,6 @@ dependencies:
     # - base >= 4.7 && < 5
   - base64-bytestring
   - bytestring
-  - either
   - frankie
   - binah
   - mtl
@@ -36,17 +35,11 @@ dependencies:
   - text
   - transformers
   - unordered-containers
-  - wai
-  - wai-extra
-  - warp
   - monad-time
   - resource-pool
-  - exceptions
   - transformers-base
   - monad-control
   - monad-logger
-  - smtp-mail
-  - mime-mail
   - mime-types
   - filepath
   - directory

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3210c0cafa76a62b6e3cad894a09b0fdc218b454b0ca0924da39038f14283ca7
+-- hash: b99645a3ba0b65f1878396d37a1f5fa63d8c8c7dc8f99f727e03b2e3976d2102
 
 name:           server
 version:        0.1.0.0
@@ -51,14 +51,11 @@ library
     , cmdargs
     , cryptonite
     , directory
-    , either
-    , exceptions
     , filepath
     , frankie
     , liquid-base
     , liquidhaskell >=0.8.10
     , memory
-    , mime-mail
     , mime-types
     , monad-control
     , monad-logger
@@ -71,15 +68,11 @@ library
     , persistent-template
     , resource-pool
     , scrypt
-    , smtp-mail
     , text
     , time
     , transformers
     , transformers-base
     , unordered-containers
-    , wai
-    , wai-extra
-    , warp
   default-language: Haskell2010
 
 executable voltron
@@ -98,14 +91,11 @@ executable voltron
     , cmdargs
     , cryptonite
     , directory
-    , either
-    , exceptions
     , filepath
     , frankie
     , liquid-base
     , liquidhaskell >=0.8.10
     , memory
-    , mime-mail
     , mime-types
     , monad-control
     , monad-logger
@@ -119,15 +109,11 @@ executable voltron
     , resource-pool
     , scrypt
     , server
-    , smtp-mail
     , text
     , time
     , transformers
     , transformers-base
     , unordered-containers
-    , wai
-    , wai-extra
-    , warp
   default-language: Haskell2010
 
 test-suite server-test
@@ -147,14 +133,11 @@ test-suite server-test
     , cmdargs
     , cryptonite
     , directory
-    , either
-    , exceptions
     , filepath
     , frankie
     , liquid-base
     , liquidhaskell >=0.8.10
     , memory
-    , mime-mail
     , mime-types
     , monad-control
     , monad-logger
@@ -168,13 +151,9 @@ test-suite server-test
     , resource-pool
     , scrypt
     , server
-    , smtp-mail
     , text
     , time
     , transformers
     , transformers-base
     , unordered-containers
-    , wai
-    , wai-extra
-    , warp
   default-language: Haskell2010
