@@ -94,8 +94,9 @@ enrollClassData enroll = do
       return $ Just (Student clsName lang grpBuf)
     _ -> return Nothing
 
-{-@ extractBuffer :: Text -> Bool -> g: (Entity Group) ->
-  TaggedT<{\v -> IsInstructorG g v || IsInGroupG g v}, {\_ -> False}> _ _ _ @-}
+{-@ extractBuffer :: Text -> Bool -> g: (Entity Group) -> 
+                     TaggedT<{\v -> IsInstructorG g v || IsInGroupG g v}, {\_ -> False}> _ _ _ 
+  @-}
 extractBuffer :: Text -> Bool -> Entity Group -> Controller Buffer
 extractBuffer clsName isStudent group = do
   bName <- project groupName' group

@@ -13,7 +13,7 @@ Class
 Group
   class      Class  -- only writable by instructor
   number     Int    -- only writable by instructor
-  buffer     Text   -- only readable to class.instructor and students in group
+  editorLink Text   -- only readable to class.instructor and students in group
                     -- only writable by instructor or admin
 
 Enroll
