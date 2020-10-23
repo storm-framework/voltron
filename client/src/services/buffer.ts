@@ -66,7 +66,8 @@ class BufferService {
     // editor.getSession().setMode("ace/mode/haskell");
     editor.setOptions({
       maxLines: 10,
-      minLines: 10
+      minLines: 10,
+      showGutter: false
     });
     const firepadRef = this.getFirepadRef(buf);
     console.log("initBuf", buf.div, editor.getValue());

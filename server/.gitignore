@@ -50,7 +50,6 @@ a.out
 *.json
 js/
 css/
-
 *.smt2
 .liquid
 .dir-locals.el
