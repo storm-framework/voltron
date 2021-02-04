@@ -52,7 +52,6 @@ dependencies:
   - liquid-base
   - liquidhaskell >= 0.8.10
 
-
 library:
   source-dirs: src
   -- ghc-options: -fplugin=LiquidHaskell
