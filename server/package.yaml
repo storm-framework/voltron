@@ -1,6 +1,6 @@
 name: server
 version: 0.1.0.0
-github: "binah-framework/voltron"
+github: "storm-framework/voltron"
 license: BSD3
 author: "Ranjit Jhala and Nico Lehmann"
 maintainer: "rjhala@eng.ucsd.edu"
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description: Please see the README on GitHub at <https://github.com/binah-framework/voltron>
+description: Please see the README on GitHub at <https://github.com/storm-framework/voltron>
 
 dependencies:
   - aeson
@@ -25,7 +25,7 @@ dependencies:
   - base64-bytestring
   - bytestring
   - frankie
-  - binah
+  - storm
   - mtl
   - mustache
   - cryptonite
@@ -54,7 +54,7 @@ dependencies:
 
 library:
   source-dirs: src
-  -- ghc-options: -fplugin=LiquidHaskell
+  ghc-options: -fplugin=LiquidHaskell
 
 executables:
   voltron:
