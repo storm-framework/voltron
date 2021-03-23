@@ -66,7 +66,7 @@ import           Database.Persist.TH            ( share
                                                 )
 import qualified Database.Persist              as Persist
 
-import           Binah.Core
+import           Storm.Core
 
 import Data.ByteString (ByteString)
 import Data.Text       (Text)
@@ -165,13 +165,13 @@ ResetPassword
      -> x_4: Text
      -> x_5: Text
      -> x_6: Bool
-     -> BinahRecord <{\row -> userEmailAddress (entityVal row) == x_0 && userPassword (entityVal row) == x_1 && userFirstName (entityVal row) == x_2 && userLastName (entityVal row) == x_3 && userTheme (entityVal row) == x_4 && userKeyBinds (entityVal row) == x_5 && userAdmin (entityVal row) == x_6}, 
+     -> StormRecord <{\row -> userEmailAddress (entityVal row) == x_0 && userPassword (entityVal row) == x_1 && userFirstName (entityVal row) == x_2 && userLastName (entityVal row) == x_3 && userTheme (entityVal row) == x_4 && userKeyBinds (entityVal row) == x_5 && userAdmin (entityVal row) == x_6}, 
                      {\_ _ -> True}, 
                      {\x_0 x_1 -> (x_1 == x_0)}> 
                      (Entity User) User
   @-}
-mkUser :: Text -> ByteString -> Text -> Text -> Text -> Text -> Bool -> BinahRecord (Entity User) User
-mkUser x_0 x_1 x_2 x_3 x_4 x_5 x_6 = BinahRecord (User x_0 x_1 x_2 x_3 x_4 x_5 x_6)
+mkUser :: Text -> ByteString -> Text -> Text -> Text -> Text -> Bool -> StormRecord (Entity User) User
+mkUser x_0 x_1 x_2 x_3 x_4 x_5 x_6 = StormRecord (User x_0 x_1 x_2 x_3 x_4 x_5 x_6)
 
 {-@ invariant {v: Entity User | v == getJust (entityKey v)} @-}
 
@@ -299,13 +299,13 @@ userAdmin' = EntityFieldWrapper UserAdmin
      -> x_1: Text
      -> x_2: UserId
      -> x_3: Text
-     -> BinahRecord <{\row -> classInstitution (entityVal row) == x_0 && className (entityVal row) == x_1 && classInstructor (entityVal row) == x_2 && classEditorLang (entityVal row) == x_3}, 
+     -> StormRecord <{\row -> classInstitution (entityVal row) == x_0 && className (entityVal row) == x_1 && classInstructor (entityVal row) == x_2 && classEditorLang (entityVal row) == x_3}, 
                      {\_ v -> IsAdmin v}, 
                      {\x_0 x_1 -> False}> 
                      (Entity User) Class
   @-}
-mkClass :: Text -> Text -> UserId -> Text -> BinahRecord (Entity User) Class
-mkClass x_0 x_1 x_2 x_3 = BinahRecord (Class x_0 x_1 x_2 x_3)
+mkClass :: Text -> Text -> UserId -> Text -> StormRecord (Entity User) Class
+mkClass x_0 x_1 x_2 x_3 = StormRecord (Class x_0 x_1 x_2 x_3)
 
 {-@ invariant {v: Entity Class | v == getJust (entityKey v)} @-}
 
@@ -387,13 +387,13 @@ classEditorLang' = EntityFieldWrapper ClassEditorLang
         x_0: Text
      -> x_1: Text
      -> x_2: ClassId
-     -> BinahRecord <{\row -> groupName (entityVal row) == x_0 && groupEditorLink (entityVal row) == x_1 && groupClass (entityVal row) == x_2}, 
+     -> StormRecord <{\row -> groupName (entityVal row) == x_0 && groupEditorLink (entityVal row) == x_1 && groupClass (entityVal row) == x_2}, 
                      {\group viewer -> isInstructor (groupClass (entityVal group)) (entityKey viewer)}, 
                      {\x_0 x_1 -> (IsInstructorG x_0 x_1 || IsInGroupG x_0 x_1)}> 
                      (Entity User) Group
   @-}
-mkGroup :: Text -> Text -> ClassId -> BinahRecord (Entity User) Group
-mkGroup x_0 x_1 x_2 = BinahRecord (Group x_0 x_1 x_2)
+mkGroup :: Text -> Text -> ClassId -> StormRecord (Entity User) Group
+mkGroup x_0 x_1 x_2 = StormRecord (Group x_0 x_1 x_2)
 
 {-@ invariant {v: Entity Group | v == getJust (entityKey v)} @-}
 
@@ -460,13 +460,13 @@ groupClass' = EntityFieldWrapper GroupClass
         x_0: UserId
      -> x_1: ClassId
      -> x_2: GroupId
-     -> BinahRecord <{\row -> enrollStudent (entityVal row) == x_0 && enrollClass (entityVal row) == x_1 && enrollGroup (entityVal row) == x_2}, 
+     -> StormRecord <{\row -> enrollStudent (entityVal row) == x_0 && enrollClass (entityVal row) == x_1 && enrollGroup (entityVal row) == x_2}, 
                      {\enroll viewer -> isInstructor (enrollClass (entityVal enroll)) (entityKey viewer)}, 
                      {\x_0 x_1 -> (IsInstructorE x_0 x_1 || IsInGroupE x_0 x_1)}> 
                      (Entity User) Enroll
   @-}
-mkEnroll :: UserId -> ClassId -> GroupId -> BinahRecord (Entity User) Enroll
-mkEnroll x_0 x_1 x_2 = BinahRecord (Enroll x_0 x_1 x_2)
+mkEnroll :: UserId -> ClassId -> GroupId -> StormRecord (Entity User) Enroll
+mkEnroll x_0 x_1 x_2 = StormRecord (Enroll x_0 x_1 x_2)
 
 {-@ invariant {v: Entity Enroll | v == getJust (entityKey v)} @-}
 
@@ -533,13 +533,13 @@ enrollGroup' = EntityFieldWrapper EnrollGroup
         x_0: Text
      -> x_1: Text
      -> x_2: Bool
-     -> BinahRecord <{\row -> resetPasswordEmail (entityVal row) == x_0 && resetPasswordCode (entityVal row) == x_1 && resetPasswordValid (entityVal row) == x_2}, 
+     -> StormRecord <{\row -> resetPasswordEmail (entityVal row) == x_0 && resetPasswordCode (entityVal row) == x_1 && resetPasswordValid (entityVal row) == x_2}, 
                      {\_ _ -> True}, 
                      {\x_0 x_1 -> False}> 
                      (Entity User) ResetPassword
   @-}
-mkResetPassword :: Text -> Text -> Bool -> BinahRecord (Entity User) ResetPassword
-mkResetPassword x_0 x_1 x_2 = BinahRecord (ResetPassword x_0 x_1 x_2)
+mkResetPassword :: Text -> Text -> Bool -> StormRecord (Entity User) ResetPassword
+mkResetPassword x_0 x_1 x_2 = StormRecord (ResetPassword x_0 x_1 x_2)
 
 {-@ invariant {v: Entity ResetPassword | v == getJust (entityKey v)} @-}
 

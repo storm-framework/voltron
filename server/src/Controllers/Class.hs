@@ -27,18 +27,18 @@ import qualified Data.ByteString.Base64.URL    as B64Url
 import qualified Data.Maybe                    as Mb
 
 import           Frankie.Config ( MonadConfig(getConfig) )
-import           Binah.Core
-import           Binah.Actions
-import           Binah.Updates
-import           Binah.Insert
-import           Binah.Filters
-import           Binah.Helpers
-import           Binah.Infrastructure
-import           Binah.Frankie
-import           Binah.SMTP ( publicAddress, sendMailWithLoginSTARTTLS, simpleMail' )
-import           Binah.Random ()
-import           Binah.Crypto
-import           Binah.JSON
+import           Storm.Core
+import           Storm.Actions
+import           Storm.Updates
+import           Storm.Insert
+import           Storm.Filters
+import           Storm.Helpers
+import           Storm.Infrastructure
+import           Storm.Frankie
+import           Storm.SMTP ( publicAddress, sendMailWithLoginSTARTTLS, simpleMail' )
+import           Storm.Random ()
+import           Storm.Crypto
+import           Storm.JSON
 
 import qualified Frankie.Log                   as Log
 import           Controllers

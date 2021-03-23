@@ -14,15 +14,15 @@ import qualified Data.Text.Lazy                as LT
 import qualified Data.Text.Encoding            as T
 import           Frankie.Config ( MonadConfig(getConfig) )
 import qualified Frankie.Log                   as Log
-import           Binah.Updates
-import           Binah.Insert
-import           Binah.Filters
-import           Binah.Helpers
-import           Binah.Frankie
-import           Binah.SMTP ( publicAddress, sendMailWithLoginSTARTTLS, simpleMail' )
-import Binah.Crypto
+import           Storm.Updates
+import           Storm.Insert
+import           Storm.Filters
+import           Storm.Helpers
+import           Storm.Frankie
+import           Storm.SMTP ( publicAddress, sendMailWithLoginSTARTTLS, simpleMail' )
+import Storm.Crypto
     ( encryptPassTIO', EncryptedPass(EncryptedPass), Pass(Pass) )
-import           Binah.JSON
+import           Storm.JSON
 import           Controllers
 import           Controllers.Class              ( sendMail, genRandomText )
 import           Model

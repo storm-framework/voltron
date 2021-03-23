@@ -19,15 +19,15 @@ import qualified Text.Mustache.Types           as Mustache
 import           Frankie.Auth
 import           Frankie.Config
 
-import           Binah.Actions
-import           Binah.Frankie
+import           Storm.Actions
+import           Storm.Frankie
 import qualified Frankie.Log
-import           Binah.Core
-import           Binah.Infrastructure
-import           Binah.Filters
-import           Binah.Templates
-import           Binah.Concurrent
-import           Binah.SMTP                    as SMTP
+import           Storm.Core
+import           Storm.Infrastructure
+import           Storm.Filters
+import           Storm.Templates
+import           Storm.Concurrent
+import           Storm.SMTP                    as SMTP
 import           Network.Socket                 ( HostName )
 import           Model
 
