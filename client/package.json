@@ -13,7 +13,7 @@
     "@fortawesome/vue-fontawesome": "^0.1.10",
     "@handsontable/vue": "^4.1.1",
     "@types/lodash": "^4.14.157",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bootstrap": "^4.5.0",
     "bootstrap-vue": "^2.15.0",
     "bootswatch": "^4.5.0",
