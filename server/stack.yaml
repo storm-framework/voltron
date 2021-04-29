@@ -10,7 +10,7 @@ extra-deps:
 - github: PLSysSec/frankie
   commit: b9ee2c0f7667025d0d0ac3a43ded43d1d1d63c28
 - github: storm-framework/storm
-  commit: 4213f4ad55f83544ccf0e850669ff49c615bfd3e
+  commit: 5ef379fd7a597d81e8670eac6c3d7e614cc86c9f
   ## ORIG commit: f746ff1bf4876ac55618224b41a1271db291608a
 
 

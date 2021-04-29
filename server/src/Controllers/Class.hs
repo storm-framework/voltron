@@ -20,6 +20,7 @@ where
 
 import Control.Monad.Random ( MonadRandom(getRandoms) )
 import qualified Data.HashMap.Strict           as M
+import qualified Data.Map                      as Map
 import qualified Data.Text                     as T
 import qualified Data.Text.Encoding            as T
 import qualified Data.ByteString               as BS
@@ -75,24 +76,26 @@ getRoster className = do
   cls     <- selectFirstOr (errorResponse status403 Nothing)
                            (className' ==. className &&: classInstructor' ==. instrId)
   clsId   <- project classId' cls
-  enrolls <- selectList (enrollClass' ==. clsId)
-  roster  <- mapT enrollEnrollStudent enrolls
+  groups  <- getGroups clsId
+  enUsers <- joinWhere enrollStudent' userId' (enrollClass' ==. clsId)
+  roster  <- mapT (mkEnrollStudent groups) enUsers
   respondJSON status200 roster
 
-{-@ enrollEnrollStudent :: {e:(Entity Enroll) | IsInstructorE e (currentUser 0)} ->
-      TaggedT<{\v -> v == currentUser 0}, {\v -> v == currentUser 0}> _ _ _ @-}
-enrollEnrollStudent :: Entity Enroll -> Controller EnrollStudent
-enrollEnrollStudent enroll = do
-  userId  <- project enrollStudent' enroll
+getGroups :: ClassId -> Controller (Map.Map GroupId T.Text)
+getGroups clsId = do 
+  groups    <- selectList (groupClass' ==. clsId)
+  id_groups <- mapT (\g -> (,) `fmap` project groupId' g <*> project groupName' g) groups
+  return     $ Map.fromList id_groups 
+
+mkEnrollStudent :: Map.Map GroupId T.Text -> (Entity Enroll, Entity User) -> Controller EnrollStudent 
+mkEnrollStudent groupNames (enroll, user) = do
   groupId <- project enrollGroup' enroll
-  clsId   <- project enrollClass' enroll
-  user    <- selectFirstOr notFoundJSON (userId' ==. userId)
-  group   <- selectFirstOr notFoundJSON (groupId' ==. groupId &&: groupClass' ==. clsId)
+  let groupName = Map.findWithDefault "unknown" groupId groupNames 
   EnrollStudent
     `fmap` project userFirstName'    user
     <*>    project userLastName'     user
     <*>    project userEmailAddress' user
-    <*>    project groupName'        group
+    <*>    pure groupName  
 
 -------------------------------------------------------------------------------
 -- | Add a full roster of students to a class using an Roster -----------------

@@ -23,16 +23,16 @@ packages:
   original:
     url: https://github.com/PLSysSec/frankie/archive/b9ee2c0f7667025d0d0ac3a43ded43d1d1d63c28.tar.gz
 - completed:
-    size: 15126
-    url: https://github.com/storm-framework/storm/archive/4213f4ad55f83544ccf0e850669ff49c615bfd3e.tar.gz
+    size: 15255
+    url: https://github.com/storm-framework/storm/archive/5ef379fd7a597d81e8670eac6c3d7e614cc86c9f.tar.gz
     name: storm
     version: 0.1.0.0
-    sha256: c7521e1984a1163a8d54720a5f7ba466301a2b4f2a60f3aa4f60210944070ed0
+    sha256: 6e1456f2023d4384fd833128e45976043fa807b0a60633f5c7607fed7166d66f
     pantry-tree:
       size: 1319
-      sha256: 4ab20e540d6f0489f5b11155547413e5add93b77f108058f1a7c2543e0fadc52
+      sha256: 0ba7f751b1b18d363840b7b2d11d35d08394c4426568265b7d1156b9ccdf0d40
   original:
-    url: https://github.com/storm-framework/storm/archive/4213f4ad55f83544ccf0e850669ff49c615bfd3e.tar.gz
+    url: https://github.com/storm-framework/storm/archive/5ef379fd7a597d81e8670eac6c3d7e614cc86c9f.tar.gz
 - completed:
     hackage: text-format-0.3.2@sha256:2a3fc17cf87120fcfdbca62a0da59759755549285841cdc1483081c35fb3d115,1814
     pantry-tree:
