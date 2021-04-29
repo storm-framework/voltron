@@ -84,8 +84,7 @@ getRoster className = do
 getGroups :: ClassId -> Controller (Map.Map GroupId T.Text)
 getGroups clsId = do 
   groups    <- selectList (groupClass' ==. clsId)
-  id_groups <- mapT (\g -> (,) `fmap` project groupId' g <*> project groupName' g) groups
-  return     $ Map.fromList id_groups 
+  Map.fromList <$> mapT (\g -> (,) `fmap` project groupId' g <*> project groupName' g) groups
 
 mkEnrollStudent :: Map.Map GroupId T.Text -> (Entity Enroll, Entity User) -> Controller EnrollStudent 
 mkEnrollStudent groupNames (enroll, user) = do
