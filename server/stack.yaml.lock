@@ -3,103 +3,103 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages:
-- completed:
-    hackage: smtp-mail-0.3.0.0@sha256:2e6d9cb29d09a5a04d77a905eb1b570b94b5654e24d40630ea96aa374474c12f,1239
-    pantry-tree:
-      size: 450
-      sha256: 4d319cb6c22b35ca043a83210cd09bfbf99eec3dca4945cd53ed5b7c96f7daca
-  original:
-    hackage: smtp-mail-0.3.0.0
-- completed:
-    size: 18539
-    url: https://github.com/PLSysSec/frankie/archive/b9ee2c0f7667025d0d0ac3a43ded43d1d1d63c28.tar.gz
-    name: frankie
-    version: 0.0.0.1
-    sha256: f83bdc83c0adc4ee3accde25ae3f38f1ae332753a45ca9f0f7f26f5f17b0f55d
-    pantry-tree:
-      size: 1079
-      sha256: cbdda0fb1f9b56d3e356cbee1bec9014e9fa0682d59d65075fae507c17341a59
-  original:
-    url: https://github.com/PLSysSec/frankie/archive/b9ee2c0f7667025d0d0ac3a43ded43d1d1d63c28.tar.gz
-- completed:
-    size: 15255
-    url: https://github.com/storm-framework/storm/archive/5ef379fd7a597d81e8670eac6c3d7e614cc86c9f.tar.gz
-    name: storm
-    version: 0.1.0.0
-    sha256: 6e1456f2023d4384fd833128e45976043fa807b0a60633f5c7607fed7166d66f
-    pantry-tree:
-      size: 1319
-      sha256: 0ba7f751b1b18d363840b7b2d11d35d08394c4426568265b7d1156b9ccdf0d40
-  original:
-    url: https://github.com/storm-framework/storm/archive/5ef379fd7a597d81e8670eac6c3d7e614cc86c9f.tar.gz
-- completed:
-    hackage: text-format-0.3.2@sha256:2a3fc17cf87120fcfdbca62a0da59759755549285841cdc1483081c35fb3d115,1814
-    pantry-tree:
-      size: 1029
-      sha256: 2db26ddb77184186e0d5b2b020bdfbeb044c168024767b1fa3691682ca618896
-  original:
-    hackage: text-format-0.3.2
-- completed:
-    hackage: Diff-0.3.4@sha256:5ab20a407f9e65d13b642c3cd414906a40280343a31b388f6ed69b9228fe42c1,1127
-    pantry-tree:
-      size: 416
-      sha256: 48d1b942ff99293d69a8ca4ea60f372093e5aeea73f63d11829ceca01d63c7fd
-  original:
-    hackage: Diff-0.3.4
-- completed:
-    size: 281564
-    url: https://github.com/ucsd-progsys/liquid-fixpoint/archive/58e3123f41dedd6082177303bb4b6bf4349edf46.tar.gz
-    name: liquid-fixpoint
-    version: 0.8.10.2.1
-    sha256: ae5e645d1c147af673b6063773021e9ec4ffd895927b960cc4e44aee00d9f5e2
-    pantry-tree:
-      size: 20114
-      sha256: 95c08775f662e5b9d405ebcb38545f4f71cfd27d78947bdf731412e843fbdb1d
-  original:
-    url: https://github.com/ucsd-progsys/liquid-fixpoint/archive/58e3123f41dedd6082177303bb4b6bf4349edf46.tar.gz
-- completed:
-    size: 13489727
-    subdir: .
-    url: https://github.com/ucsd-progsys/liquidhaskell/archive/ad7f0cf5b86cb62fa855f3392bfa34f65225c4ed.tar.gz
-    name: liquidhaskell
-    version: 0.8.10.2.1
-    sha256: 3fe5e3efadade25ab248cb1417883a2fe8e76b7b6364933a2c36f942ac3a6b00
-    pantry-tree:
-      size: 267241
-      sha256: 9f5acc21ea28d0921d4da987aac7fa735a316f6a83138b501923c2f11ed80efd
-  original:
-    subdir: .
-    url: https://github.com/ucsd-progsys/liquidhaskell/archive/ad7f0cf5b86cb62fa855f3392bfa34f65225c4ed.tar.gz
-- completed:
-    size: 13489727
-    subdir: liquid-base
-    url: https://github.com/ucsd-progsys/liquidhaskell/archive/ad7f0cf5b86cb62fa855f3392bfa34f65225c4ed.tar.gz
-    name: liquid-base
-    version: 4.14.1.0
-    sha256: 3fe5e3efadade25ab248cb1417883a2fe8e76b7b6364933a2c36f942ac3a6b00
-    pantry-tree:
-      size: 14994
-      sha256: b13de0194a3c2d497e2a637e5943aa0bb2780264aa101befea400ea96ad4daf5
-  original:
-    subdir: liquid-base
-    url: https://github.com/ucsd-progsys/liquidhaskell/archive/ad7f0cf5b86cb62fa855f3392bfa34f65225c4ed.tar.gz
-- completed:
-    size: 13489727
-    subdir: liquid-ghc-prim
-    url: https://github.com/ucsd-progsys/liquidhaskell/archive/ad7f0cf5b86cb62fa855f3392bfa34f65225c4ed.tar.gz
-    name: liquid-ghc-prim
-    version: 0.6.1
-    sha256: 3fe5e3efadade25ab248cb1417883a2fe8e76b7b6364933a2c36f942ac3a6b00
-    pantry-tree:
-      size: 858
-      sha256: 32e23b452cc615f804cf09758ea66eccca47baa4d468ff644b079b764a944f60
-  original:
-    subdir: liquid-ghc-prim
-    url: https://github.com/ucsd-progsys/liquidhaskell/archive/ad7f0cf5b86cb62fa855f3392bfa34f65225c4ed.tar.gz
 snapshots:
-- completed:
-    size: 503181
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2020/6/25.yaml
+- original: nightly-2020-06-25
+  completed:
     sha256: 96e98363790e62f4498da632069a03101cf588b3b47925e707f080cff4b6cfbb
-  original: nightly-2020-06-25
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2020/6/25.yaml
+    size: 503181
+packages:
+- original:
+    hackage: smtp-mail-0.3.0.0
+  completed:
+    pantry-tree:
+      sha256: 4d319cb6c22b35ca043a83210cd09bfbf99eec3dca4945cd53ed5b7c96f7daca
+      size: 450
+    hackage: smtp-mail-0.3.0.0@sha256:2e6d9cb29d09a5a04d77a905eb1b570b94b5654e24d40630ea96aa374474c12f,1239
+- original:
+    url: https://github.com/PLSysSec/frankie/archive/b9ee2c0f7667025d0d0ac3a43ded43d1d1d63c28.tar.gz
+  completed:
+    pantry-tree:
+      sha256: cbdda0fb1f9b56d3e356cbee1bec9014e9fa0682d59d65075fae507c17341a59
+      size: 1079
+    version: 0.0.0.1
+    name: frankie
+    sha256: f83bdc83c0adc4ee3accde25ae3f38f1ae332753a45ca9f0f7f26f5f17b0f55d
+    url: https://github.com/PLSysSec/frankie/archive/b9ee2c0f7667025d0d0ac3a43ded43d1d1d63c28.tar.gz
+    size: 18539
+- original:
+    url: https://github.com/storm-framework/storm/archive/93d9f9fd674516f88b2851f3cf1e9ae1ade7f958.tar.gz
+  completed:
+    pantry-tree:
+      sha256: 000a4d1e8ad6136fdf02559cc91bacbce7813017894bc12ae6390f48b04d4440
+      size: 1320
+    version: 0.1.0.0
+    name: storm
+    sha256: b99777a5035a494a2ba51b502733579a6bbddb6216a8188b09a423f5a45c7ddb
+    url: https://github.com/storm-framework/storm/archive/93d9f9fd674516f88b2851f3cf1e9ae1ade7f958.tar.gz
+    size: 15708
+- original:
+    hackage: text-format-0.3.2
+  completed:
+    pantry-tree:
+      sha256: 2db26ddb77184186e0d5b2b020bdfbeb044c168024767b1fa3691682ca618896
+      size: 1029
+    hackage: text-format-0.3.2@sha256:2a3fc17cf87120fcfdbca62a0da59759755549285841cdc1483081c35fb3d115,1814
+- original:
+    hackage: Diff-0.3.4
+  completed:
+    pantry-tree:
+      sha256: 48d1b942ff99293d69a8ca4ea60f372093e5aeea73f63d11829ceca01d63c7fd
+      size: 416
+    hackage: Diff-0.3.4@sha256:5ab20a407f9e65d13b642c3cd414906a40280343a31b388f6ed69b9228fe42c1,1127
+- original:
+    url: https://github.com/ucsd-progsys/liquid-fixpoint/archive/58e3123f41dedd6082177303bb4b6bf4349edf46.tar.gz
+  completed:
+    pantry-tree:
+      sha256: 95c08775f662e5b9d405ebcb38545f4f71cfd27d78947bdf731412e843fbdb1d
+      size: 20114
+    version: 0.8.10.2.1
+    name: liquid-fixpoint
+    sha256: ae5e645d1c147af673b6063773021e9ec4ffd895927b960cc4e44aee00d9f5e2
+    url: https://github.com/ucsd-progsys/liquid-fixpoint/archive/58e3123f41dedd6082177303bb4b6bf4349edf46.tar.gz
+    size: 281564
+- original:
+    subdir: .
+    url: https://github.com/ucsd-progsys/liquidhaskell/archive/ad7f0cf5b86cb62fa855f3392bfa34f65225c4ed.tar.gz
+  completed:
+    pantry-tree:
+      sha256: 9f5acc21ea28d0921d4da987aac7fa735a316f6a83138b501923c2f11ed80efd
+      size: 267241
+    subdir: .
+    version: 0.8.10.2.1
+    name: liquidhaskell
+    sha256: 3fe5e3efadade25ab248cb1417883a2fe8e76b7b6364933a2c36f942ac3a6b00
+    url: https://github.com/ucsd-progsys/liquidhaskell/archive/ad7f0cf5b86cb62fa855f3392bfa34f65225c4ed.tar.gz
+    size: 13489727
+- original:
+    subdir: liquid-base
+    url: https://github.com/ucsd-progsys/liquidhaskell/archive/ad7f0cf5b86cb62fa855f3392bfa34f65225c4ed.tar.gz
+  completed:
+    pantry-tree:
+      sha256: b13de0194a3c2d497e2a637e5943aa0bb2780264aa101befea400ea96ad4daf5
+      size: 14994
+    subdir: liquid-base
+    version: 4.14.1.0
+    name: liquid-base
+    sha256: 3fe5e3efadade25ab248cb1417883a2fe8e76b7b6364933a2c36f942ac3a6b00
+    url: https://github.com/ucsd-progsys/liquidhaskell/archive/ad7f0cf5b86cb62fa855f3392bfa34f65225c4ed.tar.gz
+    size: 13489727
+- original:
+    subdir: liquid-ghc-prim
+    url: https://github.com/ucsd-progsys/liquidhaskell/archive/ad7f0cf5b86cb62fa855f3392bfa34f65225c4ed.tar.gz
+  completed:
+    pantry-tree:
+      sha256: 32e23b452cc615f804cf09758ea66eccca47baa4d468ff644b079b764a944f60
+      size: 858
+    subdir: liquid-ghc-prim
+    version: 0.6.1
+    name: liquid-ghc-prim
+    sha256: 3fe5e3efadade25ab248cb1417883a2fe8e76b7b6364933a2c36f942ac3a6b00
+    url: https://github.com/ucsd-progsys/liquidhaskell/archive/ad7f0cf5b86cb62fa855f3392bfa34f65225c4ed.tar.gz
+    size: 13489727
