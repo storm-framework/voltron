@@ -61,3 +61,5 @@ tests/**/*.dyn_hi
 tests/**/*.dyn_o
 tests/**/*.hi-boot
 tests/**/*.o-boot
+
+db.sqlite*

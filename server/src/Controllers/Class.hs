@@ -20,6 +20,7 @@ where
 
 import Control.Monad.Random ( MonadRandom(getRandoms) )
 import qualified Data.HashMap.Strict           as M
+import qualified Data.Map                      as Map
 import qualified Data.Text                     as T
 import qualified Data.Text.Encoding            as T
 import qualified Data.ByteString               as BS
@@ -75,24 +76,29 @@ getRoster className = do
   cls     <- selectFirstOr (errorResponse status403 Nothing)
                            (className' ==. className &&: classInstructor' ==. instrId)
   clsId   <- project classId' cls
-  enrolls <- selectList (enrollClass' ==. clsId)
-  roster  <- mapT enrollEnrollStudent enrolls
+  groups  <- getGroups clsId
+  enUsers <- joinWhere enrollStudent' userId' (enrollClass' ==. clsId)
+  roster  <- mapT (mkEnrollStudent groups) enUsers
   respondJSON status200 roster
 
-{-@ enrollEnrollStudent :: {e:(Entity Enroll) | IsInstructorE e (currentUser 0)} ->
-      TaggedT<{\v -> v == currentUser 0}, {\v -> v == currentUser 0}> _ _ _ @-}
-enrollEnrollStudent :: Entity Enroll -> Controller EnrollStudent
-enrollEnrollStudent enroll = do
-  userId  <- project enrollStudent' enroll
+{-@ getGroups :: _ -> TaggedT<{\_ -> True}, {\_ -> False}> _ _ _ @-}
+getGroups :: ClassId -> Controller (Map.Map GroupId T.Text)
+getGroups clsId = do
+  groups    <- selectList (groupClass' ==. clsId)
+  Map.fromList `fmap` mapT (\g -> (,) `fmap` project groupId' g <*> project groupName' g) groups
+
+{-@ mkEnrollStudent :: _
+                    -> ({e: _ | IsInstructorE e (currentUser 0) }, _)
+                    -> TaggedT<{\v -> v == currentUser 0}, {\_ -> False}> _ _ _ @-}
+mkEnrollStudent :: Map.Map GroupId T.Text -> (Entity Enroll, Entity User) -> Controller EnrollStudent
+mkEnrollStudent groupNames (enroll, user) = do
   groupId <- project enrollGroup' enroll
-  clsId   <- project enrollClass' enroll
-  user    <- selectFirstOr notFoundJSON (userId' ==. userId)
-  group   <- selectFirstOr notFoundJSON (groupId' ==. groupId &&: groupClass' ==. clsId)
+  let groupName = Map.findWithDefault "unknown" groupId groupNames
   EnrollStudent
     `fmap` project userFirstName'    user
     <*>    project userLastName'     user
     <*>    project userEmailAddress' user
-    <*>    project groupName'        group
+    <*>    return groupName
 
 -------------------------------------------------------------------------------
 -- | Add a full roster of students to a class using an Roster -----------------
@@ -115,7 +121,7 @@ addRoster = do
   getRoster rosterClass
   -- respondJSON status200 ("OK:addRoster" :: T.Text)
 
-{-@ addGroup :: {c: ClassId | isInstructor c (entityKey (currentUser 0))} -> CreateGroup -> 
+{-@ addGroup :: {c: ClassId | isInstructor c (entityKey (currentUser 0))} -> CreateGroup ->
       TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
 addGroup :: ClassId -> CreateGroup -> Controller (Maybe GroupId)
 addGroup clsId r@(CreateGroup {..}) = do
@@ -130,7 +136,7 @@ createUser (EnrollStudent {..}) = do
   let crUser = mkCreateUser esEmail password esFirstName esLastName "" ""
   return crUser
 
-{-@ addEnroll :: {c: ClassId | isInstructor c (entityKey (currentUser 0))} -> CreateEnroll -> 
+{-@ addEnroll :: {c: ClassId | isInstructor c (entityKey (currentUser 0))} -> CreateEnroll ->
                  TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
 addEnroll :: ClassId -> CreateEnroll -> Controller EnrollId
 addEnroll clsId r@(CreateEnroll {..}) = do
@@ -176,7 +182,7 @@ addUser r@(CreateUser {..}) = do
 
 sendWelcomeMail :: (MonadTIO m) => CreateUser -> TasCon m ()
 sendWelcomeMail r@(CreateUser {..}) = do
-  res <- sendMail welcomeSubject (welcomeBody r) crUserEmail 
+  res <- sendMail welcomeSubject (welcomeBody r) crUserEmail
   case res of
     Left err -> logT Log.ERROR ("sendWelcomeMail: " <> T.unpack err)
     Right _  -> return ()
@@ -186,8 +192,8 @@ welcomeSubject :: T.Text
 welcomeSubject = "Welcome to VOLTRON!"
 
 welcomeBody :: CreateUser -> T.Text
-welcomeBody r = T.unlines 
-  [ "Dear " <> crUserFirst r <> " " <> crUserLast r <> "," 
+welcomeBody r = T.unlines
+  [ "Dear " <> crUserFirst r <> " " <> crUserLast r <> ","
   , ""
   , "Welcome to the collaborative code-editing app Voltron!"
   , ""
@@ -212,7 +218,7 @@ sendMail subject body userEmail = do
   SMTPConfig{..} <- configSMTP <$> getConfig
   let to      = publicAddress userEmail
   let from    = publicAddress (T.pack smtpUser)
-  let mail    = simpleMail' to from subject (LT.fromStrict body) 
+  let mail    = simpleMail' to from subject (LT.fromStrict body)
   res        <- sendMailWithLoginSTARTTLS smtpHost smtpUser smtpPass mail
   logT Log.INFO ("send email: " ++ show res)
   case res of
