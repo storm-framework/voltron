@@ -20,17 +20,17 @@ const routes: Array<RouteConfig> = [
   {
     path: "/home/:classId",
     name: "Home",
-    component: Home,
+    component: Home
   },
   {
     path: "/login",
     name: "Login",
-    component: SignIn,
+    component: SignIn
   },
   {
     path: "/settings",
     name: "Settings",
-    component: Settings,
+    component: Settings
   },
   {
     path: "/contact",

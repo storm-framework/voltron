@@ -1,4 +1,14 @@
-import { AuthInfo, ClassLangInfo, EnrollStudent, ResetInfo, ResetPassInfo, Roster, User, UserData } from "@/types";
+import {
+  AuthInfo,
+  ClassLangInfo,
+  EnrollStudent,
+  ResetInfo,
+  ResetPassInfo,
+  Roster,
+  SetGroup,
+  User,
+  UserData
+} from "@/types";
 import Server from "./api.server";
 
 
@@ -11,6 +21,7 @@ interface ApiService {
   reset(reset: ResetInfo): Promise<string>;
   resetPass(reset: ResetPassInfo): Promise<string>;
   setLanguage(info: ClassLangInfo): Promise<string>;
+  setGroup(info: SetGroup): Promise<string>;
 }
 
 const module: ApiService = Server;

@@ -9,11 +9,29 @@ function delay(ms = 1000) {
 }
 
 const MOCKUSERS: { [userName: string]: User } = {
-  rjhala: { firstName: "Ranjit", lastName: "Jhala" },
-  nico: { firstName: "Nicolas", lastName: "Lehmann" },
-  rose: { firstName: "Rose", lastName: "Kunkel" },
-  nadia: { firstName: "Nadia", lastName: "Polikarpova" }
+  rjhala: {
+    firstName: "Ranjit",
+    lastName: "Jhala",
+    email: "rjhala@eng.ucsd.edu"
+  },
+  nico: {
+    firstName: "Nicolas",
+    lastName: "Lehmann",
+    email: "nlehmann@eng.ucsd.edu"
+  },
+  rose: {
+    firstName: "Rose",
+    lastName: "Kunkel",
+    email: "nlehmann@eng.ucsd.edu"
+  },
+  nadia: {
+    firstName: "Nadia",
+    lastName: "Polikarpova",
+    email: "nadia@eng.ucsd.edu"
+  }
 };
+
+const GROUPS = [0, 1, 2, 3, 4, 5];
 
 const BUFFERS: { [id: string]: Buffer } = {
   0: {
@@ -76,7 +94,8 @@ const USERS: { [id: string]: UserData } = {
         tag: "Student",
         class: "CSE230",
         language: "haskell",
-        grpBuffer: BUFFERS[2]
+        grpBuffer: BUFFERS[2],
+        allGroups: GROUPS
       }
     ]
   },
@@ -89,7 +108,8 @@ const USERS: { [id: string]: UserData } = {
         tag: "Student",
         class: "CSE130",
         language: "ocaml",
-        grpBuffer: BUFFERS[4]
+        grpBuffer: BUFFERS[4],
+        allGroups: GROUPS
       }
     ]
   },
@@ -102,13 +122,15 @@ const USERS: { [id: string]: UserData } = {
         tag: "Student",
         class: "CSE130",
         language: "ocaml",
-        grpBuffer: BUFFERS[4]
+        grpBuffer: BUFFERS[4],
+        allGroups: GROUPS
       },
       {
         tag: "Student",
         class: "CSE230",
         language: "haskell",
-        grpBuffer: BUFFERS[2]
+        grpBuffer: BUFFERS[2],
+        allGroups: GROUPS
       }
     ]
   },

@@ -1,4 +1,4 @@
-import { AuthInfo, ClassLangInfo, EnrollStudent, ResetInfo, ResetPassInfo, Roster, User, UserData } from "@/types";
+import { AuthInfo, ClassLangInfo, EnrollStudent, ResetInfo, ResetPassInfo, Roster, SetGroup, User, UserData } from "@/types";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 const API_URL = "/api";
@@ -50,6 +50,10 @@ class ApiService {
 
   setLanguage(info: ClassLangInfo): Promise<string> {
     return this.post(`/setlanguage`, info);
+  }
+
+  setGroup(info: SetGroup): Promise<string> {
+    return this.post(`/setgroup`, info);
   }
 
   roster(className: string): Promise<EnrollStudent[]> {

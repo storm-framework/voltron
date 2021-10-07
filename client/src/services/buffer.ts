@@ -37,15 +37,18 @@ class BufferService {
   //   return "editor-" + buf.id;
   // }
   // initializedBuffers: Set<number> = new Set(); 
-    
+
   newBuffer(groupId: number): Buffer {
-    const newRef = firebase.database().ref().push();
+    const newRef = firebase
+      .database()
+      .ref()
+      .push();
     return {
       id: groupId,
       hash: newRef.key,
       text: "",
       div: "editor-" + groupId
-    }
+    };
   }
 
   getFirepadRef(buf: Buffer) {

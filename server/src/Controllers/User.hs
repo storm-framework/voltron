@@ -6,6 +6,7 @@
 
 module Controllers.User where
 
+import qualified Data.List as L
 import           Data.Text                      ( Text, pack )
 import           GHC.Generics
 
@@ -36,7 +37,8 @@ extractUserNG :: Entity User -> Controller UserNG
 extractUserNG u = do
   firstName <- project userFirstName' u
   lastName  <- project userLastName' u
-  return     $ UserNG firstName lastName
+  email     <- project userEmailAddress' u
+  return     $ UserNG firstName lastName email
 
 {-@ extractUserData :: u:_ -> TaggedT<{\v -> u == v}, {\_ -> False}> _ _ _ @-}
 extractUserData :: Entity User -> Controller UserData
@@ -91,7 +93,9 @@ enrollClassData enroll = do
       clsName <- project className' cls
       lang    <- project classEditorLang' cls
       grpBuf  <- extractBuffer clsName True grp
-      return $ Just (Student clsName lang grpBuf)
+      allGroups <- selectList (groupClass' ==. clsId)
+      allBufs   <- mapT (project groupName') allGroups
+      return $ Just (Student clsName lang grpBuf (L.sort allBufs))
     _ -> return Nothing
 
 {-@ extractBuffer :: Text -> Bool -> g: (Entity Group) -> 

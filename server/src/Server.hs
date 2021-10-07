@@ -100,6 +100,7 @@ runServer ServerOpts {..} = runNoLoggingT $ do
             post "/api/enroll"         addRoster
             post "/api/setlanguage"    setLanguage
             get  "/api/roster/:class"  getRoster
+            post "/api/setgroup"       setGroup
 
             case optsStatic of
                 Just path -> fallback (sendFromDirectory path "index.html")

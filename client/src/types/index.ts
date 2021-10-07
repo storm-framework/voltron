@@ -10,6 +10,7 @@ export interface Student {
   class: string;
   language: string;
   grpBuffer: Buffer;
+  allGroups: Array<number>;
 }
 
 export interface Instructor {
@@ -51,6 +52,7 @@ export interface ClassLangInfo {
 export interface User {
   firstName: string;
   lastName: string;
+  email: string;
 }
 
 export interface ClassView<T> {
@@ -63,6 +65,12 @@ export interface EnrollStudent {
   firstName: string;
   lastName: string;
   email: string;
+  group: number;
+}
+
+export interface SetGroup {
+  student: string; // email
+  class: string;
   group: number;
 }
 

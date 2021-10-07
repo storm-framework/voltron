@@ -13,6 +13,7 @@ module Controllers.Class
   , addRoster
   , getRoster
   , setLanguage
+  , setGroup
   , genRandomText
   , sendMail
   )
@@ -63,6 +64,30 @@ setLanguage = do
   _     <- updateWhere (classId' ==. clsId)
                        (classEditorLang' `assign` cliLanguage)
   respondJSON status200 ("OK: updated language for " <> cliClass <> " to " <> cliLanguage)
+
+
+-------------------------------------------------------------------------------
+-- | Update the group that a student belongs to in a given class --------------
+-------------------------------------------------------------------------------
+setGroup :: Controller ()
+setGroup = do
+  user   <- requireAuthUser
+  userId <- project userId' user
+  logT Log.WARNING "setGroup 1"
+  CreateEnroll {..} <- decodeBody
+  logT Log.WARNING "setGroup 2"
+  cls     <- selectFirstOr (errorResponse status403 Nothing) 
+               (className' ==. enrollClass)
+  clsId   <- project classId' cls
+  logT Log.WARNING "setGroup 3"
+  group   <- selectFirstOr (errorResponse status403 Nothing)
+               (groupName' ==. enrollGroup &&: groupClass' ==. clsId)
+  groupId <- project groupId' group
+  logT Log.WARNING "setGroup 4"
+  _       <- updateWhere (enrollStudent' ==. userId &&: enrollClass' ==. clsId)
+                (enrollGroup' `assign` groupId)
+  logT Log.WARNING "setGroup 5"
+  respondJSON status200 ("OK: updated group for " <> enrollStudent <> " to " <> enrollGroup)
 
 -------------------------------------------------------------------------------
 -- | Respond with Current [EnrollStudent] for className -----------------------
@@ -131,7 +156,7 @@ addGroup clsId r@(CreateGroup {..}) = do
 
 {-@ createUser :: _ -> TaggedT<{\_ -> True}, {\_ -> False}> _ _ _ @-}
 createUser :: EnrollStudent -> Controller CreateUser
-createUser (EnrollStudent {..}) = do
+createUser EnrollStudent {..} = do
   password <- genRandomText
   let crUser = mkCreateUser esEmail password esFirstName esLastName "" ""
   return crUser
@@ -139,7 +164,7 @@ createUser (EnrollStudent {..}) = do
 {-@ addEnroll :: {c: ClassId | isInstructor c (entityKey (currentUser 0))} -> CreateEnroll ->
                  TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
 addEnroll :: ClassId -> CreateEnroll -> Controller EnrollId
-addEnroll clsId r@(CreateEnroll {..}) = do
+addEnroll clsId r@CreateEnroll {..} = do
   logT Log.INFO ("addEnroll: " ++ show r)
   student   <- selectFirstOr notFoundJSON (userEmailAddress' ==. enrollStudent)
   studentId <- project userId' student

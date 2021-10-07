@@ -26,6 +26,7 @@ instance FromJSON Buffer where
 data UserNG = UserNG
   { userFirstName :: Text
   , userLastName  :: Text
+  , userEmail     :: Text
   }
   deriving Generic
 
@@ -37,10 +38,11 @@ data ClassData
      { classClass     :: Text
      , classLanguage  :: Text
      , classGrpBuffer :: Buffer
+     , classAllGroups :: [Text]
      }
   | Instructor
      { classClass      :: Text
-     , classLanguage  :: Text
+     , classLanguage   :: Text
      , classAllBuffers :: [Buffer]
      }
   deriving Generic
@@ -116,9 +118,9 @@ data CreateEnroll = CreateEnroll
 mkCreateEnroll :: Text -> Text -> Text -> CreateEnroll
 mkCreateEnroll email klass group = CreateEnroll (strip email) (strip klass) (strip group)
 
-
 instance FromJSON CreateEnroll where
-  parseJSON = genericParseJSON defaultOptions
+  --parseJSON = genericParseJSON defaultOptions
+  parseJSON = genericParseJSON (stripPrefix "enroll")
 
 data EnrollStudent = EnrollStudent
   { esFirstName :: Text
