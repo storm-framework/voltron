@@ -1,8 +1,9 @@
 export interface Buffer {
-  id:   number;
+  id: number;
   hash: string;
   text: string;
-  div:  string;
+  div: string;
+  hide: boolean;
 }
 
 export interface Student {

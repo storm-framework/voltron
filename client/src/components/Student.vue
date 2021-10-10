@@ -13,11 +13,10 @@
           </b-row>
         </div>
         <br />
-        <b-row>
+        <b-row :key="editorReloadKey">
           <b-col lg="12" md="8" sm="4">
             <div class="card border-primary mb-12">
               <div class="card-header">
-                <!-- <b-dropdown id="dropdown-1" class="m-md-2"> -->
                 <b-dropdown split split-variant="outline-primary" variant="primary" class="m-md-2">
                   <template #button-content>Group {{ studentClass.data.grpBuffer.id }}</template>
                   <b-dropdown-item
@@ -27,22 +26,12 @@
                   >
                     {{ item }}
                   </b-dropdown-item>
-                  <!-- <b-dropdown-item>First Action</b-dropdown-item>
-                  <b-dropdown-item>Second Action</b-dropdown-item>
-                  <b-dropdown-item>Third Action</b-dropdown-item> -->
                 </b-dropdown>
               </div>
               <div class="card-body">
                 <div v-bind:id="studentClass.data.grpBuffer.div"></div>
               </div>
             </div>
-            <!-- <div class="move-group">
-              <b-dropdown id="dropdown-1" text="Dropdown Button" class="m-md-2">
-                <b-dropdown-item>First Action</b-dropdown-item>
-                <b-dropdown-item>Second Action</b-dropdown-item>
-                <b-dropdown-item>Third Action</b-dropdown-item>
-              </b-dropdown>
-            </div> -->
           </b-col>
         </b-row>
       </div>
@@ -59,6 +48,7 @@ import ApiService from "@/services/api";
 @Component
 export default class StudentVue extends Vue {
   name = "Student";
+  relKey = 0;
 
   get studentName() {
     return this.$store.getters.currentUser.firstName;
@@ -76,15 +66,23 @@ export default class StudentVue extends Vue {
     return this.$store.getters.studentClasses;
   }
 
+  get editorReloadKey(): number {
+    return this.relKey;
+  }
+
+  editorReload() {
+    this.relKey += 1;
+  }
+
   setGroup(group: number) {
     console.log("setGroup: ", group);
-    // this.selectedLang = language;
     const klass = this.className;
     const email = this.$store.getters.currentUser.email;
     console.log("setGroup: ", klass, email, group);
     const info: SetGroup = { student: email, class: klass, group };
     ApiService.setGroup(info)
       .then(() => this.$store.dispatch("syncSessionUserData"))
+      .then(() => this.editorReload())
       .catch(error =>
         this.showError("Unexpected error: " + error.response?.status)
       );
