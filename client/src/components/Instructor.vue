@@ -56,7 +56,6 @@ export default class Instructor extends Vue {
   name = "Instructor";
   initializedBuffers: Set<number> = new Set();
   reloadKey = 0;
-  // displayMode = 0; // 0 = all, 1 = odd, 2 = even
 
   get instructorName() {
     return this.$store.getters.currentUser.firstName;
@@ -105,25 +104,9 @@ export default class Instructor extends Vue {
   isShow(buf: Buffer): boolean {
     // The second conjunct is forces recomputation of `showInstructorBuffers`
     return buf.hide == "show" && this.reloadKey >= 0;
-    // if (this.displayMode == 0) {
-    //   return true;
-    // } else {
-    //   return buf.id % 2 == this.displayMode - 1;
-    // }
   }
-  // toggle() {
-  //   this.displayMode += 1;
-  //   if (this.displayMode == 3) {
-  //     this.displayMode = 0;
-  //   }
-  //   console.log("toggle", this.displayMode);
-  // }
 
   hideBuffers() {
-    // for (const buf of this.instructorBuffers) {
-    //   console.log("hideBuffer", buf.id, buf.hide, this.isShow(buf));
-    // }
-    // console.log("FOO - showInstrBufs", this.showInstructorBuffers);
     this.reloadKey += 1;
   }
 
