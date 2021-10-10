@@ -48,7 +48,7 @@ class BufferService {
       hash: newRef.key,
       text: "",
       div: "editor-" + groupId,
-      hide: false
+      hide: "show"
     };
   }
 

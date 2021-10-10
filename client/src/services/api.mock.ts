@@ -39,42 +39,42 @@ const BUFFERS: { [id: string]: Buffer } = {
     hash: "-M9Kx-cxRIUgCqVCtjCr",
     text: "-- Code for group 0\n",
     div: "editor-0",
-    hide: false
+    hide: "show"
   },
   1: {
     id: 1,
     hash: "-M9L5YBS0kgvUfuz0Ckc",
     text: "-- Code for group 1\n",
     div: "editor-1",
-    hide: false
+    hide: "show"
   },
   2: {
     id: 2,
     hash: "-M9L5oPt0fsruy16vntv",
     text: "-- Code for group 2\n",
     div: "editor-2",
-    hide: false
+    hide: "show"
   },
   3: {
     id: 3,
     hash: "-M9L5vCVa5FQ0noobA9V",
     text: "-- Code for group 3\n",
     div: "editor-3",
-    hide: false
+    hide: "show"
   },
   4: {
     id: 4,
     hash: "-M9L6XICO2mz_yfpDXWR",
     text: "-- Code for group 4\n",
     div: "editor-4",
-    hide: false
+    hide: "show"
   },
   5: {
     id: 5,
     hash: "-M9L6nLdsLy_7aXIs4MX",
     text: "-- Code for group 5\n",
     div: "editor-5",
-    hide: false
+    hide: "show"
   }
 };
 

@@ -6,20 +6,14 @@
           <h2 class="d-inline">
             {{ className }} Instructor: {{ instructorName }}
           </h2>
-          <!-- <b-button variant="outline-primary" size="lg" class="float-right">
-            Instructor: {{ instructorName }}
-          </b-button> -->
-          <b-button
-            variant="success"
-            size="lg"
-            class="float-right"
-            @click="hideBuffers"
-          >
-            Toggle
-          </b-button>
-          <b-button variant="success" size="lg" class="float-right">
-            Show
-          </b-button>
+          <b-button-group class="float-right">
+            <b-button variant="outline-secondary" @click="hideBuffers">
+              Hide
+            </b-button>
+            <b-button variant="primary" @click="showBuffers">
+              Show
+            </b-button>
+          </b-button-group>
         </b-col>
       </b-row>
     </div>
@@ -30,19 +24,12 @@
         v-for="buf in showInstructorBuffers"
         v-bind:key="buf.id"
       >
-        <div class="card border-primary mb-4" v-show="!buf.hide">
+        <div class="card border-primary mb-4">
           <div class="card-header">
-            <!-- <b-button
-              :pressed.sync="buf.hide"
-              variant="outline-primary"
-              @click="hideBuffer(buf)"
-            >
-              Group {{ buf.id }}
-            </b-button> -->
             <b-form-checkbox
               v-model="buf.hide"
-              value="true"
-              unchecked-value="false"
+              value="hide"
+              unchecked-value="show"
             >
               Group {{ buf.id }}
             </b-form-checkbox>
@@ -68,9 +55,8 @@ import { Buffer } from "../types";
 export default class Instructor extends Vue {
   name = "Instructor";
   initializedBuffers: Set<number> = new Set();
-  hiddenBuffers: Set<number> = new Set();
   reloadKey = 0;
-  displayMode = 0; // 0 = all, 1 = odd, 2 = even
+  // displayMode = 0; // 0 = all, 1 = odd, 2 = even
 
   get instructorName() {
     return this.$store.getters.currentUser.firstName;
@@ -82,9 +68,12 @@ export default class Instructor extends Vue {
 
   get instructorBuffers(): Array<Buffer> {
     const bufs: Array<Buffer> = this.$store.getters.instructorBuffers;
-    // for (const buf of bufs) {
-    //   buf.hide = false;
-    // }
+    for (const buf of bufs) {
+      const defined = "hide" in buf;
+      if (!defined) {
+        buf.hide = "show";
+      }
+    }
     console.log("instructorBuffers", bufs);
     return bufs;
   }
@@ -102,10 +91,6 @@ export default class Instructor extends Vue {
     return showBufs;
   }
 
-  // get allVisible(): boolean {
-  //   return this.reloadKey == 0;
-  // }
-
   initBuffers(all: boolean) {
     for (const buf of this.instructorBuffers) {
       if (all || !this.initializedBuffers.has(buf.id)) {
@@ -117,45 +102,36 @@ export default class Instructor extends Vue {
     }
   }
 
-  isHidden(bufId: number): boolean {
-    return this.hiddenBuffers.has(bufId);
-  }
-
-  // hideBuffer(buf: Buffer) {
-  //   buf.hide = true;
-  //   this.hideKey += 1;
-  //   this.hiddenBuffers.add(buf.id);
-  //   console.log("hideBuffer", buf.id, this.hiddenBuffers.has(buf.id));
-  // }
-
   isShow(buf: Buffer): boolean {
-    if (this.displayMode == 0) {
-      return true;
-    } else {
-      return buf.id % 2 == this.displayMode - 1;
-    }
+    // The second conjunct is forces recomputation of `showInstructorBuffers`
+    return buf.hide == "show" && this.reloadKey >= 0;
+    // if (this.displayMode == 0) {
+    //   return true;
+    // } else {
+    //   return buf.id % 2 == this.displayMode - 1;
+    // }
   }
-
-  toggle() {
-    this.displayMode += 1;
-    if (this.displayMode == 3) {
-      this.displayMode = 0;
-    }
-    console.log("toggle", this.displayMode);
-  }
+  // toggle() {
+  //   this.displayMode += 1;
+  //   if (this.displayMode == 3) {
+  //     this.displayMode = 0;
+  //   }
+  //   console.log("toggle", this.displayMode);
+  // }
 
   hideBuffers() {
     // for (const buf of this.instructorBuffers) {
-    //   console.log("hideBuffer", buf.id, buf.hide);
+    //   console.log("hideBuffer", buf.id, buf.hide, this.isShow(buf));
     // }
     // console.log("FOO - showInstrBufs", this.showInstructorBuffers);
-    this.toggle();
     this.reloadKey += 1;
   }
 
   showBuffers() {
+    for (const buf of this.instructorBuffers) {
+      buf.hide = "show";
+    }
     this.reloadKey = 0;
-    this.hiddenBuffers.clear();
   }
 
   mounted() {

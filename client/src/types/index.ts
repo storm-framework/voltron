@@ -3,7 +3,7 @@ export interface Buffer {
   hash: string;
   text: string;
   div: string;
-  hide: boolean;
+  hide: string; // "show" | "hide"
 }
 
 export interface Student {
