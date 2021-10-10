@@ -55,7 +55,7 @@ dependencies:
 
 library:
   source-dirs: src
-  ghc-options: -fplugin=LiquidHaskell
+  # ghc-options: -fplugin=LiquidHaskell
 
 executables:
   voltron:
