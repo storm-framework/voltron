@@ -3,21 +3,6 @@
 Voltron is a web-app that allows *instructors* to simultaneously view the progress of multiple *groups* 
 of students *collaborating* on *in-class* programming exercises.
 
-## TODO: Allow students to move groups
-
-SERVER
-
--  [+] tweak student-info "get" controller to return list of all groups
--  [+] add controller `post "/api/setGroup"` that takes a JSON `CreateEnroll`
-
-CLIENT
-
--  [+] get list of all groups in `store`
--  [+] update state with list of all groups
--  [+] use state to render a dropdown to change group
--  [+] on select fire a message to `post "/setGroup"`
--  [] on response update the current state with buffer of new controller	<<<<< HEREHEREHERE: auto-reload
-
 ## Instructor
 
 The instructor views *all* the student buffers (as they are being edited)

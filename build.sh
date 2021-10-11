@@ -7,6 +7,6 @@ yarn build --dest ../dist/static
 
 cd ../server
 # make build
-make fast
-stack install --local-bin-path ../dist
+# make fast
+stack install --fast --local-bin-path ../dist
 cp -r templates ../dist
