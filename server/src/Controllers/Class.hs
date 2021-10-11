@@ -111,6 +111,7 @@ getRoster className = do
   clsId   <- project classId' cls
   groups  <- getGroups clsId
   enUsers <- joinWhere enrollStudent' userId' (enrollClass' ==. clsId)
+  logT Log.INFO ("getRoster: (clsId, groups) = " ++ show (clsId, groups))
   roster  <- mapT (mkEnrollStudent groups) enUsers
   respondJSON status200 roster
 
@@ -127,6 +128,7 @@ mkEnrollStudent :: Map.Map GroupId T.Text -> (Entity Enroll, Entity User) -> Con
 mkEnrollStudent groupNames (enroll, user) = do
   groupId <- project enrollGroup' enroll
   let groupName = Map.findWithDefault "unknown" groupId groupNames
+  logT Log.INFO ("mkEnrollStudent: groupId, groupName =" ++ show (groupId, groupName))
   EnrollStudent
     `fmap` project userFirstName'    user
     <*>    project userLastName'     user
@@ -157,7 +159,7 @@ addRoster = do
 {-@ addGroup :: {c: ClassId | isInstructor c (entityKey (currentUser 0))} -> CreateGroup ->
       TaggedT<{\_ -> True}, {\_ -> True}> _ _ _ @-}
 addGroup :: ClassId -> CreateGroup -> Controller (Maybe GroupId)
-addGroup clsId r@(CreateGroup {..}) = do
+addGroup clsId r@CreateGroup {..} = do
   id <- insertMaybe (mkGroup groupName groupEditorLink clsId)
   whenT (Mb.isNothing id) (logT Log.WARNING ("addGroup: skipping duplicate group " ++ show r))
   return id
@@ -176,7 +178,7 @@ addEnroll clsId r@CreateEnroll {..} = do
   logT Log.INFO ("addEnroll: " ++ show r)
   student   <- selectFirstOr notFoundJSON (userEmailAddress' ==. enrollStudent)
   studentId <- project userId' student
-  group     <- selectFirstOr notFoundJSON (groupName' ==. enrollGroup)
+  group     <- selectFirstOr notFoundJSON (groupClass' ==. clsId &&: groupName' ==. enrollGroup)
   groupId   <- project groupId' group
   insert (mkEnroll studentId clsId groupId)
 
