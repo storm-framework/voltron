@@ -16,6 +16,7 @@ module Controllers.Class
   , setGroup
   , genRandomText
   , sendMail
+  , ping
   )
 where
 
@@ -65,6 +66,13 @@ setLanguage = do
                        (classEditorLang' `assign` cliLanguage)
   respondJSON status200 ("OK: updated language for " <> cliClass <> " to " <> cliLanguage)
 
+-------------------------------------------------------------------------------
+-- | Dummy `ping` controller 
+-------------------------------------------------------------------------------
+ping :: Controller ()
+ping = do
+  logT Log.INFO "ping"
+  respondJSON status200 ("OK: pong!" :: T.Text)
 
 -------------------------------------------------------------------------------
 -- | Update the group that a student belongs to in a given class --------------

@@ -35,6 +35,7 @@ import qualified Data.ByteString.Lazy          as LBS
 import           Network.Mime
 import           Frankie.Config
 import           Frankie.Auth
+import qualified Frankie.Log                   as Log
 import           Data.Maybe
 import qualified Data.Text                     as T
 import qualified Data.Text.Encoding            as T
@@ -101,6 +102,7 @@ runServer ServerOpts {..} = runNoLoggingT $ do
             post "/api/setlanguage"    setLanguage
             get  "/api/roster/:class"  getRoster
             post "/api/setgroup"       setGroup
+            get  "/api/ping"           ping
 
             case optsStatic of
                 Just path -> fallback (sendFromDirectory path "index.html")
@@ -108,7 +110,9 @@ runServer ServerOpts {..} = runNoLoggingT $ do
                     req <- request
                     let path = joinPath (map T.unpack (reqPathInfo req))
                     respondError status404 (Just ("Route not found: " ++ path))
-
+        onError $ \err -> do
+          logT Log.ERROR ("Yikes! voltron-server failed with " <> displayException err)
+          respond $ serverError "bad bad nab" 
 
 runTask' :: T.Text -> Task a -> IO a
 runTask' dbpath task = runSqlite dbpath $ do
