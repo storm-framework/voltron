@@ -6,7 +6,7 @@
           <h2 class="d-inline">
             {{ className }} Instructor: {{ instructorName }}
           </h2>
-          <b-button-group v-if="instructorBuffers.length > 0" class="float-right">
+          <b-button-group class="float-right" v-if="instructorBuffers.length > 0">
             <b-button variant="outline-secondary" @click="hideBuffers">
               Hide
             </b-button>
